@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import it.unibs.cloudondemand.google.Login;
+
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "it.unibs.cloudondemand.MESSAGE";
     @Override
@@ -27,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(EXTRA_MESSAGE, message);
             startActivity(intent);
         }
+
+        Login log=new Login(this);
+        log.doLogin();
+
 
     }
 }
