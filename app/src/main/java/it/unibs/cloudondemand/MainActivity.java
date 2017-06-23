@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "it.unibs.cloudondemand.MESSAGE";
@@ -19,8 +20,14 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LoginActivity.class);
         EditText editText = (EditText) findViewById(R.id.editText);
         String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+        if(message.isEmpty())
+            Toast.makeText(this, "Inserisci una stringa non vuota", Toast.LENGTH_LONG ).show();
+        else
+        {
+            intent.putExtra(EXTRA_MESSAGE, message);
+            startActivity(intent);
+        }
+
     }
 }
 

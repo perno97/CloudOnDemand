@@ -8,17 +8,18 @@
 
     <Button
         android:id="@+id/button"
-        android:layout_width="80dp"
-        android:layout_height="47dp"
+        android:layout_width="64dp"
+        android:layout_height="40dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginRight="8dp"
         android:onClick="sendMessage"
-        android:text="Button"
-        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintHorizontal_bias="0.508"
         app:layout_constraintLeft_toRightOf="@+id/editText"
         app:layout_constraintRight_toRightOf="parent"
-        tools:layout_editor_absoluteY="15dp"
-        tools:text="@string/button_send" />
+        android:text="@string/button_send"
+        app:layout_constraintBottom_toBottomOf="@+id/editText"
+        android:layout_marginBottom="-28dp"
+        tools:layout_editor_absoluteY="19dp" />
 
     <EditText
         android:id="@+id/editText"
@@ -29,7 +30,6 @@
         android:ems="10"
         android:hint="@string/edit_message"
         android:inputType="textPersonName"
-        android:text="@string/edit_message"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
