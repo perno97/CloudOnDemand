@@ -21,13 +21,20 @@ import it.unibs.cloudondemand.LoginInterface;
 import it.unibs.cloudondemand.R;
 
 public class LoginGoogle extends AppCompatActivity implements LoginInterface, GoogleApiClient.OnConnectionFailedListener {
-    private GoogleApiClient mGoogleApiClient;
+    GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 1;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        createGoogleClient();
+
+        doLogin();
+    }
+
+    private void createGoogleClient() {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -40,8 +47,6 @@ public class LoginGoogle extends AppCompatActivity implements LoginInterface, Go
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
-
-        doLogin();
     }
 
     @Override
@@ -50,7 +55,8 @@ public class LoginGoogle extends AppCompatActivity implements LoginInterface, Go
         // could not be established. Display an error message, or handle
         // the failure silently
 
-        // ...
+        //TODO remove
+        Toast.makeText(this, "Connection failed - Result : " + result.getErrorCode(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -74,7 +80,8 @@ public class LoginGoogle extends AppCompatActivity implements LoginInterface, Go
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
-            Toast.makeText(this, "loggato", Toast.LENGTH_SHORT).show(); //TODO Aprire drive
+            Toast.makeText(this, "loggato", Toast.LENGTH_SHORT).show();
+            //TODO Aprire Drive
         } else {
             // Signed out, show unauthenticated UI.
             Toast.makeText(this, "non loggato", Toast.LENGTH_SHORT).show();
