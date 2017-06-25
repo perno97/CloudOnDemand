@@ -16,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.Drive;
 
 import it.unibs.cloudondemand.LoginInterface;
 import it.unibs.cloudondemand.R;
@@ -46,6 +47,8 @@ public class LoginGoogle extends AppCompatActivity implements LoginInterface, Go
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .addApi(Drive.API)
+                .addScope(Drive.SCOPE_APPFOLDER)
                 .build();
     }
 
@@ -96,5 +99,9 @@ public class LoginGoogle extends AppCompatActivity implements LoginInterface, Go
     @Override
     public void doLogout() {
 
+    }
+
+    public GoogleApiClient getGoogleApiClient() {
+        return mGoogleApiClient;
     }
 }
