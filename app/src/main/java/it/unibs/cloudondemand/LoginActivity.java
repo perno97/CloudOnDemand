@@ -16,6 +16,13 @@ import it.unibs.cloudondemand.google.LoginGoogle;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
+    public static final String CONTENT_EXTRA="content-type";
+    public static final String CONTENT_STRING="string";
+    public static final String CONTENT_FILE="file";
+    public static final String CONTENT_FOLDER="folder";
+
+    public static final String DATA_EXTRA="data";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
