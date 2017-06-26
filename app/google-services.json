@@ -1,80 +1,33 @@
 {
   "project_info": {
-    "project_number": "544194658663",
-    "project_id": "firebase-cloudondemand"
+    "project_number": "243664175915",
+    "project_id": "firebase-comecazzovuoite"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:544194658663:android:856eb2fe66a08ddb",
-        "android_client_info": {
-          "package_name": "gruppoa.cloudondemand"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "544194658663-h3lurg5aj9j24pa20k44djmpvobcc33n.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "gruppoa.cloudondemand",
-            "certificate_hash": "9e0cc1215406b5bd5609f3177f3a9bfedd76381b"
-          }
-        },
-        {
-          "client_id": "544194658663-iv9ce1tacilqgndq62qqkmjmgnlk3i58.apps.googleusercontent.com",
-          "client_type": 3
-        },
-        {
-          "client_id": "544194658663-jp4n9t4jo21a55jgeppg4ntsi1oaceaf.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDdtGg-JL_lxCdRDwYQXGor8BVN0JWryxg"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 1
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:544194658663:android:d307752bcac106a5",
+        "mobilesdk_app_id": "1:243664175915:android:d307752bcac106a5",
         "android_client_info": {
           "package_name": "it.unibs.cloudondemand"
         }
       },
       "oauth_client": [
         {
-          "client_id": "544194658663-ctqj3m5oj6lqv9rg2lsvc0llbc7v56k6.apps.googleusercontent.com",
+          "client_id": "243664175915-j8a9lcnuhga78otj3d6c6icdembnjtf1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "it.unibs.cloudondemand",
-            "certificate_hash": "6207ceac3b831d688aa85b395123c24a76106c48"
+            "certificate_hash": "e82e66b2e523200489147177be122c9f6205b3b4"
           }
         },
         {
-          "client_id": "544194658663-iv9ce1tacilqgndq62qqkmjmgnlk3i58.apps.googleusercontent.com",
-          "client_type": 3
-        },
-        {
-          "client_id": "544194658663-jp4n9t4jo21a55jgeppg4ntsi1oaceaf.apps.googleusercontent.com",
+          "client_id": "243664175915-0kubjutigvjgucpfvt6fcoj35clbfhno.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDdtGg-JL_lxCdRDwYQXGor8BVN0JWryxg"
+          "current_key": "AIzaSyCo3BLAUpvoIn7ody-BjWTYn0PZCzsUiwo"
         }
       ],
       "services": {
