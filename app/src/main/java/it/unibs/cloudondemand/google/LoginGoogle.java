@@ -22,7 +22,7 @@ import it.unibs.cloudondemand.LoginInterface;
 import it.unibs.cloudondemand.R;
 
 public class LoginGoogle extends AppCompatActivity implements LoginInterface, GoogleApiClient.OnConnectionFailedListener {
-    GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 1;
 
 
@@ -40,6 +40,7 @@ public class LoginGoogle extends AppCompatActivity implements LoginInterface, Go
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
+                .requestScopes(Drive.SCOPE_APPFOLDER)
                 .build();
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the
@@ -48,7 +49,6 @@ public class LoginGoogle extends AppCompatActivity implements LoginInterface, Go
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .addApi(Drive.API)
-                .addScope(Drive.SCOPE_APPFOLDER)
                 .build();
     }
 
