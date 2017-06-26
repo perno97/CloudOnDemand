@@ -4,15 +4,9 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 
 
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.GoogleApiClient;
-
-import it.unibs.cloudondemand.google.LoginGoogle;
+import it.unibs.cloudondemand.google.GoogleDrive;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -40,7 +34,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.sign_in_button:
-                Intent signInIntent = new Intent(this, LoginGoogle.class);
+                Intent signInIntent = new Intent(this, GoogleDrive.class);
                 startActivity(signInIntent);
                 break;
             // ...

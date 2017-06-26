@@ -13,16 +13,20 @@
       },
       "oauth_client": [
         {
-          "client_id": "544194658663-iv9ce1tacilqgndq62qqkmjmgnlk3i58.apps.googleusercontent.com",
-          "client_type": 3
-        },
-        {
           "client_id": "544194658663-h3lurg5aj9j24pa20k44djmpvobcc33n.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "gruppoa.cloudondemand",
             "certificate_hash": "9e0cc1215406b5bd5609f3177f3a9bfedd76381b"
           }
+        },
+        {
+          "client_id": "544194658663-iv9ce1tacilqgndq62qqkmjmgnlk3i58.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "544194658663-jp4n9t4jo21a55jgeppg4ntsi1oaceaf.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
@@ -61,6 +65,10 @@
         },
         {
           "client_id": "544194658663-iv9ce1tacilqgndq62qqkmjmgnlk3i58.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "544194658663-jp4n9t4jo21a55jgeppg4ntsi1oaceaf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

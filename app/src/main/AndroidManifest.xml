@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoginActivity" />
-        <activity android:name=".google.LoginGoogle" />
+        <activity android:name=".google.GoogleDrive" />
         <activity android:name=".google.DriveGoogle"></activity>
     </application>
 

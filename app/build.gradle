@@ -31,6 +31,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-drive:11.0.1'
     apply plugin: 'com.google.gms.google-services'
     //Facebook
-    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    //compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     testCompile 'junit:junit:4.12'
 }
