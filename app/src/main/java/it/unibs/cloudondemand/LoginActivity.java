@@ -5,8 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-
-import it.unibs.cloudondemand.google.GoogleDrive;
+import it.unibs.cloudondemand.google.GoogleDriveString;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -15,7 +14,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public static final String CONTENT_FILE="file";
     public static final String CONTENT_FOLDER="folder";
 
-    public static final String CONTENT_EXTRA ="data";
+    public static final String CONTENT_EXTRA ="content";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +33,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.sign_in_button:
-                Intent signInIntent = new Intent(this, GoogleDrive.class);
+                Intent signInIntent = new Intent(this, GoogleDriveString.class);
                 startActivity(signInIntent);
                 break;
             // ...

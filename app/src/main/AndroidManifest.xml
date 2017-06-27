@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="it.unibs.cloudondemand">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -20,8 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoginActivity" />
-        <activity android:name=".google.GoogleDrive" />
-        <activity android:name=".google.DriveGoogle"></activity>
+        <activity android:name=".google.GoogleDriveString" />
     </application>
 
 </manifest>
