@@ -1,10 +1,15 @@
 package it.unibs.cloudondemand;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
+import com.google.android.gms.common.SignInButton;
+
+import it.unibs.cloudondemand.google.GoogleDrive;
 import it.unibs.cloudondemand.google.GoogleDriveString;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
@@ -16,6 +21,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     public static final String CONTENT_EXTRA ="content";
 
+    private String mContentType;
+    private String mContent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,22 +31,50 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
-        String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+        mContent = intent.getStringExtra(CONTENT_EXTRA);
+        mContentType = intent.getStringExtra(CONTENT_TYPE_EXTRA);
 
-        findViewById(R.id.sign_in_button).setOnClickListener(this);
+        //Set onClick listner for google sign in button
+        findViewById(R.id.google_sign_in_button).setOnClickListener(this);
 
+        //Show and edit google button if already signed in
+        handleSignedInAccounts();
+    }
+
+    private void handleSignedInAccounts() {
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_pref_account), MODE_PRIVATE);
+        String googleAccountName = sharedPreferences.getString(getString(R.string.saved_account_google), "");
+        if(!googleAccountName.equals("")) {
+            //Edit and show Signed in Button
+            SignInButton buttonSigned = (SignInButton) findViewById(R.id.google_signed_in_button);
+            editGoogleButton(buttonSigned, googleAccountName);
+            buttonSigned.setVisibility(View.VISIBLE);
+            buttonSigned.setOnClickListener(this);
+            //Edit Sign in Button
+            editGoogleButton((SignInButton) findViewById(R.id.google_sign_in_button), getString(R.string.button_google_another_account));
+        }
+    }
+    //Util method to edit google sign in button text
+    private void editGoogleButton(SignInButton button, String text) {
+        for(int i=0; i < button.getChildCount(); i++) {
+            View v = button.getChildAt(i);
+            if(v instanceof TextView) {
+                ((TextView) v).setText(text);
+            }
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.sign_in_button:
-                Intent signInIntent = new Intent(this, GoogleDriveString.class);
-                startActivity(signInIntent);
+            case R.id.google_sign_in_button :
+                startActivity(GoogleDrive.getIntent(this, mContentType, mContent, true));
+                break;
+            case R.id.google_signed_in_button :
+                startActivity(GoogleDrive.getIntent(this, mContentType, mContent));
                 break;
             // ...
         }
     }
-
 
 }

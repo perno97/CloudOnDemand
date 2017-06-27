@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String EXTRA_MESSAGE = "it.unibs.cloudondemand.MESSAGE";
     private String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
 
     @Override
@@ -45,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Inserisci una stringa non vuota", Toast.LENGTH_LONG ).show();
         else
         {
-            intent.putExtra(EXTRA_MESSAGE, message);
+            intent.putExtra(LoginActivity.CONTENT_TYPE_EXTRA, LoginActivity.CONTENT_STRING);
+            intent.putExtra(LoginActivity.CONTENT_EXTRA, message);
             startActivity(intent);
         }
     }

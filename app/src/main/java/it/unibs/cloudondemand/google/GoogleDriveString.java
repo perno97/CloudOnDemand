@@ -22,10 +22,8 @@ import it.unibs.cloudondemand.LoginActivity;
 public class GoogleDriveString extends GoogleDrive {
     private static final String TAG = "GoogleDriveUpString";
 
-
     @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        super.onConnected(bundle);
+    public void onConnected() {
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
     }
@@ -36,7 +34,7 @@ public class GoogleDriveString extends GoogleDrive {
         public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
             if (!driveContentsResult.getStatus().isSuccess()) {
                 Toast.makeText(GoogleDriveString.this, "Callback fallita", Toast.LENGTH_SHORT).show();
-                Log.e("Google Drive", "Error while creating new file on Drive");
+                Log.e(TAG, "Error while creating new file on Drive");
                 return;
             }
 
