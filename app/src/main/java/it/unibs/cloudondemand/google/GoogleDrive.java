@@ -2,6 +2,7 @@ package it.unibs.cloudondemand.google;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,7 +21,7 @@ import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
 
 public abstract class GoogleDrive extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private static final String TAG = "Google Drive Connection";
+    private static final String TAG = "GoogleDriveConnection";
 
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 1;
@@ -60,7 +61,7 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult result) {
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
         // An error has occurred
         // and try to resolve it
         if(result.hasResolution()) {
@@ -84,37 +85,53 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
+        switch (requestCode) {
+            case RC_SIGN_IN :
+                // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                handleSignInResult(result);
+                break;
+            case RC_RESOLUTION :
+                if(resultCode == RESULT_OK)
+                    mGoogleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
+                else
+                    Log.e(TAG, "Tried with error to resolve onConnectionFailed");
+                break;
         }
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-
         if (result.isSuccess()) {
-            // Signed in successfully, show authenticated UI.
+            // Signed in successfully, connect to play services.
             GoogleSignInAccount acct = result.getSignInAccount();
-            Toast.makeText(this, "loggato", Toast.LENGTH_SHORT).show();
-            mGoogleApiClient.connect();
+            mGoogleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
         } else {
             // Signed out, show unauthenticated UI.
-            Toast.makeText(this, "non loggato", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.unable_connect_account, Toast.LENGTH_SHORT).show();
         }
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG, "Connected to Play Services.");
+    }
 
     @Override
     public void onConnectionSuspended(int i) {
-        StringBuffer msg=new StringBuffer("Connection to Play Services Suspended. Cause ");
+        StringBuilder msg=new StringBuilder("Connection to Play Services Suspended. Cause ");
         if(i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST)
             msg.append("NETWORK LOST");
         else if(i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED)
             msg.append("SERVICE DISCONNECTED");
 
         Log.i(TAG, msg.toString());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "Disconnect to Play Services");
+        mGoogleApiClient.disconnect();
     }
 
     public GoogleApiClient getGoogleApiClient() {

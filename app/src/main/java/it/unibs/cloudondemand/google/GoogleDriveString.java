@@ -20,6 +20,7 @@ import java.io.Writer;
 import it.unibs.cloudondemand.LoginActivity;
 
 public class GoogleDriveString extends GoogleDrive {
+    private static final String TAG = "GoogleDriveUpString";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,7 +62,7 @@ public class GoogleDriveString extends GoogleDrive {
                         try {
                             writer.close();
                         } catch (Exception e) {
-
+                            Log.e(TAG, "Exception while writing on driveConetents output stream", e.getCause());
                         }
                     }
 
@@ -74,6 +75,9 @@ public class GoogleDriveString extends GoogleDrive {
                     Drive.DriveApi.getRootFolder(getGoogleApiClient())
                             .createFile(getGoogleApiClient(), changeSet, driveContents)
                             .setResultCallback(fileCallback);
+
+                    //TODO ???
+                    getGoogleApiClient().disconnect();
                 }
             }.start();
         }
