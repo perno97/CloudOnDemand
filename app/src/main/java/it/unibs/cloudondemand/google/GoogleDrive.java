@@ -1,5 +1,6 @@
 package it.unibs.cloudondemand.google;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.support.annotation.NonNull;
@@ -144,5 +145,9 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
 
     public String getContentType() {
         return ContentType;
+    }
+
+    public void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

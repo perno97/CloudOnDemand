@@ -22,14 +22,10 @@ import it.unibs.cloudondemand.LoginActivity;
 public class GoogleDriveString extends GoogleDrive {
     private static final String TAG = "GoogleDriveUpString";
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        super.onConnected(bundle);
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
     }
@@ -75,22 +71,25 @@ public class GoogleDriveString extends GoogleDrive {
                     Drive.DriveApi.getRootFolder(getGoogleApiClient())
                             .createFile(getGoogleApiClient(), changeSet, driveContents)
                             .setResultCallback(fileCallback);
-
-                    //TODO ???
-                    getGoogleApiClient().disconnect();
                 }
             }.start();
         }
     };
 
 
-    final ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
+    final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
-            if(!driveFileResult.getStatus().isSuccess())
-                Toast.makeText(GoogleDriveString.this, "file non creato", Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(GoogleDriveString.this, "file creato", Toast.LENGTH_SHORT).show();
+            if(!driveFileResult.getStatus().isSuccess()) {
+                Toast.makeText(GoogleDriveString.this, "File non Creato", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "File not created");
+            }
+            else {
+                Toast.makeText(GoogleDriveString.this, "File Creato", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
+            }
+            //TODO ??
+            getGoogleApiClient().disconnect();
         }
     };
 }
