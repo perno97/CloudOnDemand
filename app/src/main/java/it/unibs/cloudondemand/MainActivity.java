@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        /*
         try {
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.row, R.id.riga, readFiles(path));
             ListView listView = (ListView) findViewById(R.id.listview);
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
             }
         catch (IOException e) {
             Toast.makeText(this, "Errore lettura file", Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
     /** Called when the user taps the Send button */

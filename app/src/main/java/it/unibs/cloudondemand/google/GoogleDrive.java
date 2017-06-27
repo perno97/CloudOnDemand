@@ -1,6 +1,7 @@
 package it.unibs.cloudondemand.google;
 
 import android.content.Intent;
+import android.content.IntentSender;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -14,33 +15,27 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.DriveContents;
-import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.MetadataChangeSet;
-
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 import it.unibs.cloudondemand.LoginActivity;
+import it.unibs.cloudondemand.R;
 
-public class GoogleDrive extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public abstract class GoogleDrive extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    private static final String TAG = "GoogleDriveConnection";
+
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 1;
-    private String CONTENT_TYPE;
-    private String CONTENT;
-
+    private static final int RC_RESOLUTION = 2;
+    private String ContentType;
+    private String Content;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Intent data=getIntent();
-        CONTENT_TYPE=LoginActivity.CONTENT_STRING;//data.getStringExtra(LoginActivity.CONTENT_TYPE_EXTRA);
-        CONTENT="Sono perno";//data.getStringExtra(LoginActivity.CONTENT_EXTRA);
+        ContentType =LoginActivity.CONTENT_STRING;//data.getStringExtra(LoginActivity.CONTENT_TYPE_EXTRA);
+        Content ="Sono perno";//data.getStringExtra(LoginActivity.CONTENT_EXTRA);
 
         createGoogleClient();
 
@@ -58,21 +53,30 @@ public class GoogleDrive extends AppCompatActivity implements GoogleApiClient.Co
         // Build a GoogleApiClient with access to the Google Sign-In API and the
         // options specified by gso.
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .addApi(Drive.API)
                 .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
                 .build();
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        // An unresolvable error has occurred and a connection to Google APIs
-        // could not be established. Display an error message, or handle
-        // the failure silently
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
+        // An error has occurred
+        // and try to resolve it
+        if(result.hasResolution()) {
+            try {
+                result.startResolutionForResult(this, RC_RESOLUTION);
+            } catch (IntentSender.SendIntentException e) {
+                Log.e(TAG, "Intent sender exception while trying to resolve error.", e.getCause());
+            }
+        }
 
-        //TODO remove
-        Toast.makeText(this, "Connection failed - Result : " + result.getErrorCode(), Toast.LENGTH_SHORT).show();
+        // An unresolvable error has occurred and a connection to Google APIs
+        // could not be established.
+        // Displaying an error message
+        Log.e(TAG, "Connection failed - Result : " + result.getErrorCode());
+        Toast.makeText(this, R.string.unable_connect_googleservices, Toast.LENGTH_SHORT).show();
     }
 
     public void doLogin() {
@@ -81,107 +85,64 @@ public class GoogleDrive extends AppCompatActivity implements GoogleApiClient.Co
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
+        switch (requestCode) {
+            case RC_SIGN_IN :
+                // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                handleSignInResult(result);
+                break;
+            case RC_RESOLUTION :
+                if(resultCode == RESULT_OK)
+                    mGoogleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
+                else
+                    Log.e(TAG, "Tried with error to resolve onConnectionFailed");
+                break;
         }
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-
         if (result.isSuccess()) {
-            // Signed in successfully, show authenticated UI.
+            // Signed in successfully, connect to play services.
             GoogleSignInAccount acct = result.getSignInAccount();
-            Toast.makeText(this, "loggato", Toast.LENGTH_SHORT).show();
-            mGoogleApiClient.connect();
+            mGoogleApiClient.connect(GoogleApiClient.SIGN_IN_MODE_OPTIONAL);
         } else {
             // Signed out, show unauthenticated UI.
-            Toast.makeText(this, "non loggato", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.unable_connect_account, Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        if(CONTENT_TYPE!=LoginActivity.CONTENT_FOLDER) {
-            Drive.DriveApi.newDriveContents(mGoogleApiClient)
-                    .setResultCallback(driveContentsCallback);
-        }
-        else {
-            //TODO
-        }
+        Log.i(TAG, "Connected to Play Services.");
     }
-
-    //Called when file on Drive was created
-    final private ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback = new ResultCallback<DriveApi.DriveContentsResult>() {
-        @Override
-        public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
-            if(!driveContentsResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDrive.this, "Callback fallita", Toast.LENGTH_SHORT).show();
-                Log.e("Google Drive", "Error while creating new file on Drive");
-                return;
-            }
-
-            //Get content of new file
-            final DriveContents driveContents = driveContentsResult.getDriveContents();
-
-
-            //Upload file or string into drive file
-            new Thread(){
-                @Override
-                public void run() {
-                    //Choose stream to use by content type
-                    switch (CONTENT_TYPE) {
-                        case LoginActivity.CONTENT_STRING :
-                            Writer writer = new OutputStreamWriter(driveContents.getOutputStream());
-                            try {
-                                writer.write(CONTENT);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            finally {
-                                try {
-                                    writer.close();
-                                }
-                                catch (Exception e){
-
-                                }
-                            }
-
-                            MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                                    .setTitle("nome")
-                                    .setMimeType("text/plain")
-                                    .setStarred(true)
-                                    .build();
-
-                            Drive.DriveApi.getRootFolder(mGoogleApiClient)
-                                    .createFile(mGoogleApiClient, changeSet, driveContents)
-                                    .setResultCallback(fileCallback);
-
-                            break;
-                        case LoginActivity.CONTENT_FILE :
-
-                            break;
-                    }
-
-                }
-            }.start();
-        }
-    };
-
-    final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
-        @Override
-        public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
-            if(!driveFileResult.getStatus().isSuccess())
-                Toast.makeText(GoogleDrive.this, "file non creato", Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(GoogleDrive.this, "file creato", Toast.LENGTH_SHORT).show();
-        }
-    };
 
     @Override
     public void onConnectionSuspended(int i) {
+        StringBuilder msg=new StringBuilder("Connection to Play Services Suspended. Cause ");
+        if(i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST)
+            msg.append("NETWORK LOST");
+        else if(i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED)
+            msg.append("SERVICE DISCONNECTED");
 
+        Log.i(TAG, msg.toString());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "Disconnect to Play Services");
+        mGoogleApiClient.disconnect();
+    }
+
+    public GoogleApiClient getGoogleApiClient() {
+        return mGoogleApiClient;
+    }
+
+    public String getContent() {
+        return Content;
+    }
+
+    public String getContentType() {
+        return ContentType;
     }
 }
