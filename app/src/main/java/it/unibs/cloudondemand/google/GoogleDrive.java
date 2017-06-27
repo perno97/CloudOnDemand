@@ -147,16 +147,17 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        // Verify if client want to Sign Out
+        // Verify if client want to Sign-out
         if(signOut) {
-            Log.i(TAG, "Sign Out from Google Account");
+            Log.i(TAG, "Sign-out from Google Account");
             Auth.GoogleSignInApi.signOut(mGoogleApiClient)
                     .setResultCallback(new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
                             signOut = false;
+                            //Delete account name from shared preferences
                             saveAccountSignedIn("");
-                            createGoogleClient();
+                            //Restart with new Sign-in
                             doSignIn();
                         }
                     });
@@ -182,8 +183,10 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "Disconnect to Play Services");
-        mGoogleApiClient.disconnect();
+        if(mGoogleApiClient.isConnected()) {
+            Log.i(TAG, "Disconnect to Play Services");
+            mGoogleApiClient.disconnect();
+        }
     }
 
     public GoogleApiClient getGoogleApiClient() {
@@ -199,7 +202,7 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
      * @param context Context of activity that launch the intent.
      * @param contentType Type of content to upload.
      * @param content String, File path or Folder path.
-     * @param signOut True if want to Sign Out before do something.
+     * @param signOut True if want to Sign-out before do something.
      * @return Intent to launch with startActivity(intent). Return null if content type is not found.
      */
     public static Intent getIntent(Context context, String contentType, String content, boolean signOut) {
@@ -209,9 +212,11 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
                 intent = new Intent(context, GoogleDriveString.class);
                 intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
                 break;
-            //TODO Edit when classes were created
             case LoginActivity.CONTENT_FILE :
+                intent = new Intent(context, GoogleDriveFile.class);
+                intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
                 break;
+            //TODO Edit when classes were created
             case LoginActivity.CONTENT_FOLDER :
                 break;
         }
@@ -221,7 +226,7 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
         return intent;
     }
 
-    // Overload method to add optional parameter (signOut=false)
+    // Overload method to add optional parameter signOut (default=false)
     public static Intent getIntent(Context context, String contentType, String content) {
         return  getIntent(context, contentType, content, false);
     }

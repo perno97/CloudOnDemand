@@ -28,12 +28,11 @@ public class GoogleDriveString extends GoogleDrive {
                 .setResultCallback(driveContentsCallback);
     }
 
-    //Called when new conent on Drive was created
+    //Called when new content on Drive was created
     final private ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback = new ResultCallback<DriveApi.DriveContentsResult>() {
         @Override
         public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
             if (!driveContentsResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDriveString.this, "Callback fallita", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Error while creating new file on Drive");
                 return;
             }
@@ -86,7 +85,7 @@ public class GoogleDriveString extends GoogleDrive {
                 Toast.makeText(GoogleDriveString.this, "File Creato", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
-            //TODO ??
+
             getGoogleApiClient().disconnect();
         }
     };

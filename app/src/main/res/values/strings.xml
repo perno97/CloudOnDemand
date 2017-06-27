@@ -3,8 +3,12 @@
     <string name="edit_message">Inserisci una stringa</string>
     <string name="button_send">Send</string>
     <string name="button_google_another_account">Accedi con un altro account</string>
+
+
     <string name="unable_connect_googleservices">Impossibile collegarsi a Google Play Services</string>
     <string name="unable_connect_account">Impossibile collegarsi all\'account</string>
+    <string name="unable_read_storage">Impossibile leggere la memoria esterna</string>
+    <string name="permission_read_storage">Sono richiesti i permessi\ndi lettura della memoria</string>
 
     <string name="shared_pref_account">accountSignedIn</string>
     <string name="saved_account_google">googleAccount</string>
