@@ -158,6 +158,7 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
                             //Delete account name from shared preferences
                             saveAccountSignedIn("");
                             //Restart with new Sign-in
+                            createGoogleClient();
                             doSignIn();
                         }
                     });
