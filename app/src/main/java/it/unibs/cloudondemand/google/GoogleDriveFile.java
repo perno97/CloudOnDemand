@@ -1,14 +1,13 @@
 package it.unibs.cloudondemand.google;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,18 +18,14 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.utils.PermissionRequest;
+import it.unibs.cloudondemand.utils.PermissionResultCallback;
 
 //TODO Fare questa classe astratta ed estenderla per caricare un file o più
 //TODO Problema quando si ruota lo schermo !!!!
@@ -41,43 +36,23 @@ public class GoogleDriveFile extends GoogleDrive {
 
     @Override
     public void onConnected() {
-        // Before upload some file verify if app has permission to read external storage
-        verifyPermission();
+        // Verify permission and after create new drive content
+        Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
+        startActivity(intent);
     }
 
-    private void verifyPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Always ask for permission because is necessary
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    PERMISSION_READ_STORAGE);
-        }
-        else {
-            // Permission granted
-            createDriveContent();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_READ_STORAGE :
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    createDriveContent();
-
-                } else {
-                    //Permission denied, show to user and close activity
-                    Toast.makeText(this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
-                    Log.i(TAG, "Permission to read external storage denied");
-                    finish();
-                }
-                break;
-        }
-    }
+    final private PermissionResultCallback permissionResultCallback = new PermissionResultCallback() {
+        @Override
+        public void onPermissionResult(int isGranted) {
+            if(isGranted == PermissionRequest.PERMISSION_GRANTED)
+                createDriveContent();
+            else {
+                //Permission denied, show to user and close activity
+                Toast.makeText(GoogleDriveFile.this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "Permission to read external storage denied");
+                finish();
+            }
+    };
 
 
     private boolean isExternalStorageReadable() {

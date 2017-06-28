@@ -23,6 +23,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".google.GoogleDriveString" />
         <activity android:name=".google.GoogleDriveFile" />
+        <activity android:name=".utils.PermissionRequest" />
     </application>
 
 </manifest>
