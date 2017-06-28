@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +27,8 @@ import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.PermissionResultCallback;
 
+//TODO Fare questa classe astratta ed estenderla per caricare un file o più
+//TODO Problema quando si ruota lo schermo !!!!
 public class GoogleDriveFile extends GoogleDrive {
     private static final String TAG = "GoogleDriveUpFile";
 
@@ -49,8 +52,6 @@ public class GoogleDriveFile extends GoogleDrive {
                 Log.i(TAG, "Permission to read external storage denied");
                 finish();
             }
-
-        }
     };
 
 
@@ -60,6 +61,7 @@ public class GoogleDriveFile extends GoogleDrive {
     }
 
     private void createDriveContent() {
+        // Check if storage is readable and start upload
         if(isExternalStorageReadable())
             Drive.DriveApi.newDriveContents(getGoogleApiClient())
                     .setResultCallback(driveContentsCallback);
