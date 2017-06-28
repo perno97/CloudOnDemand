@@ -44,7 +44,7 @@ public class GoogleDriveFile extends GoogleDrive {
     final private PermissionResultCallback permissionResultCallback = new PermissionResultCallback() {
         @Override
         public void onPermissionResult(int isGranted) {
-            if(isGranted == PermissionRequest.PERMISSION_GRANTED)
+            if (isGranted == PermissionRequest.PERMISSION_GRANTED)
                 createDriveContent();
             else {
                 //Permission denied, show to user and close activity
@@ -52,97 +52,95 @@ public class GoogleDriveFile extends GoogleDrive {
                 Log.i(TAG, "Permission to read external storage denied");
                 finish();
             }
-    };
-
-
-    private boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
-    }
-
-    private void createDriveContent() {
-        // Check if storage is readable and start upload
-        if(isExternalStorageReadable())
-            Drive.DriveApi.newDriveContents(getGoogleApiClient())
-                    .setResultCallback(driveContentsCallback);
-        else {
-            Toast.makeText(this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Unable to read external storage.");
-        }
-    }
-
-
-    //Called when new content on Drive was created
-    final private ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback = new ResultCallback<DriveApi.DriveContentsResult>() {
-        @Override
-        public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
-            if (!driveContentsResult.getStatus().isSuccess()) {
-                Log.e(TAG, "Error while creating new file on Drive");
-                return;
-            }
-
-            // Get content of new file
-            final DriveContents driveContents = driveContentsResult.getDriveContents();
-
-            // Upload file into drive file content
-            new Thread() {
-                @Override
-                public void run() {
-                    // Create stream based on which data need to be saved
-                    OutputStream outputStream=null;
-
-                    try {
-                        // Open file
-                        FileInputStream fileInputStream = new FileInputStream(getContent());
-                        outputStream = driveContents.getOutputStream();
-                        // Write on drive content stream
-                        int buffer;
-                        while((buffer = fileInputStream.read()) != -1) {
-                            outputStream.write(buffer);
-                        }
-                    }
-                    catch (FileNotFoundException e) {
-                        Log.e(TAG, "File not found." + e.toString() , e.getCause());
-                    }
-                    catch (IOException e) {
-                        Log.e(TAG, "Exception while writing on driveConetents output stream." + e.toString(), e.getCause());
-                    } finally {
-                        try {
-                            if(outputStream!=null)
-                                outputStream.close();
-                        } catch (IOException e) {
-                            Log.e(TAG, "Exception while closing streams." + e.toString(), e.getCause());
-                        }
-                    }
-
-                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle("prova.txt")
-                            .setMimeType("text/plain")
-                            .setStarred(true)
-                            .build();
-
-                    Drive.DriveApi.getRootFolder(getGoogleApiClient())
-                            .createFile(getGoogleApiClient(), changeSet, driveContents)
-                            .setResultCallback(fileCallback);
-                }
-            }.start();
         }
     };
 
 
-    final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
-        @Override
-        public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
-            if(!driveFileResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDriveFile.this, "File non Creato", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "File not created");
-            }
+        private boolean isExternalStorageReadable() {
+            String state = Environment.getExternalStorageState();
+            return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
+        }
+
+        private void createDriveContent() {
+            // Check if storage is readable and start upload
+            if (isExternalStorageReadable())
+                Drive.DriveApi.newDriveContents(getGoogleApiClient())
+                        .setResultCallback(driveContentsCallback);
             else {
-                Toast.makeText(GoogleDriveFile.this, "File Creato", Toast.LENGTH_SHORT).show();
-                Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
+                Toast.makeText(this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Unable to read external storage.");
             }
-
-            disconnect();
         }
-    };
+
+
+        //Called when new content on Drive was created
+        final private ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback = new ResultCallback<DriveApi.DriveContentsResult>() {
+            @Override
+            public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
+                if (!driveContentsResult.getStatus().isSuccess()) {
+                    Log.e(TAG, "Error while creating new file on Drive");
+                    return;
+                }
+
+                // Get content of new file
+                final DriveContents driveContents = driveContentsResult.getDriveContents();
+
+                // Upload file into drive file content
+                new Thread() {
+                    @Override
+                    public void run() {
+                        // Create stream based on which data need to be saved
+                        OutputStream outputStream = null;
+
+                        try {
+                            // Open file
+                            FileInputStream fileInputStream = new FileInputStream(getContent());
+                            outputStream = driveContents.getOutputStream();
+                            // Write on drive content stream
+                            int buffer;
+                            while ((buffer = fileInputStream.read()) != -1) {
+                                outputStream.write(buffer);
+                            }
+                        } catch (FileNotFoundException e) {
+                            Log.e(TAG, "File not found." + e.toString(), e.getCause());
+                        } catch (IOException e) {
+                            Log.e(TAG, "Exception while writing on driveConetents output stream." + e.toString(), e.getCause());
+                        } finally {
+                            try {
+                                if (outputStream != null)
+                                    outputStream.close();
+                            } catch (IOException e) {
+                                Log.e(TAG, "Exception while closing streams." + e.toString(), e.getCause());
+                            }
+                        }
+
+                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                                .setTitle("prova.txt")
+                                .setMimeType("text/plain")
+                                .setStarred(true)
+                                .build();
+
+                        Drive.DriveApi.getRootFolder(getGoogleApiClient())
+                                .createFile(getGoogleApiClient(), changeSet, driveContents)
+                                .setResultCallback(fileCallback);
+                    }
+                }.start();
+            }
+        };
+
+
+        final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
+            @Override
+            public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
+                if (!driveFileResult.getStatus().isSuccess()) {
+                    Toast.makeText(GoogleDriveFile.this, "File non Creato", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "File not created");
+                } else {
+                    Toast.makeText(GoogleDriveFile.this, "File Creato", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
+                }
+
+                disconnect();
+            }
+        };
 }
