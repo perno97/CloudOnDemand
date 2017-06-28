@@ -3,6 +3,7 @@ package it.unibs.cloudondemand.google;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +32,8 @@ import java.io.Writer;
 
 import it.unibs.cloudondemand.R;
 
+//TODO Fare questa classe astratta ed estenderla per caricare un file o più
+//TODO Problema quando si ruota lo schermo !!!!
 public class GoogleDriveFile extends GoogleDrive {
     private static final String TAG = "GoogleDriveUpFile";
 
@@ -38,6 +41,7 @@ public class GoogleDriveFile extends GoogleDrive {
 
     @Override
     public void onConnected() {
+        // Before upload some file verify if app has permission to read external storage
         verifyPermission();
     }
 
@@ -45,23 +49,13 @@ public class GoogleDriveFile extends GoogleDrive {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-            }
-            else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        PERMISSION_READ_STORAGE);
-            }
+            // Always ask for permission because is necessary
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    PERMISSION_READ_STORAGE);
         }
         else {
+            // Permission granted
             createDriveContent();
         }
     }
@@ -73,13 +67,7 @@ public class GoogleDriveFile extends GoogleDrive {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted
-                    // Check if storage is readable and start upload
-                    if(isExternalStorageReadable())
-                        createDriveContent();
-                    else {
-                        Toast.makeText(this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "Unable to read external storage.");
-                    }
+                    createDriveContent();
 
                 } else {
                     //Permission denied, show to user and close activity
@@ -91,18 +79,21 @@ public class GoogleDriveFile extends GoogleDrive {
         }
     }
 
+
     private boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
 
     private void createDriveContent() {
-        Drive.DriveApi.newDriveContents(getGoogleApiClient())
-                .setResultCallback(driveContentsCallback);
+        // Check if storage is readable and start upload
+        if(isExternalStorageReadable())
+            Drive.DriveApi.newDriveContents(getGoogleApiClient())
+                    .setResultCallback(driveContentsCallback);
+        else {
+            Toast.makeText(this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Unable to read external storage.");
+        }
     }
 
 
