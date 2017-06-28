@@ -1,13 +1,12 @@
 package it.unibs.cloudondemand.google;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,18 +17,14 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.utils.PermissionRequest;
+import it.unibs.cloudondemand.utils.PermissionResultCallback;
 
 public class GoogleDriveFile extends GoogleDrive {
     private static final String TAG = "GoogleDriveUpFile";
@@ -38,71 +33,40 @@ public class GoogleDriveFile extends GoogleDrive {
 
     @Override
     public void onConnected() {
-        verifyPermission();
+        // Verify permission and after create new drive content
+        Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
+        startActivity(intent);
     }
 
-    private void verifyPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-            }
+    final private PermissionResultCallback permissionResultCallback = new PermissionResultCallback() {
+        @Override
+        public void onPermissionResult(int isGranted) {
+            if(isGranted == PermissionRequest.PERMISSION_GRANTED)
+                createDriveContent();
             else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        PERMISSION_READ_STORAGE);
+                //Permission denied, show to user and close activity
+                Toast.makeText(GoogleDriveFile.this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "Permission to read external storage denied");
+                finish();
             }
-        }
-        else {
-            createDriveContent();
-        }
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_READ_STORAGE :
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    // Check if storage is readable and start upload
-                    if(isExternalStorageReadable())
-                        createDriveContent();
-                    else {
-                        Toast.makeText(this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "Unable to read external storage.");
-                    }
-
-                } else {
-                    //Permission denied, show to user and close activity
-                    Toast.makeText(this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
-                    Log.i(TAG, "Permission to read external storage denied");
-                    finish();
-                }
-                break;
         }
-    }
+    };
+
 
     private boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
 
     private void createDriveContent() {
-        Drive.DriveApi.newDriveContents(getGoogleApiClient())
-                .setResultCallback(driveContentsCallback);
+        if(isExternalStorageReadable())
+            Drive.DriveApi.newDriveContents(getGoogleApiClient())
+                    .setResultCallback(driveContentsCallback);
+        else {
+            Toast.makeText(this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Unable to read external storage.");
+        }
     }
 
 
