@@ -48,10 +48,11 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
         createGoogleClient();
 
 
-        if(!isSignedIn()) {
+        if(!GoogleDriveUtil.isSignedIn(this)) {
             doSignIn();
         }
         else {
+            // If signOut is true after is connected, do sign-out stuff
             if(data.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
                 signOut = true;
             }
@@ -122,7 +123,10 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
             // Signed in successfully, connect to play services.
             GoogleSignInAccount account = result.getSignInAccount();
             // Save account name to shared preferences (Already signed in for future operations)
-            saveAccountSignedIn(account.getDisplayName());
+            if(account.getDisplayName()==null)
+                GoogleDriveUtil.saveAccountSignedIn(this, "Google");    // This should never happen
+            else
+                GoogleDriveUtil.saveAccountSignedIn(this, account.getDisplayName());
             mGoogleApiClient.connect(clientConnectionType);
         } else {
             // Signed out, show unauthenticated UI.
@@ -130,19 +134,7 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
         }
     }
 
-    // Read account name from shared preferences and verify if user is signed in
-    private boolean isSignedIn() {
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_pref_account), MODE_PRIVATE);
-        String googleAccountName = sharedPreferences.getString(getString(R.string.saved_account_google), "");
-        return !googleAccountName.equals("");
-    }
-    // Save account name to shared preferences (Already signed in for future operations)
-    private void saveAccountSignedIn(String accountName) {
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_pref_account), MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(getString(R.string.saved_account_google), accountName);
-        editor.apply();
-    }
+
 
 
     @Override
@@ -154,16 +146,18 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
                     .setResultCallback(new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
+                            // Make it false to prevent infinite loop
                             signOut = false;
-                            //Delete account name from shared preferences
-                            saveAccountSignedIn("");
-                            //Restart with new Sign-in
+                            // Delete account name from shared preferences
+                            GoogleDriveUtil.saveAccountSignedIn(GoogleDrive.this, "");
+                            // Restart with new Sign-in
                             createGoogleClient();
                             doSignIn();
                         }
                     });
             return;
         }
+
         Log.i(TAG, "Connected to Play Services.");
         onConnected();
     }
@@ -181,13 +175,17 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
         Log.i(TAG, msg.toString());
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void disconnect() {
         if(mGoogleApiClient.isConnected()) {
             Log.i(TAG, "Disconnect to Play Services");
             mGoogleApiClient.disconnect();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disconnect();
     }
 
     public GoogleApiClient getGoogleApiClient() {
@@ -196,39 +194,5 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
 
     public String getContent() {
         return content;
-    }
-
-    /**
-     * Util method to retrieve intent to launch for upload.
-     * @param context Context of activity that launch the intent.
-     * @param contentType Type of content to upload.
-     * @param content String, File path or Folder path.
-     * @param signOut True if want to Sign-out before do something.
-     * @return Intent to launch with startActivity(intent). Return null if content type is not found.
-     */
-    public static Intent getIntent(Context context, String contentType, String content, boolean signOut) {
-        Intent intent=null;
-        switch (contentType) {
-            case LoginActivity.CONTENT_STRING :
-                intent = new Intent(context, GoogleDriveString.class);
-                intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
-                break;
-            case LoginActivity.CONTENT_FILE :
-                intent = new Intent(context, GoogleDriveFile.class);
-                intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
-                break;
-            //TODO Edit when classes were created
-            case LoginActivity.CONTENT_FOLDER :
-                break;
-        }
-        if(signOut && intent!=null) //TODO Remove intent!=null when all classes are implemented
-            intent.putExtra(SIGN_OUT_EXTRA, true);
-
-        return intent;
-    }
-
-    // Overload method to add optional parameter signOut (default=false)
-    public static Intent getIntent(Context context, String contentType, String content) {
-        return  getIntent(context, contentType, content, false);
     }
 }

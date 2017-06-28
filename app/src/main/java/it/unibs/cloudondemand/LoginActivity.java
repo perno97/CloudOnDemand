@@ -11,6 +11,7 @@ import com.google.android.gms.common.SignInButton;
 
 import it.unibs.cloudondemand.google.GoogleDrive;
 import it.unibs.cloudondemand.google.GoogleDriveString;
+import it.unibs.cloudondemand.google.GoogleDriveUtil;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -36,25 +37,28 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         //Set onClick listner for google sign in button
         findViewById(R.id.google_sign_in_button).setOnClickListener(this);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         //Show and edit google button if already signed in
         handleSignedInAccounts();
     }
 
+    //Show and edit google button if already signed in
     private void handleSignedInAccounts() {
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_pref_account), MODE_PRIVATE);
-        String googleAccountName = sharedPreferences.getString(getString(R.string.saved_account_google), "");
-        if(!googleAccountName.equals("")) {
+        if(GoogleDriveUtil.isSignedIn(this)) {
             //Edit and show Signed in Button
             SignInButton buttonSigned = (SignInButton) findViewById(R.id.google_signed_in_button);
-            editGoogleButton(buttonSigned, googleAccountName);
+            editGoogleButton(buttonSigned, GoogleDriveUtil.getAccountName(this));
             buttonSigned.setVisibility(View.VISIBLE);
             buttonSigned.setOnClickListener(this);
             //Edit Sign in Button
             editGoogleButton((SignInButton) findViewById(R.id.google_sign_in_button), getString(R.string.button_google_another_account));
         }
     }
-    //Util method to edit google sign in button text
+    // Util method to edit google sign in button text
     private void editGoogleButton(SignInButton button, String text) {
         for(int i=0; i < button.getChildCount(); i++) {
             View v = button.getChildAt(i);
@@ -68,10 +72,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.google_sign_in_button :
-                startActivity(GoogleDrive.getIntent(this, mContentType, mContent, true));
+                startActivity(GoogleDriveUtil.getIntent(this, mContentType, mContent, true));
                 break;
             case R.id.google_signed_in_button :
-                startActivity(GoogleDrive.getIntent(this, mContentType, mContent));
+                startActivity(GoogleDriveUtil.getIntent(this, mContentType, mContent));
                 break;
             // ...
         }

@@ -41,7 +41,7 @@ public class GoogleDriveString extends GoogleDrive {
             final DriveContents driveContents = driveContentsResult.getDriveContents();
 
 
-            //Upload file or string into drive file
+            //Upload string into drive file content
             new Thread() {
                 @Override
                 public void run() {
@@ -50,12 +50,12 @@ public class GoogleDriveString extends GoogleDrive {
                     try {
                         writer.write(getContent());
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "Exception while writing on DriveConetents output stream.\n" + e.toString(), e.getCause());
                     } finally {
                         try {
                             writer.close();
                         } catch (Exception e) {
-                            Log.e(TAG, "Exception while writing on driveConetents output stream", e.getCause());
+                            Log.e(TAG, "Exception while closing driveConetents output stream", e.getCause());
                         }
                     }
 
@@ -86,7 +86,7 @@ public class GoogleDriveString extends GoogleDrive {
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
 
-            getGoogleApiClient().disconnect();
+            disconnect();
         }
     };
 }

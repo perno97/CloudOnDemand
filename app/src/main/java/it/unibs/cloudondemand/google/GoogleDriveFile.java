@@ -55,12 +55,14 @@ public class GoogleDriveFile extends GoogleDrive {
                 // sees the explanation, try again to request the permission.
             }
             else {
-
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_CONTACTS},
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         PERMISSION_READ_STORAGE);
             }
+        }
+        else {
+            createDriveContent();
         }
     }
 
@@ -73,8 +75,7 @@ public class GoogleDriveFile extends GoogleDrive {
                     // Permission granted
                     // Check if storage is readable and start upload
                     if(isExternalStorageReadable())
-                        Drive.DriveApi.newDriveContents(getGoogleApiClient())
-                                .setResultCallback(driveContentsCallback);
+                        createDriveContent();
                     else {
                         Toast.makeText(this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "Unable to read external storage.");
@@ -99,6 +100,12 @@ public class GoogleDriveFile extends GoogleDrive {
         return false;
     }
 
+    private void createDriveContent() {
+        Drive.DriveApi.newDriveContents(getGoogleApiClient())
+                .setResultCallback(driveContentsCallback);
+    }
+
+
     //Called when new content on Drive was created
     final private ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback = new ResultCallback<DriveApi.DriveContentsResult>() {
         @Override
@@ -108,21 +115,21 @@ public class GoogleDriveFile extends GoogleDrive {
                 return;
             }
 
-            //Get content of new file
+            // Get content of new file
             final DriveContents driveContents = driveContentsResult.getDriveContents();
 
-            //Upload file or string into drive file
+            // Upload file into drive file content
             new Thread() {
                 @Override
                 public void run() {
-                    //Create stream based on which data need to be saved
+                    // Create stream based on which data need to be saved
                     OutputStream outputStream=null;
 
                     try {
-                        //Open file
-                        //FileInputStream fileInputStream = new FileInputStream(file);
-                        FileInputStream fileInputStream = new FileInputStream("/storage/emulated/0/open_gapps_log.txt");
+                        // Open file
+                        FileInputStream fileInputStream = new FileInputStream(getContent());
                         outputStream = driveContents.getOutputStream();
+                        // Write on drive content stream
                         int buffer;
                         while((buffer = fileInputStream.read()) != -1) {
                             outputStream.write(buffer);
@@ -169,7 +176,7 @@ public class GoogleDriveFile extends GoogleDrive {
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
 
-            getGoogleApiClient().disconnect();
+            disconnect();
         }
     };
 }
