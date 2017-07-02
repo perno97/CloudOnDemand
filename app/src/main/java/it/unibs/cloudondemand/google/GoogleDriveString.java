@@ -28,7 +28,7 @@ public class GoogleDriveString extends GoogleDrive {
                 .setResultCallback(driveContentsCallback);
     }
 
-    //Called when new content on Drive was created
+    // Called when new content on Drive was created
     final private ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback = new ResultCallback<DriveApi.DriveContentsResult>() {
         @Override
         public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
@@ -37,11 +37,11 @@ public class GoogleDriveString extends GoogleDrive {
                 return;
             }
 
-            //Get content of new file
+            // Get content of new file
             final DriveContents driveContents = driveContentsResult.getDriveContents();
 
 
-            //Upload string into drive file content
+            // Upload string into drive content
             new Thread() {
                 @Override
                 public void run() {
@@ -73,7 +73,7 @@ public class GoogleDriveString extends GoogleDrive {
         }
     };
 
-
+    // Called when file on drive was fully created
     final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
