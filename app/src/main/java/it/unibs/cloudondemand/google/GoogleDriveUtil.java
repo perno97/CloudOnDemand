@@ -25,7 +25,7 @@ public class GoogleDriveUtil {
                 intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
                 break;
             case LoginActivity.CONTENT_FILE :
-                intent = new Intent(context, GoogleDriveFile.class);
+                intent = new Intent(context, GoogleDriveFileSingle.class);
                 intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
                 break;
             //TODO Edit when classes were created
