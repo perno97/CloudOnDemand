@@ -1,7 +1,9 @@
 package it.unibs.cloudondemand;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -22,8 +24,8 @@ import it.unibs.cloudondemand.utils.PermissionResultCallback;
 import it.unibs.cloudondemand.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
-    private File currentPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator);
-    private File[] currentFileList;
+    private static final String initialPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+    private File currentPath = new File(initialPath);
     private final ArrayList<String> currentFileListString = new ArrayList<>();
 
     @Override
@@ -76,9 +78,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Inserisci una stringa non vuota", Toast.LENGTH_LONG ).show();
         else
         {
-            intent.putExtra(LoginActivity.CONTENT_TYPE_EXTRA, LoginActivity.CONTENT_STRING);
-            intent.putExtra(LoginActivity.CONTENT_EXTRA, message);
-            startActivity(intent);
+            sendIntent(LoginActivity.CONTENT_STRING, message);
         }
     }
 
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 return fileList; */
             }
             else if (currentPath.isDirectory()) {
-                currentFileList=currentPath.listFiles();
+                File[] currentFileList=currentPath.listFiles();
                 // Clear string array
                 currentFileListString.clear();
                 // Add first directory (back) /..
@@ -113,24 +113,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Callback click su listview item
+    // Callback click on listview item
     private final AdapterView.OnItemClickListener onItemClick = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            // Store if the listview should to be refreshed
             boolean refreshListView = false;
 
+            // Check if clicked on back directory
             if (position == 0) {
-                currentPath = currentPath.getParentFile();
-                refreshListView = true;
+                // Check if is possible to go back (not if is already in initial dir)
+                if (!currentPath.getAbsolutePath().equals(initialPath)) {
+                    currentPath = currentPath.getParentFile();
+                    refreshListView = true;
+                }
             }
             else {
-                File selected = currentFileList[position-1];
+                // Retrieve file name of item clicked
+                String currentFileName = ((ArrayAdapter<String>) parent.getAdapter()).getItem(position);
+                // File on which user clicked
+                File selected = new File(currentPath.getPath() + File.separator + currentFileName);
+
+                // Check if is directory or file
                 if (selected.isDirectory()) {
                     currentPath = selected;
                     refreshListView = true;
                 }
                 else if (selected.isFile()) {
-                    Toast.makeText(MainActivity.this, "E' un file", Toast.LENGTH_SHORT).show();
+                    onFileClick(selected);
                 }
             }
 
@@ -140,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     // Update array with new path
                     readFiles();
-                    // Notify update to listview
+                    // Notify update to listview (update UI)
                     ((BaseAdapter) parent.getAdapter()).notifyDataSetChanged();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -148,6 +158,33 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    // Called when user click on a file in path finder UI
+    private void onFileClick (final File selected) {
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setMessage("Vuoi caricare il file selezionato?")   //TODO spostare in values/string
+                .setTitle("Carica")
+                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendIntent(LoginActivity.CONTENT_FILE, selected.getPath());
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // User doesn't want to upload the selected file
+                    }
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    // Start another activity
+    private void sendIntent (String contentType, String content) {
+        startActivity(LoginActivity.getIntent(this, contentType, content));
+    }
 }
 
 

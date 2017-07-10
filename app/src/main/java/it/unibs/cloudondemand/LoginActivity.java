@@ -1,5 +1,6 @@
 package it.unibs.cloudondemand;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
@@ -81,4 +82,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    public static Intent getIntent (Context context, String contentType, String content) {
+        Intent intent = new Intent(context, LoginActivity.class);
+        intent.putExtra(CONTENT_TYPE_EXTRA, contentType);
+        intent.putExtra(CONTENT_EXTRA, content);
+        return intent;
+    }
 }
