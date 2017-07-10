@@ -9,8 +9,8 @@ import android.widget.Toast;
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.PermissionResultCallback;
+import it.unibs.cloudondemand.utils.Utils;
 
-//TODO Fare questa classe astratta ed estenderla per caricare un file o più
 public abstract class GoogleDriveFile extends GoogleDrive {
     private static final String TAG = "GoogleDriveUpFile";
 
@@ -27,7 +27,7 @@ public abstract class GoogleDriveFile extends GoogleDrive {
         public void onPermissionResult(int isGranted) {
             if (isGranted == PermissionRequest.PERMISSION_GRANTED)
                 // Check if storage is readable and start upload
-                if (isExternalStorageReadable())
+                if (Utils.isExternalStorageReadable())
                     startUploading();
                 else {
                     Toast.makeText(GoogleDriveFile.this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
@@ -45,10 +45,4 @@ public abstract class GoogleDriveFile extends GoogleDrive {
 
     // Entry point subclasses (client connected, permission granted and storage readable)
     public abstract void startUploading();
-
-    // Check if external storage is readable
-    public boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
-    }
 }

@@ -61,7 +61,7 @@ public class GoogleDriveUtil {
     }
 
     // Save account name to shared preferences (Already signed in for future operations)
-    protected static void saveAccountSignedIn(Context context, String accountName) {
+    static void saveAccountSignedIn(Context context, String accountName) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.shared_pref_account), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(context.getString(R.string.saved_account_google), accountName);
