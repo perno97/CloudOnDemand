@@ -23,7 +23,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".google.GoogleDriveString" android:configChanges="orientation"/>
         <activity android:name=".google.GoogleDriveFileSingle" android:configChanges="orientation"/>
-        <activity android:name=".utils.PermissionRequest" />
+        <activity android:name=".utils.PermissionRequest"  android:theme="@style/Theme.TransparentTheme"/>
     </application>
 
 </manifest>
