@@ -16,9 +16,16 @@ public abstract class GoogleDriveFile extends GoogleDrive {
 
     @Override
     public void onConnected() {
-        // Verify permission and after create new drive content when permission is granted
-        Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
-        startActivity(intent);
+        // Check if storage is readable and start upload
+        if (Utils.isExternalStorageReadable()) {
+            // Verify permission and after create new drive content when permission is granted
+            Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
+            startActivity(intent);
+        }
+        else {
+            Toast.makeText(GoogleDriveFile.this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Unable to read external storage.");
+        }
     }
 
     // Called when user chose to grant permission
@@ -26,14 +33,7 @@ public abstract class GoogleDriveFile extends GoogleDrive {
         @Override
         public void onPermissionResult(int isGranted) {
             if (isGranted == PermissionRequest.PERMISSION_GRANTED)
-                // Check if storage is readable and start upload
-                if (Utils.isExternalStorageReadable())
-                    startUploading();
-                else {
-                    Toast.makeText(GoogleDriveFile.this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Unable to read external storage.");
-                }
-
+                startUploading();
             else {
                 // Permission denied, show to user and close activity
                 Toast.makeText(GoogleDriveFile.this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
