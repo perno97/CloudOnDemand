@@ -11,6 +11,7 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,9 +48,10 @@ public class GoogleDriveFileSingle extends GoogleDriveFile {
                     // Create stream based on which data need to be saved
                     OutputStream outputStream = null;
 
+                    File file = new File(getContent());
                     try {
                         // Open file
-                        FileInputStream fileInputStream = new FileInputStream(getContent());
+                        FileInputStream fileInputStream = new FileInputStream(file);
                         outputStream = driveContents.getOutputStream();
                         // Write on drive content stream
                         int buffer;
@@ -69,9 +71,9 @@ public class GoogleDriveFileSingle extends GoogleDriveFile {
                         }
                     }
 
+
                     MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle("prova.txt")
-                            .setMimeType("text/plain")
+                            .setTitle(file.getName())
                             .setStarred(true)
                             .build();
 
@@ -88,7 +90,7 @@ public class GoogleDriveFileSingle extends GoogleDriveFile {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
             if (!driveFileResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDriveFileSingle.this, "File non Creato", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveFileSingle.this, "File non Creato", Toast.LENGTH_SHORT).show();   //TODO FARE QUALCOSA
                 Log.e(TAG, "File not created");
             } else {
                 Toast.makeText(GoogleDriveFileSingle.this, "File Creato", Toast.LENGTH_SHORT).show();
