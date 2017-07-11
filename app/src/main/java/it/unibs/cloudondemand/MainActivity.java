@@ -21,12 +21,13 @@ import java.util.ArrayList;
 
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.PermissionResultCallback;
+import it.unibs.cloudondemand.utils.RowAdapter;
 import it.unibs.cloudondemand.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
     private static final String initialPath = Environment.getExternalStorageDirectory().getAbsolutePath();
     private File currentPath = new File(initialPath);
-    private final ArrayList<String> currentFileListString = new ArrayList<>();
+    private final ArrayList<File> currentFileListString = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             ListView listView = (ListView) findViewById(R.id.listview);
             try {
                 readFiles();
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, R.layout.row, R.id.riga, currentFileListString);
+                RowAdapter<File> adapter = new RowAdapter<File>(MainActivity.this, currentFileListString);
                 listView.setAdapter(adapter);
             }
             catch (IOException e) {
@@ -97,15 +98,11 @@ public class MainActivity extends AppCompatActivity {
                 // Clear string array
                 currentFileListString.clear();
                 // Add first directory (back) /..
-                currentFileListString.add("/..");
+                currentFileListString.add(currentPath.getParentFile());
                 // Fill it with name of files
                 for (int i = 0; i<currentFileList.length;i++)
                 {
-                    File temp = currentFileList[i];
-                    if (temp.isDirectory())
-                        currentFileListString.add(currentFileList[i].getName() + "/");
-                    else
-                        currentFileListString.add(currentFileList[i].getName());
+                    currentFileListString.add(currentFileList[i]);
                 }
             }
         }
