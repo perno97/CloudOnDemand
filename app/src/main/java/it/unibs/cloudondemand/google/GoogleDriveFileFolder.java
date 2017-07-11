@@ -12,40 +12,63 @@ import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+
+import it.unibs.cloudondemand.utils.Utils;
 
 public class GoogleDriveFileFolder extends GoogleDriveFile {
     private static final String TAG = "GoogleDriveUpFolder";
     private File[] fileList;
     private int currentFile;
-    private DriveFolder driveFolder;
+    private ArrayList<DriveFolder> driveFolders = new ArrayList<>();
+    private int currentDriveFolder;
+
+    private File[] subdirectories;
+    private int currentSubdirectory;
+    private DriveFolder intoDriveFolder;
 
     @Override
     public void startUploading() {
         // Initialize list of files to upload
         /*  TODO
-        array cartelle da creare
-        mappa file da caricare e cartella a cui appartiene
-        array associato delle rispettive cartelle su drive
+        inizio creare tutte le cartelle su drive e metterle in un array
+        array <pair> con file e indice cartella drive
          */
-        File folder = new File(getContent());
-        fileList = folder.listFiles();
+        File mainFolder = new File(getContent());
+        fileList = mainFolder.listFiles();
         currentFile = 0;
 
-        createFolder(folder.getName());
+        /* TESTING */
+        currentDriveFolder = 0;
+        subdirectories = Utils.getSubdirectories(mainFolder);
+        currentSubdirectory = 0;
+        intoDriveFolder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
+        initializeArrays();
+        Log.i("SADADSAASDASD", "Fatto");
+        //createFolder(folder.getName());
     }
 
-    // Send input to create a folder on drive, retrieve it by callback (onDriveFolderCreated)
-    private void createFolder (String name) {
+    private void initializeArrays (DriveFolder driveFolder) {
+        if(currentSubdirectory == subdirectories.length) return;
+
+        createDriveFolder(subdirectories[currentSubdirectory].getName(), intoDriveFolder);
+        currentSubdirectory++;
+    }
+
+
+    // Send input to create a folder on drive (parent folder), retrieve it by callback (onDriveFolderCreated)
+    private void createDriveFolder (String name, DriveFolder parentFolder) {
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                 .setTitle(name)
                 .setStarred(true)
                 .build();
 
-        Drive.DriveApi.getRootFolder(getGoogleApiClient())
+        parentFolder
                 .createFolder(getGoogleApiClient(), changeSet)
                 .setResultCallback(onDriveFolderCreated);
     }
@@ -54,9 +77,12 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
             // Retrieve created folder
-            driveFolder = driveFolderResult.getDriveFolder();
+            driveFolders.add(currentDriveFolder,driveFolderResult.getDriveFolder());
+            currentDriveFolder++;
+            /* TESTING */
+            initializeArrays(driveFolderResult.getDriveFolder());
             // Upload the file in fileList at currentFile position (fileList[currentFile])
-            uploadFile();
+            //uploadFile();
         }
     };
 
@@ -70,6 +96,8 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         // Start creating new drive content and fill it in callback with fileList[currentFile]
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
+
+        currentFile++;
     }
 
     // Called when new content on Drive was created
@@ -119,8 +147,9 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
                             .setTitle(fileList[currentFile].getName())
                             .setStarred(true)
                             .build();
-
-                    driveFolder.createFile(getGoogleApiClient(), changeSet, driveContents)
+                    // DA RIVEDERE
+                    driveFolders.get(currentDriveFolder)
+                            .createFile(getGoogleApiClient(), changeSet, driveContents)
                             .setResultCallback(fileCallback);
                 }
             }.start();
@@ -139,7 +168,6 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
 
-            currentFile++;
             uploadFile();
         }
     };
