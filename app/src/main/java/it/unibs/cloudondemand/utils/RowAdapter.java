@@ -1,20 +1,20 @@
 package it.unibs.cloudondemand.utils;
 
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import it.unibs.cloudondemand.R;
 
-public class RowAdapter <File> extends BaseAdapter{
+public class RowAdapter extends BaseAdapter{
 
     private ArrayList<File> toRead=null;
     Context context=null;
@@ -46,7 +46,16 @@ public class RowAdapter <File> extends BaseAdapter{
             convertView= LayoutInflater.from(context).inflate(R.layout.row, null);
         }
         File file=(File) getItem(position);
-        ImageButton ib=(ImageButton) convertView.findViewById(R.id.imageButton);
+
+        ImageView imageButton=(ImageView) convertView.findViewById(R.id.imageButton);
+        if(file.isDirectory())
+            imageButton.setImageResource(R.drawable.ic_folder_black_24dp);
+        else
+            imageButton.setImageResource(R.drawable.ic_insert_drive_file_black_24dp);
+
+        TextView textView = (TextView) convertView.findViewById(R.id.riga);
+        textView.setText(file.getName());
+
         return convertView;
     }
 }
