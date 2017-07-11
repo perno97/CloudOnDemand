@@ -40,14 +40,17 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <activity android:name=".google.GoogleDriveFileFolder">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity" />
+        </activity>
+
         <activity android:name=".utils.PermissionRequest">
                  android:theme="@style/Theme.TransparentTheme"
                 <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".MainActivity" />
-        </activity>
-        <activity android:name=".google.GoogleDriveFileFolder">
-
         </activity>
 
     </application>

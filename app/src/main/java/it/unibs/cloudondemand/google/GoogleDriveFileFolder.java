@@ -1,6 +1,7 @@
 package it.unibs.cloudondemand.google;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,14 +25,30 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
     private static final String TAG = "GoogleDriveUpFolder";
     private File[] fileList;
     private int currentFile;
+    private DriveFolder driveFolder;
     @Override
     public void startUploading() {
         File folder = new File(getContent());
         fileList = folder.listFiles();
         currentFile = 0;
 
-        uploadFolder();
+        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                .setTitle(folder.getName())
+                .setStarred(true)
+                .build();
+
+        Drive.DriveApi.getRootFolder(getGoogleApiClient())
+                .createFolder(getGoogleApiClient(), changeSet)
+                .setResultCallback(onDriveFolderCreated);
     }
+
+    private final ResultCallback<DriveFolder.DriveFolderResult> onDriveFolderCreated = new ResultCallback<DriveFolder.DriveFolderResult>() {
+        @Override
+        public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
+            driveFolder = driveFolderResult.getDriveFolder();
+            uploadFolder();
+        }
+    };
 
     private void uploadFolder() {
         if(currentFile == fileList.length) return;
@@ -92,8 +109,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
                             .setStarred(true)
                             .build();
 
-                    Drive.DriveApi.getRootFolder(getGoogleApiClient())
-                            .createFile(getGoogleApiClient(), changeSet, driveContents)
+                    driveFolder.createFile(getGoogleApiClient(), changeSet, driveContents)
                             .setResultCallback(fileCallback);
                 }
             }.start();
