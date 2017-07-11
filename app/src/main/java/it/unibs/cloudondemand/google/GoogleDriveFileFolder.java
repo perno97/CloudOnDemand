@@ -35,6 +35,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
 
     private void uploadFolder() {
         if(currentFile == fileList.length) return;
+        if(fileList[currentFile].isDirectory()) return;
 
         // Start creating new drive content and fill it in callback
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
