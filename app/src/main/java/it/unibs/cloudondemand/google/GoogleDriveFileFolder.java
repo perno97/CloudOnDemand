@@ -1,9 +1,7 @@
 package it.unibs.cloudondemand.google;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ResultCallback;
@@ -19,21 +17,31 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import it.unibs.cloudondemand.R;
-
 public class GoogleDriveFileFolder extends GoogleDriveFile {
     private static final String TAG = "GoogleDriveUpFolder";
     private File[] fileList;
     private int currentFile;
     private DriveFolder driveFolder;
+
     @Override
     public void startUploading() {
+        // Initialize list of files to upload
+        /*  TODO
+        array cartelle da creare
+        mappa file da caricare e cartella a cui appartiene
+        array associato delle rispettive cartelle su drive
+         */
         File folder = new File(getContent());
         fileList = folder.listFiles();
         currentFile = 0;
 
+        createFolder(folder.getName());
+    }
+
+    // Send input to create a folder on drive, retrieve it by callback (onDriveFolderCreated)
+    private void createFolder (String name) {
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                .setTitle(folder.getName())
+                .setTitle(name)
                 .setStarred(true)
                 .build();
 
@@ -45,16 +53,21 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
     private final ResultCallback<DriveFolder.DriveFolderResult> onDriveFolderCreated = new ResultCallback<DriveFolder.DriveFolderResult>() {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
+            // Retrieve created folder
             driveFolder = driveFolderResult.getDriveFolder();
-            uploadFolder();
+            // Upload the file in fileList at currentFile position (fileList[currentFile])
+            uploadFile();
         }
     };
 
-    private void uploadFolder() {
+    // Upload the file in fileList at currentFile position (fileList[currentFile])
+    private void uploadFile() {
+        // Finished to upload files in this folder
         if(currentFile == fileList.length) return;
+        // Doesn't casually try to upload directory
         if(fileList[currentFile].isDirectory()) return;
 
-        // Start creating new drive content and fill it in callback
+        // Start creating new drive content and fill it in callback with fileList[currentFile]
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
     }
@@ -129,7 +142,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
             }
 
             currentFile++;
-            uploadFolder();
+            uploadFile();
         }
     };
 }

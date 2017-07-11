@@ -43,7 +43,7 @@
         <activity android:name=".google.GoogleDriveFileFolder">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".LoginActivity" />
+                android:value=".MainActivity" />
         </activity>
 
         <activity android:name=".utils.PermissionRequest">
