@@ -22,17 +22,17 @@ public class GoogleDriveUtil {
         switch (contentType) {
             case LoginActivity.CONTENT_STRING :
                 intent = new Intent(context, GoogleDriveString.class);
-                intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
                 break;
             case LoginActivity.CONTENT_FILE :
                 intent = new Intent(context, GoogleDriveFileSingle.class);
-                intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
                 break;
-            //TODO Edit when classes were created
             case LoginActivity.CONTENT_FOLDER :
+                intent = new Intent(context, GoogleDriveFileFolder.class);
                 break;
         }
-        if(signOut && intent!=null) //TODO Remove intent!=null when all classes are implemented
+        intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
+
+        if(signOut)
             intent.putExtra(GoogleDrive.SIGN_OUT_EXTRA, true);
 
         return intent;
