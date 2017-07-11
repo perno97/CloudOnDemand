@@ -66,7 +66,7 @@ public class GoogleDriveFileSingle extends GoogleDriveFile {
                         byte[] buffer = new byte[8];
                         long k = 0;
                         while (fileInputStream.read(buffer) != -1) {
-                            updateProgressBar(100*k/(file.length()));
+                            updateProgressBar(100*k/file.length());
                             outputStream.write(buffer);
                             k+=8;
                         }
