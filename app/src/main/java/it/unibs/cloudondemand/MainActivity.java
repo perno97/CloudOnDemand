@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Add on item click listener to listview items
             listView.setOnItemClickListener(onItemClick);
+            listView.setOnItemLongClickListener(onItemLongClick);
         }
     };
 
@@ -159,6 +160,24 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private final AdapterView.OnItemLongClickListener onItemLongClick = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            // Retrieve file name of item clicked
+            String currentFileName = ((ArrayAdapter<String>) parent.getAdapter()).getItem(position);
+            // File on which user clicked
+            File selected = new File(currentPath.getPath() + File.separator + currentFileName);
+
+            // Check if is directory
+            if (selected.isDirectory()) {
+                onFileClick(selected);
+                return true;
+            }
+
+            return false;
+        }
+    };
+
     // Called when user click on a file in path finder UI
     private void onFileClick (final File selected) {
         AlertDialog alertDialog = new AlertDialog.Builder(this)
@@ -167,7 +186,10 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Si", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        sendIntent(LoginActivity.CONTENT_FILE, selected.getPath());
+                        if(selected.isDirectory())
+                            sendIntent(LoginActivity.CONTENT_FOLDER, selected.getPath());
+                        else
+                            sendIntent(LoginActivity.CONTENT_FILE, selected.getPath());
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
