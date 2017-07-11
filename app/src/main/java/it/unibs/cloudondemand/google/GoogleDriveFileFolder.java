@@ -98,10 +98,8 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
                         outputStream = driveContents.getOutputStream();
                         // Write on drive content stream with buffer of 8 bytes
                         byte[] buffer = new byte[8];
-                        long k = 0;
                         while (fileInputStream.read(buffer) != -1) {
                             outputStream.write(buffer);
-                            k+=8;
                         }
                     } catch (FileNotFoundException e) {
                         Log.e(TAG, "File not found." + e.toString(), e.getCause());
