@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,15 +44,27 @@ public class RowAdapter extends BaseAdapter{
         {
             convertView= LayoutInflater.from(context).inflate(R.layout.row, null);
         }
-        File file=(File) getItem(position);
 
         ImageView imageButton=(ImageView) convertView.findViewById(R.id.imageButton);
-        if(file.isDirectory())
-            imageButton.setImageResource(R.drawable.ic_folder_black_24dp);
-        else
-            imageButton.setImageResource(R.drawable.ic_insert_drive_file_black_24dp);
-
         TextView textView = (TextView) convertView.findViewById(R.id.riga);
+
+        // Custom item at position 0 (go back)
+        if (position == 0) {
+            imageButton.setImageResource(R.drawable.ic_folder);
+            textView.setText("/..");
+            return convertView;
+        }
+
+        // Retrieve file
+        File file=(File) getItem(position);
+
+        // Assign icon
+        if(file.isDirectory())
+            imageButton.setImageResource(R.drawable.ic_folder);
+        else
+            imageButton.setImageResource(R.drawable.ic_file);
+
+        // Assign text
         textView.setText(file.getName());
 
         return convertView;

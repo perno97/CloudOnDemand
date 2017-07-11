@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.PermissionResultCallback;
@@ -95,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else if (currentPath.isDirectory()) {
                 File[] currentFileList=currentPath.listFiles();
+                Arrays.sort(currentFileList);
                 // Clear string array
                 currentFileListString.clear();
                 // Add first directory (back) /..
