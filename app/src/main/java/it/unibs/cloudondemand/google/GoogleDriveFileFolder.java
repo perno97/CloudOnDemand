@@ -22,8 +22,8 @@ import java.util.Map;
 public class GoogleDriveFileFolder extends GoogleDriveFile {
     private static final String TAG = "GoogleDriveUpFolder";
     private File[] fileList;
-    private HashMap<File,File> fileTree = new HashMap<>();
-    private HashMap<File,File> folderTree = new HashMap<>();
+    private DriveFolder driveFolder;
+    private int currentFile;
 
     @Override
     public void startUploading() {
@@ -34,27 +34,10 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         array associato delle rispettive cartelle su drive
          */
         File folder = new File(getContent());
-        initiateFileTree(folder);
+        fileList = folder.listFiles();
 
         //Creates root folder
         createFolder(folder.getName(), Drive.DriveApi.getRootFolder(getGoogleApiClient()));
-    }
-
-    private void initiateFileTree(File folder) {
-        File[] currentFileList = folder.listFiles();
-        if(currentFileList.length == 0){
-            Toast.makeText(this, "Nessun file nella cartella", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        for (int i = 0; i < currentFileList.length; i++) {
-            if (currentFileList[i].isFile()) {
-                fileTree.put(currentFileList[i], folder);
-            } else {
-                folderTree.put(currentFileList[i],folder);
-                initiateFileTree(currentFileList[i]);
-            }
-        }
     }
 
     // Send input to create a folder on drive, retrieve it by callback (onDriveFolderCreated)
@@ -72,10 +55,9 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
             // Retrieve created folder
-            //driveFolder = driveFolderResult.getDriveFolder();
+            driveFolder = driveFolderResult.getDriveFolder();
             // Upload the file in fileList at currentFile position (fileList[currentFile])
-            //uploadFile();
-            createFolder();
+            uploadFile();
         }
     };
 
