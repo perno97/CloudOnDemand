@@ -16,12 +16,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GoogleDriveFileFolder extends GoogleDriveFile {
     private static final String TAG = "GoogleDriveUpFolder";
     private File[] fileList;
-    private int currentFile;
-    private DriveFolder driveFolder;
+    private HashMap<File,File> fileTree = new HashMap<>();
+    private HashMap<File,File> folderTree = new HashMap<>();
 
     @Override
     public void startUploading() {
@@ -32,21 +34,37 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         array associato delle rispettive cartelle su drive
          */
         File folder = new File(getContent());
-        fileList = folder.listFiles();
-        currentFile = 0;
+        initiateFileTree(folder);
 
-        createFolder(folder.getName());
+        //Creates root folder
+        createFolder(folder.getName(), Drive.DriveApi.getRootFolder(getGoogleApiClient()));
+    }
+
+    private void initiateFileTree(File folder) {
+        File[] currentFileList = folder.listFiles();
+        if(currentFileList.length == 0){
+            Toast.makeText(this, "Nessun file nella cartella", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        for (int i = 0; i < currentFileList.length; i++) {
+            if (currentFileList[i].isFile()) {
+                fileTree.put(currentFileList[i], folder);
+            } else {
+                folderTree.put(currentFileList[i],folder);
+                initiateFileTree(currentFileList[i]);
+            }
+        }
     }
 
     // Send input to create a folder on drive, retrieve it by callback (onDriveFolderCreated)
-    private void createFolder (String name) {
+    private void createFolder (String name, DriveFolder parentFolder) {
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                 .setTitle(name)
                 .setStarred(true)
                 .build();
 
-        Drive.DriveApi.getRootFolder(getGoogleApiClient())
-                .createFolder(getGoogleApiClient(), changeSet)
+        parentFolder.createFolder(getGoogleApiClient(), changeSet)
                 .setResultCallback(onDriveFolderCreated);
     }
 
@@ -54,9 +72,10 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
             // Retrieve created folder
-            driveFolder = driveFolderResult.getDriveFolder();
+            //driveFolder = driveFolderResult.getDriveFolder();
             // Upload the file in fileList at currentFile position (fileList[currentFile])
-            uploadFile();
+            //uploadFile();
+            createFolder();
         }
     };
 
