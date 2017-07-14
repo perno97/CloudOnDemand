@@ -38,23 +38,21 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         File mainFolder = new File(getContent());
         folder = new MyFile(null, mainFolder);
         // Create base folder on Drive
-        createDriveFolder(mainFolder.getName());
+        createDriveFolder(mainFolder.getName(), null);
     }
 
 
 
 
-    // Send input to create a folder on drive (root folder), retrieve it by callback (onDriveFolderCreated)
-    private void createDriveFolder (String name) {
-        createDriveFolder(name, Drive.DriveApi.getRootFolder(getGoogleApiClient()));
-    }
-
-    // Send input to create a folder on drive (parent folder), retrieve it by callback (onDriveFolderCreated)
+    // Send input to create a folder on drive (parent folder // root if parentFolder = null), retrieve it by callback (onDriveFolderCreated)
     private void createDriveFolder (String name, DriveFolder parentFolder) {
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                 .setTitle(name)
                 .setStarred(true)
                 .build();
+
+        if (parentFolder == null)
+            parentFolder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
 
         parentFolder
                 .createFolder(getGoogleApiClient(), changeSet)
@@ -76,12 +74,18 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         if (!folder.hasNextFile()) {
             if(folder.hasNextSubFolder())
                 createDriveFolder(folder.nextSubFolder().getThisFolder().getName(), folder.getThisDriveFolder());
-            else
-                Toast.makeText(this, "Finito di caricare", Toast.LENGTH_SHORT).show();
+            else {  // Go to parent folder next subdirectory
+                MyFile subFolder = folder.nextParentSubFolder();
+                if(subFolder == null)
+                    Toast.makeText(this, "FINITO", Toast.LENGTH_SHORT).show();
+                else
+                    createDriveFolder(subFolder.getThisFolder().getName(), subFolder.getParentFolder().getThisDriveFolder());
+            }
+
             return;
         }
 
-        currentDriveFolder = folder.getThisDriveFolder();
+        currentDriveFolder = folder.getCurrentDriveFolder();
         currenFile = folder.nextFile();
         // Start creating new drive content and fill it in callback with fileList[currentFile]
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
@@ -136,7 +140,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
                             .setStarred(true)
                             .build();
                     // DA RIVEDERE
-                    driveFolders.get(currentDriveFolder)
+                    currentDriveFolder
                             .createFile(getGoogleApiClient(), changeSet, driveContents)
                             .setResultCallback(fileCallback);
                 }
@@ -218,35 +222,49 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
             return files;
         }
 
+        //IMPORTANTE
+        private MyFile getCurrentMyFile (MyFile myFile) {
+            int i = currentSubFolder - 1;
+            if(i == -1) {
+                return this;
+            }
+            else {
+                return getCurrentMyFile(subFolders[i]);
+            }
+        }
+        private MyFile getCurrentMyFile () {
+            return getCurrentMyFile(this);
+        }
+
         private File nextFile () {
-            if (files.length == currentFile)
+            if (getCurrentMyFile().files.length == getCurrentMyFile().currentFile)
                 return null;
             else
-                return files[currentFile++];
+                return getCurrentMyFile().files[currentFile++];
         }
 
         private MyFile nextSubFolder () {
-            if (subFolders.length == currentSubFolder)
+            if (getCurrentMyFile().subFolders.length == getCurrentMyFile().currentSubFolder)
                 return null;
             else
-                return subFolders[currentSubFolder++];
+                return getCurrentMyFile().subFolders[currentSubFolder++];
+        }
+
+        private MyFile nextParentSubFolder () {
+            if (!hasParentFolder())
+                return null;
+            MyFile parentFolder = getCurrentMyFile().parentFolder;
+            return parentFolder.nextSubFolder();
         }
 
         // Set drive folder to thisDriveFolder if currentSubFolder is <0, else to subFolder[currentSubFolder-1]
         private void setDriveFolder (DriveFolder driveFolder) {
-            int i = currentSubFolder-1;
-            if (i == -1) {
-                thisDriveFolder = driveFolder;
-            }
-            else {
-                MyFile parentFolder = subFolders[i].parentFolder;
-                File thisFolder = subFolders[i].thisFolder;
-                subFolders[i] = new MyFile (parentFolder, thisFolder, driveFolder);
-            }
+            MyFile currentMyFile = getCurrentMyFile();
+            currentMyFile.thisDriveFolder = driveFolder;
         }
 
         private boolean hasParentFolder () {
-            return this.parentFolder != null;
+            return parentFolder != null;
         }
 
         private boolean hasNextFile () {
@@ -265,14 +283,12 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
             return thisDriveFolder;
         }
 
+        private MyFile getParentFolder () {
+            return parentFolder;
+        }
+
         private DriveFolder getCurrentDriveFolder () {
-            int i = currentSubFolder-1;
-            if (i == -1) {
-                return thisDriveFolder;
-            }
-            else {
-                return subFolders[i].thisDriveFolder;
-            }
+            return getCurrentMyFile().thisDriveFolder;
         }
     }
 }
