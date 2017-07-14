@@ -131,6 +131,7 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
         } else {
             // Signed out, show unauthenticated UI.
             Toast.makeText(this, R.string.unable_connect_account, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, result.getStatus().toString());
         }
     }
 
