@@ -5,7 +5,7 @@ import com.google.android.gms.drive.DriveFolder;
 import java.io.File;
 import java.io.FileFilter;
 
-public class GoogleDriveCustomFile {
+class GoogleDriveCustomFile {
     private GoogleDriveCustomFile parentFolder;
 
     private File thisFolder;
@@ -17,7 +17,7 @@ public class GoogleDriveCustomFile {
     private File[] files;
     private int currentFile = 0;
 
-    public GoogleDriveCustomFile(GoogleDriveCustomFile parentFolder, File thisFolder) {
+    GoogleDriveCustomFile(GoogleDriveCustomFile parentFolder, File thisFolder) {
         this.parentFolder = parentFolder;
         this.thisFolder = thisFolder;
         this.subFolders = generateSubFolders(thisFolder);
@@ -58,30 +58,29 @@ public class GoogleDriveCustomFile {
     }
 
     //IMPORTANTE
-    private GoogleDriveCustomFile getCurrentMyFile (GoogleDriveCustomFile googleDriveCustomFile) {
+    private GoogleDriveCustomFile getCurrentFolder(GoogleDriveCustomFile googleDriveCustomFile) {
         int i = googleDriveCustomFile.currentSubFolder - 1;
         if(i == -1) {
             return googleDriveCustomFile;
         }
         else {
-            return getCurrentMyFile(subFolders[i]);
+            return getCurrentFolder(subFolders[i]);
         }
     }
 
-    public GoogleDriveCustomFile getCurrentMyFile () {
-        return getCurrentMyFile(this);
+    GoogleDriveCustomFile getCurrentFolder() {
+        return getCurrentFolder(this);
     }
 
-    public File nextFile () {
-        GoogleDriveCustomFile currentGoogleDriveCustomFile = getCurrentMyFile();
-        if (currentGoogleDriveCustomFile.files.length == currentGoogleDriveCustomFile.currentFile)
+    File nextFile () {
+        if (files.length == currentFile)
             return null;
         else
-            return currentGoogleDriveCustomFile.files[currentGoogleDriveCustomFile.currentFile++];
+            return files[currentFile++];
     }
 
-    public GoogleDriveCustomFile nextSubFolder () {
-        GoogleDriveCustomFile currentGoogleDriveCustomFile = getCurrentMyFile();
+    GoogleDriveCustomFile nextSubFolder () {
+        GoogleDriveCustomFile currentGoogleDriveCustomFile = getCurrentFolder();
         if (currentGoogleDriveCustomFile.subFolders.length == currentGoogleDriveCustomFile.currentSubFolder)
             return null;
         else
@@ -95,47 +94,43 @@ public class GoogleDriveCustomFile {
             return googleDriveCustomFile.subFolders[googleDriveCustomFile.currentSubFolder++];
     }
 
-    public GoogleDriveCustomFile nextParentSubFolder () {
-        GoogleDriveCustomFile currentGoogleDriveCustomFile = getCurrentMyFile();
-        if (!currentGoogleDriveCustomFile.hasParentFolder())
+    GoogleDriveCustomFile nextParentSubFolder () {
+        if (!hasParentFolder())
             return null;
-        GoogleDriveCustomFile parentFolder = currentGoogleDriveCustomFile.parentFolder;
         return parentFolder.nextSubFolder(parentFolder);
     }
 
     // Set drive folder to thisDriveFolder if currentSubFolder is <0, else to subFolder[currentSubFolder-1]
-    public void setDriveFolder (DriveFolder driveFolder) {
-        GoogleDriveCustomFile currentGoogleDriveCustomFile = getCurrentMyFile();
+    void setDriveFolder (DriveFolder driveFolder) {
+        GoogleDriveCustomFile currentGoogleDriveCustomFile = getCurrentFolder();
         currentGoogleDriveCustomFile.thisDriveFolder = driveFolder;
     }
 
-    public boolean hasParentFolder () {
+    boolean hasParentFolder () {
         return parentFolder != null;
     }
 
-    public boolean hasNextFile () {
-        GoogleDriveCustomFile currentGoogleDriveCustomFile = getCurrentMyFile();
-        return currentGoogleDriveCustomFile.files.length != currentGoogleDriveCustomFile.currentFile;
+    boolean hasNextFile () {
+        return files.length != currentFile;
     }
 
-    public boolean hasNextSubFolder () {
-        GoogleDriveCustomFile currentGoogleDriveCustomFile = getCurrentMyFile();
-        return currentGoogleDriveCustomFile.subFolders.length != currentGoogleDriveCustomFile.currentSubFolder;
+    boolean hasNextSubFolder () {
+        return subFolders.length != currentSubFolder;
     }
 
-    public File getThisFolder () {
+    File getThisFolder () {
         return thisFolder;
     }
 
-    public DriveFolder getThisDriveFolder () {
+    DriveFolder getThisDriveFolder () {
         return thisDriveFolder;
     }
 
-    public GoogleDriveCustomFile getParentFolder () {
+    GoogleDriveCustomFile getParentFolder () {
         return parentFolder;
     }
 
-    public DriveFolder getCurrentDriveFolder () {
-        return getCurrentMyFile().thisDriveFolder;
+    DriveFolder getCurrentDriveFolder () {
+        return getCurrentFolder().thisDriveFolder;
     }
 }

@@ -12,7 +12,6 @@ import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,7 +19,7 @@ import java.io.OutputStream;
 
 public class GoogleDriveFileFolder extends GoogleDriveFile {
     private static final String TAG = "GoogleDriveUpFolder";
-    private GoogleDriveCustomFile folder;
+    private GoogleDriveCustomFile foldersTree;
 
     private File currentFile;
     private DriveFolder currentDriveFolder;
@@ -29,15 +28,13 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
     public void startUploading() {
         // Initialize list of files to upload
         File mainFolder = new File(getContent());
-        folder = new GoogleDriveCustomFile(null, mainFolder);
-        // Create base folder on Drive
+        foldersTree = new GoogleDriveCustomFile(null, mainFolder);
+        // Create base foldersTree on Drive
         createDriveFolder(null, mainFolder.getName());
     }
 
 
-
-
-    // Send input to create a folder on drive (parent folder // root if parentFolder = null), retrieve it by callback (onDriveFolderCreated)
+    // Send input to create a foldersTree on drive (parent foldersTree // root if parentFolder = null), retrieve it by callback (onDriveFolderCreated)
     private void createDriveFolder (DriveFolder parentFolder, String name) {
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                 .setTitle(name)
@@ -55,32 +52,48 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
     private final ResultCallback<DriveFolder.DriveFolderResult> onDriveFolderCreated = new ResultCallback<DriveFolder.DriveFolderResult>() {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
-            // Retrieve created folder
-            folder.setDriveFolder(driveFolderResult.getDriveFolder());
-            // Upload the file in fileList at currentFile position (fileList[currentFile])
+            // Retrieve created foldersTree and save it
+            foldersTree.setDriveFolder(driveFolderResult.getDriveFolder());
+            // Upload the next file
             uploadFile();
         }
     };
 
 
-    // Upload the file in fileList at currentFile position (fileList[currentFile])
+    // Upload the next file or create the foldersTree in which is in
     private void uploadFile() {
-        if (!folder.hasNextFile()) {
-            if(folder.hasNextSubFolder())
-                createDriveFolder(folder.getCurrentMyFile().getThisDriveFolder(), folder.nextSubFolder().getThisFolder().getName());
-            else {  // Go to parent folder next subdirectory
-                GoogleDriveCustomFile subFolder = folder.nextParentSubFolder();
-                if(subFolder == null)
-                    Toast.makeText(this, "FINITO", Toast.LENGTH_SHORT).show();
-                else
+        // Check if there is another file to upload in current folder
+        if (!foldersTree.getCurrentFolder().hasNextFile()) {
+            // Check if current folder has another subfolder
+            if(foldersTree.getCurrentFolder().hasNextSubFolder())
+                // Create that subfolder
+                createDriveFolder(foldersTree.getCurrentFolder().getThisDriveFolder(), foldersTree.nextSubFolder().getThisFolder().getName());
+            else {
+                // Go to parent's foldersTree next subdirectory
+                GoogleDriveCustomFile subFolder = foldersTree.getCurrentFolder().nextParentSubFolder();
+                GoogleDriveCustomFile thisFolder = foldersTree.getCurrentFolder();
+                // Go up to main directory
+                while(subFolder == null && thisFolder.hasParentFolder()) {
+                    thisFolder = thisFolder.getParentFolder();
+                    subFolder = thisFolder.nextParentSubFolder();
+                }
+
+                // Found another folder in the tree
+                if(subFolder != null) {
                     createDriveFolder(subFolder.getParentFolder().getThisDriveFolder(), subFolder.getThisFolder().getName());
+                    return;
+                }
+
+                // Reached up main folder without finding another folder... finished
+                Toast.makeText(this, "FINITO", Toast.LENGTH_SHORT).show();
             }
 
             return;
         }
 
-        currentDriveFolder = folder.getCurrentDriveFolder();
-        currentFile = folder.nextFile();
+        // Retrieve file to upload into this drive folder
+        currentDriveFolder = foldersTree.getCurrentDriveFolder();
+        currentFile = foldersTree.getCurrentFolder().nextFile();
 
         // Start creating new drive content and fill it in callback with fileList[currentFile]
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
