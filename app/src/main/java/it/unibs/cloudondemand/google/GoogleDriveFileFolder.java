@@ -23,14 +23,10 @@ import it.unibs.cloudondemand.utils.Utils;
 
 public class GoogleDriveFileFolder extends GoogleDriveFile {
     private static final String TAG = "GoogleDriveUpFolder";
-    private File[] fileList;
-    private int currentFile;
-    private ArrayList<DriveFolder> driveFolders = new ArrayList<>();
-    private int currentDriveFolder;
+    private MyFile folder;
 
-    private File[] subdirectories;
-    private int currentSubdirectory;
-    private DriveFolder intoDriveFolder;
+    private File currenFile;
+    private DriveFolder currentDriveFolder;
 
     @Override
     public void startUploading() {
@@ -40,26 +36,18 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         array <pair> con file e indice cartella drive
          */
         File mainFolder = new File(getContent());
-        fileList = mainFolder.listFiles();
-        currentFile = 0;
-
-        /* TESTING */
-        currentDriveFolder = 0;
-        subdirectories = Utils.getSubdirectories(mainFolder);
-        currentSubdirectory = 0;
-        intoDriveFolder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
-        initializeArrays();
-        Log.i("SADADSAASDASD", "Fatto");
-        //createFolder(folder.getName());
+        folder = new MyFile(null, mainFolder);
+        // Create base folder on Drive
+        createDriveFolder(mainFolder.getName());
     }
 
-    private void initializeArrays (DriveFolder driveFolder) {
-        if(currentSubdirectory == subdirectories.length) return;
 
-        createDriveFolder(subdirectories[currentSubdirectory].getName(), intoDriveFolder);
-        currentSubdirectory++;
+
+
+    // Send input to create a folder on drive (root folder), retrieve it by callback (onDriveFolderCreated)
+    private void createDriveFolder (String name) {
+        createDriveFolder(name, Drive.DriveApi.getRootFolder(getGoogleApiClient()));
     }
-
 
     // Send input to create a folder on drive (parent folder), retrieve it by callback (onDriveFolderCreated)
     private void createDriveFolder (String name, DriveFolder parentFolder) {
@@ -77,27 +65,27 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
             // Retrieve created folder
-            driveFolders.add(currentDriveFolder,driveFolderResult.getDriveFolder());
-            currentDriveFolder++;
-            /* TESTING */
-            initializeArrays(driveFolderResult.getDriveFolder());
+            folder.setDriveFolder(driveFolderResult.getDriveFolder());
             // Upload the file in fileList at currentFile position (fileList[currentFile])
-            //uploadFile();
+            uploadFile();
         }
     };
 
     // Upload the file in fileList at currentFile position (fileList[currentFile])
     private void uploadFile() {
-        // Finished to upload files in this folder
-        if(currentFile == fileList.length) return;
-        // Doesn't casually try to upload directory
-        if(fileList[currentFile].isDirectory()) return;
+        if (!folder.hasNextFile()) {
+            if(folder.hasNextSubFolder())
+                createDriveFolder(folder.nextSubFolder().getThisFolder().getName(), folder.getThisDriveFolder());
+            else
+                Toast.makeText(this, "Finito di caricare", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        currentDriveFolder = folder.getThisDriveFolder();
+        currenFile = folder.nextFile();
         // Start creating new drive content and fill it in callback with fileList[currentFile]
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
-
-        currentFile++;
     }
 
     // Called when new content on Drive was created
@@ -122,7 +110,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
 
                     try {
                         // Open file
-                        FileInputStream fileInputStream = new FileInputStream(fileList[currentFile]);
+                        FileInputStream fileInputStream = new FileInputStream(currenFile);
                         outputStream = driveContents.getOutputStream();
                         // Write on drive content stream with buffer of 8 bytes
                         byte[] buffer = new byte[8];
@@ -144,7 +132,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
                     }
 
                     MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle(fileList[currentFile].getName())
+                            .setTitle(currenFile.getName())
                             .setStarred(true)
                             .build();
                     // DA RIVEDERE
@@ -171,4 +159,120 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
             uploadFile();
         }
     };
+
+    private class MyFile {
+        private MyFile parentFolder;
+
+        private File thisFolder;
+        private DriveFolder thisDriveFolder;
+
+        private MyFile[] subFolders;
+        private int currentSubFolder = 0;
+
+        private File[] files;
+        private int currentFile = 0;
+
+        private MyFile(MyFile parentFolder, File thisFolder) {
+            this.parentFolder = parentFolder;
+            this.thisFolder = thisFolder;
+            this.subFolders = generateSubFolders(thisFolder);
+            this.files = generateFiles(thisFolder);
+        }
+
+        private MyFile(MyFile parentFolder, File thisFolder, DriveFolder thisDriveFolder) {
+            this.parentFolder = parentFolder;
+            this.thisFolder = thisFolder;
+            this.subFolders = generateSubFolders(thisFolder);
+            this.files = generateFiles(thisFolder);
+            this.thisDriveFolder = thisDriveFolder;
+        }
+
+        private MyFile[] generateSubFolders (File folder) {
+            // List directories into the folder
+            File[] directories = folder.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.isDirectory();
+                }
+            });
+            // Fill array with MyFile objects
+            MyFile[] folders = new MyFile[directories.length];
+            int i = 0;
+            for (File directory : directories) {
+                folders[i] = new MyFile(this, directory);
+                i++;
+            }
+
+            return folders;
+        }
+
+        private File[] generateFiles (File folder) {
+            // List files into the folder
+            File[] files = folder.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.isFile();
+                }
+            });
+
+            return files;
+        }
+
+        private File nextFile () {
+            if (files.length == currentFile)
+                return null;
+            else
+                return files[currentFile++];
+        }
+
+        private MyFile nextSubFolder () {
+            if (subFolders.length == currentSubFolder)
+                return null;
+            else
+                return subFolders[currentSubFolder++];
+        }
+
+        // Set drive folder to thisDriveFolder if currentSubFolder is <0, else to subFolder[currentSubFolder-1]
+        private void setDriveFolder (DriveFolder driveFolder) {
+            int i = currentSubFolder-1;
+            if (i == -1) {
+                thisDriveFolder = driveFolder;
+            }
+            else {
+                MyFile parentFolder = subFolders[i].parentFolder;
+                File thisFolder = subFolders[i].thisFolder;
+                subFolders[i] = new MyFile (parentFolder, thisFolder, driveFolder);
+            }
+        }
+
+        private boolean hasParentFolder () {
+            return this.parentFolder != null;
+        }
+
+        private boolean hasNextFile () {
+            return files.length != currentFile;
+        }
+
+        private boolean hasNextSubFolder () {
+            return subFolders.length != currentSubFolder;
+        }
+
+        private File getThisFolder () {
+            return thisFolder;
+        }
+
+        private DriveFolder getThisDriveFolder () {
+            return thisDriveFolder;
+        }
+
+        private DriveFolder getCurrentDriveFolder () {
+            int i = currentSubFolder-1;
+            if (i == -1) {
+                return thisDriveFolder;
+            }
+            else {
+                return subFolders[i].thisDriveFolder;
+            }
+        }
+    }
 }
