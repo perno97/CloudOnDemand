@@ -16,57 +16,84 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 public class GoogleDriveFileFolder extends GoogleDriveFile {
     private static final String TAG = "GoogleDriveUpFolder";
-    private File[] fileList;
-    private DriveFolder driveFolder;
-    private int currentFile;
+    private GoogleDriveCustomFile foldersTree;
+
+    private File currentFile;
+    private DriveFolder currentDriveFolder;
 
     @Override
     public void startUploading() {
         // Initialize list of files to upload
-        /*  TODO
-        array cartelle da creare
-        mappa file da caricare e cartella a cui appartiene
-        array associato delle rispettive cartelle su drive
-         */
-        File folder = new File(getContent());
-        fileList = folder.listFiles();
-
-        //Creates root folder
-        createFolder(folder.getName(), Drive.DriveApi.getRootFolder(getGoogleApiClient()));
+        File mainFolder = new File(getContent());
+        foldersTree = new GoogleDriveCustomFile(null, mainFolder);
+        // Create base foldersTree on Drive
+        createDriveFolder(null, mainFolder.getName());
     }
 
-    // Send input to create a folder on drive, retrieve it by callback (onDriveFolderCreated)
-    private void createFolder (String name, DriveFolder parentFolder) {
+
+    // Send input to create a foldersTree on drive (parent foldersTree // root if parentFolder = null), retrieve it by callback (onDriveFolderCreated)
+    private void createDriveFolder (DriveFolder parentFolder, String name) {
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                 .setTitle(name)
                 .setStarred(true)
                 .build();
 
-        parentFolder.createFolder(getGoogleApiClient(), changeSet)
+        if (parentFolder == null)
+            parentFolder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
+
+        parentFolder
+                .createFolder(getGoogleApiClient(), changeSet)
                 .setResultCallback(onDriveFolderCreated);
     }
 
     private final ResultCallback<DriveFolder.DriveFolderResult> onDriveFolderCreated = new ResultCallback<DriveFolder.DriveFolderResult>() {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
-            // Retrieve created folder
-            driveFolder = driveFolderResult.getDriveFolder();
-            // Upload the file in fileList at currentFile position (fileList[currentFile])
+            // Retrieve created foldersTree and save it
+            foldersTree.setDriveFolder(driveFolderResult.getDriveFolder());
+            // Upload the next file
             uploadFile();
         }
     };
 
-    // Upload the file in fileList at currentFile position (fileList[currentFile])
+
+    // Upload the next file or create the foldersTree in which is in
     private void uploadFile() {
-        // Finished to upload files in this folder
-        if(currentFile == fileList.length) return;
-        // Doesn't casually try to upload directory
-        if(fileList[currentFile].isDirectory()) return;
+        // Check if there is another file to upload in current folder
+        if (!foldersTree.getCurrentFolder().hasNextFile()) {
+            // Check if current folder has another subfolder
+            if(foldersTree.getCurrentFolder().hasNextSubFolder())
+                // Create that subfolder
+                createDriveFolder(foldersTree.getCurrentFolder().getThisDriveFolder(), foldersTree.nextSubFolder().getThisFolder().getName());
+            else {
+                // Go to parent's foldersTree next subdirectory
+                GoogleDriveCustomFile subFolder = foldersTree.getCurrentFolder().nextParentSubFolder();
+                GoogleDriveCustomFile thisFolder = foldersTree.getCurrentFolder();
+                // Go up to main directory
+                while(subFolder == null && thisFolder.hasParentFolder()) {
+                    thisFolder = thisFolder.getParentFolder();
+                    subFolder = thisFolder.nextParentSubFolder();
+                }
+
+                // Found another folder in the tree
+                if(subFolder != null) {
+                    createDriveFolder(subFolder.getParentFolder().getThisDriveFolder(), subFolder.getThisFolder().getName());
+                    return;
+                }
+
+                // Reached up main folder without finding another folder... finished
+                Toast.makeText(this, "FINITO", Toast.LENGTH_SHORT).show();
+            }
+
+            return;
+        }
+
+        // Retrieve file to upload into this drive folder
+        currentDriveFolder = foldersTree.getCurrentDriveFolder();
+        currentFile = foldersTree.getCurrentFolder().nextFile();
 
         // Start creating new drive content and fill it in callback with fileList[currentFile]
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
@@ -95,7 +122,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
 
                     try {
                         // Open file
-                        FileInputStream fileInputStream = new FileInputStream(fileList[currentFile]);
+                        FileInputStream fileInputStream = new FileInputStream(currentFile);
                         outputStream = driveContents.getOutputStream();
                         // Write on drive content stream with buffer of 8 bytes
                         byte[] buffer = new byte[8];
@@ -117,11 +144,12 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
                     }
 
                     MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle(fileList[currentFile].getName())
+                            .setTitle(currentFile.getName())
                             .setStarred(true)
                             .build();
 
-                    driveFolder.createFile(getGoogleApiClient(), changeSet, driveContents)
+                    currentDriveFolder
+                            .createFile(getGoogleApiClient(), changeSet, driveContents)
                             .setResultCallback(fileCallback);
                 }
             }.start();
@@ -136,11 +164,9 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
                 Toast.makeText(GoogleDriveFileFolder.this, "File non Creato", Toast.LENGTH_SHORT).show();   //TODO FARE QUALCOSA
                 Log.e(TAG, "File not created");
             } else {
-                Toast.makeText(GoogleDriveFileFolder.this, "File Creato", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
 
-            currentFile++;
             uploadFile();
         }
     };
