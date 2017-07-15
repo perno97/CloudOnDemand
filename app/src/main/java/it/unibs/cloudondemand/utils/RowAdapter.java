@@ -1,6 +1,7 @@
 package it.unibs.cloudondemand.utils;
 
 import android.content.Context;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,9 +62,21 @@ public class RowAdapter extends BaseAdapter{
         // Assign icon
         if(file.isDirectory())
             imageButton.setImageResource(R.drawable.ic_folder);
-        else
+        else if(file.isFile())
             imageButton.setImageResource(R.drawable.ic_file);
+        else
+        {
+            switch(file.getName().substring(file.getName().lastIndexOf('.'), file.getName().length())) //TODO
+            {
+                case ("png"):
+                    imageButton.setImageResource(R.drawable.ic_image);
+                case (".jpg"):
+                    imageButton.setImageResource(R.drawable.ic_image);
+                case ("jpeg"):
+                    imageButton.setImageResource(R.drawable.ic_image);
+            }
 
+        }
         // Assign text
         textView.setText(file.getName());
 
