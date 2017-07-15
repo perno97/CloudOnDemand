@@ -19,7 +19,7 @@ import java.io.OutputStream;
 
 public class GoogleDriveFileFolder extends GoogleDriveFile {
     private static final String TAG = "GoogleDriveUpFolder";
-    private GoogleDriveCustomFile foldersTree;
+    private GoogleDriveFileTree foldersTree;
 
     private File currentFile;
     private DriveFolder currentDriveFolder;
@@ -28,7 +28,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
     public void startUploading() {
         // Initialize list of files to upload
         File mainFolder = new File(getContent());
-        foldersTree = new GoogleDriveCustomFile(null, mainFolder);
+        foldersTree = new GoogleDriveFileTree(null, mainFolder);
         // Create base foldersTree on Drive
         createDriveFolder(null, mainFolder.getName());
     }
@@ -67,11 +67,11 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
             // Check if current folder has another subfolder
             if(foldersTree.getCurrentFolder().hasNextSubFolder())
                 // Create that subfolder
-                createDriveFolder(foldersTree.getCurrentFolder().getThisDriveFolder(), foldersTree.nextSubFolder().getThisFolder().getName());
+                createDriveFolder(foldersTree.getCurrentFolder().getThisDriveFolder(), foldersTree.nextCurrentSubFolder().getFolderName());
             else {
                 // Go to parent's foldersTree next subdirectory
-                GoogleDriveCustomFile subFolder = foldersTree.getCurrentFolder().nextParentSubFolder();
-                GoogleDriveCustomFile thisFolder = foldersTree.getCurrentFolder();
+                GoogleDriveFileTree subFolder = foldersTree.getCurrentFolder().nextParentSubFolder();
+                GoogleDriveFileTree thisFolder = foldersTree.getCurrentFolder();
                 // Go up to main directory
                 while(subFolder == null && thisFolder.hasParentFolder()) {
                     thisFolder = thisFolder.getParentFolder();
@@ -80,7 +80,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
 
                 // Found another folder in the tree
                 if(subFolder != null) {
-                    createDriveFolder(subFolder.getParentFolder().getThisDriveFolder(), subFolder.getThisFolder().getName());
+                    createDriveFolder(subFolder.getParentFolder().getThisDriveFolder(), subFolder.getFolderName());
                     return;
                 }
 
@@ -93,7 +93,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
 
         // Retrieve file to upload into this drive folder
         currentDriveFolder = foldersTree.getCurrentDriveFolder();
-        currentFile = foldersTree.getCurrentFolder().nextFile();
+        currentFile = foldersTree.getCurrentFolder().nextCurrentFile();
 
         // Start creating new drive content and fill it in callback with fileList[currentFile]
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
