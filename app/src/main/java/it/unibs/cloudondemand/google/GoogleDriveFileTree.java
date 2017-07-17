@@ -8,7 +8,7 @@ import java.io.FileFilter;
 class GoogleDriveFileTree {
     private GoogleDriveFileTree parentFolder;
 
-    private GoogleDriveCustomFile thisFolder;
+    private GoogleDriveCustomFolder thisFolder;
 
     private GoogleDriveFileTree[] subFolders;
     private int currentSubFolder;
@@ -16,7 +16,7 @@ class GoogleDriveFileTree {
 
     GoogleDriveFileTree(GoogleDriveFileTree parentFolder, File thisFolder) {
         this.parentFolder = parentFolder;
-        this.thisFolder = new GoogleDriveCustomFile(thisFolder);
+        this.thisFolder = new GoogleDriveCustomFolder(thisFolder);
         this.subFolders = generateSubFolders(thisFolder);
         this.currentSubFolder = -1;
     }
@@ -120,13 +120,14 @@ class GoogleDriveFileTree {
         return getCurrentFolder().thisFolder.getDriveFolder();
     }
 
-    private class GoogleDriveCustomFile {
+    // Element class of tree
+    private class GoogleDriveCustomFolder {
         private File folder;
         private DriveFolder driveFolder;
         private File[] files;
         private int currentFile;
 
-        private GoogleDriveCustomFile (File folder) {
+        private GoogleDriveCustomFolder(File folder) {
             this.folder = folder;
             files = generateFiles(folder);
             currentFile = -1;

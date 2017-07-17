@@ -23,7 +23,7 @@ import java.io.OutputStream;
 
 import it.unibs.cloudondemand.R;
 
-public class GoogleDriveFileSingle extends GoogleDriveFile {
+public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
 
     @Override
@@ -102,10 +102,10 @@ public class GoogleDriveFileSingle extends GoogleDriveFile {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
             if (!driveFileResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDriveFileSingle.this, "File non Creato", Toast.LENGTH_SHORT).show();   //TODO FARE QUALCOSA
+                Toast.makeText(GoogleDriveUploadFileSingle.this, "File non Creato", Toast.LENGTH_SHORT).show();   //TODO FARE QUALCOSA
                 Log.e(TAG, "File not created");
             } else {
-                Toast.makeText(GoogleDriveFileSingle.this, "File Creato", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveUploadFileSingle.this, "File Creato", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
                 /* TESTING */
                 updateProgressBar(100);

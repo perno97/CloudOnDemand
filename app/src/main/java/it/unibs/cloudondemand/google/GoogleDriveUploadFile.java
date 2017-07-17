@@ -2,7 +2,6 @@ package it.unibs.cloudondemand.google;
 
 import android.Manifest;
 import android.content.Intent;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -11,7 +10,7 @@ import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.PermissionResultCallback;
 import it.unibs.cloudondemand.utils.Utils;
 
-public abstract class GoogleDriveFile extends GoogleDrive {
+public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     private static final String TAG = "GoogleDriveUpFile";
 
     @Override
@@ -23,7 +22,7 @@ public abstract class GoogleDriveFile extends GoogleDrive {
             startActivity(intent);
         }
         else {
-            Toast.makeText(GoogleDriveFile.this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
+            Toast.makeText(GoogleDriveUploadFile.this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
             Log.e(TAG, "Unable to read external storage.");
         }
     }
@@ -36,7 +35,7 @@ public abstract class GoogleDriveFile extends GoogleDrive {
                 startUploading();
             else {
                 // Permission denied, show to user and close activity
-                Toast.makeText(GoogleDriveFile.this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveUploadFile.this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Permission to read external storage denied");
                 finish();
             }

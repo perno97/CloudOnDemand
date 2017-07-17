@@ -28,21 +28,21 @@
                 android:value=".MainActivity" />
         </activity>
 
-        <activity android:name=".google.GoogleDriveString"
+        <activity android:name=".google.GoogleDriveUploadString"
             android:configChanges="orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
 
-        <activity android:name=".google.GoogleDriveFileSingle"
+        <activity android:name=".google.GoogleDriveUploadFileSingle"
             android:configChanges="orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
 
-        <activity android:name=".google.GoogleDriveFileFolder"
+        <activity android:name=".google.GoogleDriveUploadFileFolder"
             android:configChanges="orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

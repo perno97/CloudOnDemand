@@ -17,7 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class GoogleDriveFileFolder extends GoogleDriveFile {
+public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpFolder";
     private GoogleDriveFileTree foldersTree;
 
@@ -161,7 +161,7 @@ public class GoogleDriveFileFolder extends GoogleDriveFile {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
             if (!driveFileResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDriveFileFolder.this, "File non Creato", Toast.LENGTH_SHORT).show();   //TODO FARE QUALCOSA
+                Toast.makeText(GoogleDriveUploadFileFolder.this, "File non Creato", Toast.LENGTH_SHORT).show();   //TODO FARE QUALCOSA
                 Log.e(TAG, "File not created");
             } else {
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
