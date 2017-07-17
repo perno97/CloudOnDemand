@@ -29,7 +29,7 @@ import it.unibs.cloudondemand.utils.Utils;
 public class MainActivity extends AppCompatActivity {
     private static final String initialPath = Environment.getExternalStorageDirectory().getAbsolutePath();
     private FileAdaptable currentPath = new FileAdaptable(initialPath);
-    private final ArrayList<FileAdaptable> currentFileList = new ArrayList<>();
+    private final ArrayList<FileListable> currentFileList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,23 +89,17 @@ public class MainActivity extends AppCompatActivity {
     /**Read files from external storage*/ //TODO gestire IOEXceotion
     public void readFiles() throws IOException {
         if(currentPath.exists()) {
-            if (currentPath.isFile()) {
-                // Open popup when clicked on file ... listview doesn't change
-                /*
-                String[] fileList=new String[]{file.getName()};
-                return fileList; */
-            }
-            else if (currentPath.isDirectory()) {
+            if (currentPath.isDirectory()) {
                 File[] fileList=currentPath.listFiles();
                 Arrays.sort(fileList);
                 // Clear string array
                 currentFileList.clear();
                 // Add first directory (back) /..
-                currentFileList.add(currentPath.getParentFile());
+                currentFileList.add(new FileAdaptable(currentPath.getParentFile()));
                 // Fill it with name of files
-                for (int i = 0; i<fileList.length;i++)
+                for (File file : fileList)
                 {
-                    currentFileList.add(new FileAdaptable(fileList[i]));
+                    currentFileList.add(new FileAdaptable(file));
                 }
             }
         }
@@ -125,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             if (position == 0) {
                 // Check if is possible to go back (not if is already in initial dir)
                 if (!currentPath.getAbsolutePath().equals(initialPath)) {
-                    currentPath = currentPath.getParentFile();
+                    currentPath = new FileAdaptable(currentPath.getParentFile());
                     refreshListView = true;
                 }
             }
@@ -204,14 +198,14 @@ public class MainActivity extends AppCompatActivity {
         startActivity(LoginActivity.getIntent(this, contentType, content));
     }
 
-    private class FileAdaptable extends File implements it.unibs.cloudondemand.utils.FileListable {
-        public FileAdaptable(File file) {
-            super(file.getPath());
+    // Custom File class to use into listview adapter
+    private class FileAdaptable extends File implements FileListable {
+        private FileAdaptable(String path) {
+            super(path);
         }
 
-        @Override
-        public FileAdaptable getParentFile() {
-            return new FileAdaptable(super.getParentFile());
+        private FileAdaptable(File file) {
+            super(file.getPath());
         }
     }
 }
