@@ -1,9 +1,7 @@
 package it.unibs.cloudondemand.google;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +11,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInApi;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
@@ -25,7 +22,7 @@ import com.google.android.gms.drive.Drive;
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
 
-public abstract class GoogleDrive extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public abstract class GoogleDriveConnection extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "GoogleDriveConnection";
 
     public static final String SIGN_OUT_EXTRA = "signOut";
@@ -150,7 +147,7 @@ public abstract class GoogleDrive extends AppCompatActivity implements GoogleApi
                             // Make it false to prevent infinite loop
                             signOut = false;
                             // Delete account name from shared preferences
-                            GoogleDriveUtil.saveAccountSignedIn(GoogleDrive.this, "");
+                            GoogleDriveUtil.saveAccountSignedIn(GoogleDriveConnection.this, "");
                             // Restart with new Sign-in
                             createGoogleClient();
                             doSignIn();

@@ -21,19 +21,19 @@ public class GoogleDriveUtil {
         Intent intent=null;
         switch (contentType) {
             case LoginActivity.CONTENT_STRING :
-                intent = new Intent(context, GoogleDriveString.class);
+                intent = new Intent(context, GoogleDriveUploadString.class);
                 break;
             case LoginActivity.CONTENT_FILE :
-                intent = new Intent(context, GoogleDriveFileSingle.class);
+                intent = new Intent(context, GoogleDriveUploadFileSingle.class);
                 break;
             case LoginActivity.CONTENT_FOLDER :
-                intent = new Intent(context, GoogleDriveFileFolder.class);
+                intent = new Intent(context, GoogleDriveUploadFileFolder.class);
                 break;
         }
         intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
 
         if(signOut)
-            intent.putExtra(GoogleDrive.SIGN_OUT_EXTRA, true);
+            intent.putExtra(GoogleDriveConnection.SIGN_OUT_EXTRA, true);
 
         return intent;
     }

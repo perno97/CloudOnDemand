@@ -12,17 +12,19 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 
+import it.unibs.cloudondemand.MainActivity;
 import it.unibs.cloudondemand.R;
 
 public class RowAdapter extends BaseAdapter{
 
-    private ArrayList<File> toRead=null;
+    private ArrayList<FileListable> toRead=null;
     Context context=null;
 
-    public RowAdapter(Context context, ArrayList<File> toRead) {
+    public RowAdapter(Context context, ArrayList<FileListable> toRead) {
         this.context=context;
         this.toRead=toRead;
     }
+
 
     @Override
     public int getCount() {

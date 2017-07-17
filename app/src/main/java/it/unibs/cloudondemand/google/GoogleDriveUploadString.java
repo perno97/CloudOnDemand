@@ -1,8 +1,6 @@
 package it.unibs.cloudondemand.google;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,9 +15,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import it.unibs.cloudondemand.LoginActivity;
-
-public class GoogleDriveString extends GoogleDrive {
+public class GoogleDriveUploadString extends GoogleDriveConnection {
     private static final String TAG = "GoogleDriveUpString";
 
     @Override
@@ -78,11 +74,11 @@ public class GoogleDriveString extends GoogleDrive {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
             if(!driveFileResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDriveString.this, "File non Creato", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveUploadString.this, "File non Creato", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "File not created");
             }
             else {
-                Toast.makeText(GoogleDriveString.this, "File Creato", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveUploadString.this, "File Creato", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
 

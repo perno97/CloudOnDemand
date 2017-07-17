@@ -3,12 +3,12 @@ package it.unibs.cloudondemand;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import it.unibs.cloudondemand.utils.FileListable;
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.PermissionResultCallback;
 import it.unibs.cloudondemand.utils.RowAdapter;
@@ -27,8 +28,8 @@ import it.unibs.cloudondemand.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
     private static final String initialPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-    private File currentPath = new File(initialPath);
-    private final ArrayList<File> currentFileListString = new ArrayList<>();
+    private FileAdaptable currentPath = new FileAdaptable(initialPath);
+    private final ArrayList<FileListable> currentFileList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             ListView listView = (ListView) findViewById(R.id.listview);
             try {
                 readFiles();
-                RowAdapter adapter = new RowAdapter(MainActivity.this, currentFileListString);
+                RowAdapter adapter = new RowAdapter(MainActivity.this, currentFileList);
                 listView.setAdapter(adapter);
             }
             catch (IOException e) {
@@ -88,23 +89,17 @@ public class MainActivity extends AppCompatActivity {
     /**Read files from external storage*/ //TODO gestire IOEXceotion
     public void readFiles() throws IOException {
         if(currentPath.exists()) {
-            if (currentPath.isFile()) {
-                // Open popup when clicked on file ... listview doesn't change
-                /*
-                String[] fileList=new String[]{file.getName()};
-                return fileList; */
-            }
-            else if (currentPath.isDirectory()) {
-                File[] currentFileList=currentPath.listFiles();
-                Arrays.sort(currentFileList);
+            if (currentPath.isDirectory()) {
+                File[] fileList=currentPath.listFiles();
+                Arrays.sort(fileList);
                 // Clear string array
-                currentFileListString.clear();
+                currentFileList.clear();
                 // Add first directory (back) /..
-                currentFileListString.add(currentPath.getParentFile());
+                currentFileList.add(new FileAdaptable(currentPath.getParentFile()));
                 // Fill it with name of files
-                for (int i = 0; i<currentFileList.length;i++)
+                for (File file : fileList)
                 {
-                    currentFileListString.add(currentFileList[i]);
+                    currentFileList.add(new FileAdaptable(file));
                 }
             }
         }
@@ -124,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             if (position == 0) {
                 // Check if is possible to go back (not if is already in initial dir)
                 if (!currentPath.getAbsolutePath().equals(initialPath)) {
-                    currentPath = currentPath.getParentFile();
+                    currentPath = new FileAdaptable(currentPath.getParentFile());
                     refreshListView = true;
                 }
             }
@@ -134,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Check if is directory or file
                 if (selected.isDirectory()) {
-                    currentPath = selected;
+                    currentPath = new FileAdaptable(selected);
                     refreshListView = true;
                 }
                 else if (selected.isFile()) {
@@ -190,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // User doesn't want to upload the selected file
+                        // User doesn't want to upload the selected file/folder
                     }
                 })
                 .create();
@@ -201,6 +196,17 @@ public class MainActivity extends AppCompatActivity {
     // Start another activity
     private void sendIntent (String contentType, String content) {
         startActivity(LoginActivity.getIntent(this, contentType, content));
+    }
+
+    // Custom File class to use into listview adapter
+    private class FileAdaptable extends File implements FileListable {
+        private FileAdaptable(String path) {
+            super(path);
+        }
+
+        private FileAdaptable(File file) {
+            super(file.getPath());
+        }
     }
 }
 
