@@ -71,11 +71,10 @@ public class RowAdapter extends BaseAdapter{
             switch(file.getName().substring(file.getName().lastIndexOf('.'), file.getName().length())) //TODO
             {
                 case ("png"):
-                    imageButton.setImageResource(R.drawable.ic_image);
-                case (".jpg"):
-                    imageButton.setImageResource(R.drawable.ic_image);
+                case ("jpg"):
                 case ("jpeg"):
                     imageButton.setImageResource(R.drawable.ic_image);
+                    break;
             }
 
         }
