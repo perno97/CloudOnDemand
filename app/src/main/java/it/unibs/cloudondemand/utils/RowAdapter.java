@@ -77,83 +77,33 @@ public class RowAdapter extends BaseAdapter{
 
     private int getFileIcon (String extension) {
         int drawableResource;
-        switch (extension.toLowerCase()) {
-            // Image files
-            case ("png"):
-            case ("jpg"):
-            case ("jpeg"):
-            case ("gif"):
-            case ("tif"):
-            case ("svg"):
-                drawableResource = R.drawable.ic_file_image;
-                break;
-            // Music files
-            case ("mp3"):
-            case ("m4a"):
-            case ("mpa"):
-            case ("wav"):
-            case ("wma"):
-                drawableResource = R.drawable.ic_file_music;
-                break;
-            // Video files
-            case ("3g2"):
-            case ("3gp"):
-            case ("avi"):
-            case ("flv"):
-            case ("m4v"):
-            case ("mov"):
-            case ("mp4"):
-            case ("mpg"):
-            case ("wmv"):
 
-                drawableResource = R.drawable.ic_file_video;
-                break;
-            // Plain text files
-            case ("txt"):
-            case ("csv"):
-            case ("log"):
-            case ("html"):
-            case ("htm"):
-            case ("js"):
-            case ("php"):
-            case ("css"):
-            case ("xml"):
-            case ("c"):
-            case ("cpp"):
-            case ("py"):
-            case ("sh"):
-            case ("lua"):
-                drawableResource = R.drawable.ic_file_document;
-                break;
-            // Word processor files
-            case ("doc"):
-            case ("docx"):
-            case ("odt"):
-                drawableResource = R.drawable.ic_file_word;
-                break;
-            // Spreadsheet files
-            case ("xls"):
-            case ("xlsx"):
-            case ("xlr"):
-                drawableResource = R.drawable.ic_file_excel;
-                break;
-            // Pdf files
-            case ("pdf"):
-                drawableResource = R.drawable.ic_file_document;
-                break;
-            // Compressed archive files
-            case ("zip"):
-            case ("tar"):
-            case ("gz"):
-            case ("rar"):
-            case ("7z"):
-                drawableResource = R.drawable.ic_file_compressed_archive;
-                break;
-            // Extension not
-            default:
-                drawableResource = R.drawable.ic_file_empty;
-                break;
-            }
+        if (Utils.isImageFile(extension))
+            drawableResource = R.drawable.ic_file_image;
+
+        else if (Utils.isAudioFile(extension))
+            drawableResource = R.drawable.ic_file_music;
+
+        else if (Utils.isVideoFile(extension))
+            drawableResource = R.drawable.ic_file_video;
+
+        else if (Utils.isTextFile(extension))
+            drawableResource = R.drawable.ic_file_document;
+
+        else if (Utils.isWordFile(extension))
+            drawableResource = R.drawable.ic_file_word;
+
+        else if (Utils.isSpreadsheetFile(extension))
+            drawableResource = R.drawable.ic_file_excel;
+
+        else if (Utils.isTextFile(extension))
+            drawableResource = R.drawable.ic_file_document;
+
+        else if (Utils.isCompressedArchiveFile(extension))
+            drawableResource = R.drawable.ic_file_compressed_archive;
+
+        else
+            drawableResource = R.drawable.ic_file_empty;
 
         return drawableResource;
     }
