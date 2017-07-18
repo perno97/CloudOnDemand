@@ -18,8 +18,8 @@ import it.unibs.cloudondemand.R;
 
 public class RowAdapter extends BaseAdapter{
 
-    private ArrayList<FileListable> toRead=null;
-    Context context=null;
+    private ArrayList<FileListable> toRead;
+    private Context context;
 
     public RowAdapter(Context context, ArrayList<FileListable> toRead) {
         this.context=context;
@@ -44,12 +44,12 @@ public class RowAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView==null)
+        if (convertView == null)
         {
-            convertView= LayoutInflater.from(context).inflate(R.layout.row, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.row, null);
         }
 
-        ImageView imageButton=(ImageView) convertView.findViewById(R.id.imageButton);
+        ImageView imageButton = (ImageView) convertView.findViewById(R.id.imageButton);
         TextView textView = (TextView) convertView.findViewById(R.id.riga);
 
         // Custom item at position 0 (go back)
@@ -72,6 +72,11 @@ public class RowAdapter extends BaseAdapter{
                 case ("jpg"):
                 case ("jpeg"):
                     imageButton.setImageResource(R.drawable.ic_image);
+                    break;
+                case ("txt"):
+                case ("doc"):
+                case ("docx"):
+                    imageButton.setImageResource(R.drawable.ic_document);
                     break;
                 default:
                     imageButton.setImageResource(R.drawable.ic_file);
