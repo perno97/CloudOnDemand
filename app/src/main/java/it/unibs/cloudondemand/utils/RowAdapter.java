@@ -2,6 +2,7 @@ package it.unibs.cloudondemand.utils;
 
 import android.content.Context;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,9 +65,8 @@ public class RowAdapter extends BaseAdapter{
         // Assign icon
         if(file.isDirectory())
             imageButton.setImageResource(R.drawable.ic_folder);
-        else
-        {
-            switch(file.getName().substring(file.getName().lastIndexOf('.'), file.getName().length())) //TODO
+        else {
+            switch(file.getName().substring(file.getName().lastIndexOf('.')+1, file.getName().length())) //TODO
             {
                 case ("png"):
                 case ("jpg"):
