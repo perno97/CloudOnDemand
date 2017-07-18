@@ -64,8 +64,6 @@ public class RowAdapter extends BaseAdapter{
         // Assign icon
         if(file.isDirectory())
             imageButton.setImageResource(R.drawable.ic_folder);
-        else if(file.isFile())
-            imageButton.setImageResource(R.drawable.ic_file);
         else
         {
             switch(file.getName().substring(file.getName().lastIndexOf('.'), file.getName().length())) //TODO
@@ -74,6 +72,9 @@ public class RowAdapter extends BaseAdapter{
                 case ("jpg"):
                 case ("jpeg"):
                     imageButton.setImageResource(R.drawable.ic_image);
+                    break;
+                default:
+                    imageButton.setImageResource(R.drawable.ic_file);
                     break;
             }
 
