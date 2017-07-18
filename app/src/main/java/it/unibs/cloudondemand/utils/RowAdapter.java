@@ -49,12 +49,12 @@ public class RowAdapter extends BaseAdapter{
             convertView = LayoutInflater.from(context).inflate(R.layout.row, null);
         }
 
-        ImageView imageButton = (ImageView) convertView.findViewById(R.id.imageButton);
+        ImageView imageView = (ImageView) convertView.findViewById(R.id.imageButton);
         TextView textView = (TextView) convertView.findViewById(R.id.riga);
 
         // Custom item at position 0 (go back)
         if (position == 0) {
-            imageButton.setImageResource(R.drawable.ic_folder);
+            imageView.setImageResource(R.drawable.ic_file_folder);
             textView.setText("/..");
             return convertView;
         }
@@ -64,22 +64,38 @@ public class RowAdapter extends BaseAdapter{
 
         // Assign icon
         if(file.isDirectory())
-            imageButton.setImageResource(R.drawable.ic_folder);
+            imageView.setImageResource(R.drawable.ic_file_folder);
         else {
             switch(file.getName().substring(file.getName().lastIndexOf('.')+1, file.getName().length())) //TODO
             {
+                // Image files
                 case ("png"):
                 case ("jpg"):
                 case ("jpeg"):
-                    imageButton.setImageResource(R.drawable.ic_image);
+                    imageView.setImageResource(R.drawable.ic_file_image);
                     break;
+                // Music files
+                case ("mp3"):
+                    //Aggiungere estensioni musica
+                    imageView.setImageResource(R.drawable.ic_file_music);
+                    break;
+                // Plain text files
                 case ("txt"):
+                    imageView.setImageResource(R.drawable.ic_file_document);
+                    break;
+                // Word processor files
                 case ("doc"):
                 case ("docx"):
-                    imageButton.setImageResource(R.drawable.ic_document);
+                    imageView.setImageResource(R.drawable.ic_file_word);
                     break;
+                // Excel files
+                case ("xls"):
+                case ("xlsx"):
+                    imageView.setImageResource(R.drawable.ic_file_excel);
+                    break;
+                // Extension not
                 default:
-                    imageButton.setImageResource(R.drawable.ic_file);
+                    imageView.setImageResource(R.drawable.ic_file_empty);
                     break;
             }
 
