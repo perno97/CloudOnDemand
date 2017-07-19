@@ -1,6 +1,7 @@
 package it.unibs.cloudondemand.google;
 
 import com.google.android.gms.drive.DriveFolder;
+import com.google.android.gms.drive.DriveId;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -78,10 +79,14 @@ class GoogleDriveFileTree {
         return parentFolder.nextSubFolder(parentFolder);
     }
 
-    // Set drive folder to thisDriveFolder if currentSubFolder is <0, else to subFolder[currentSubFolder-1]
-    void setDriveFolder (DriveFolder driveFolder) {
+    void setCurrentDriveFolder (DriveFolder driveFolder) {
         GoogleDriveFileTree currentGoogleDriveFileTree = getCurrentFolder();
         currentGoogleDriveFileTree.thisFolder.setDriveFolder(driveFolder);
+    }
+
+    void setCurrentFileId (DriveId driveId) {
+        GoogleDriveFileTree currentGoogleDriveFileTree = getCurrentFolder();
+        currentGoogleDriveFileTree.thisFolder.setFileId(driveId);
     }
 
     File nextCurrentFile () {
@@ -126,11 +131,13 @@ class GoogleDriveFileTree {
         private DriveFolder driveFolder;
         private File[] files;
         private int currentFile;
+        private DriveId[] filesId;
 
         private GoogleDriveCustomFolder(File folder) {
             this.folder = folder;
-            files = generateFiles(folder);
-            currentFile = -1;
+            this.files = generateFiles(folder);
+            this.filesId = new DriveId[files.length];
+            this.currentFile = -1;
         }
 
         private File[] generateFiles (File folder) {
@@ -163,6 +170,10 @@ class GoogleDriveFileTree {
 
         private String getFolderName () {
             return folder.getName();
+        }
+
+        private void setFileId (DriveId driveId) {
+            filesId[currentFile] = driveId;
         }
     }
 }

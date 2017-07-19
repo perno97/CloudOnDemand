@@ -4,20 +4,14 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.util.Arrays;
 
 public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpFolder";
@@ -59,7 +53,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
             Log.i(TAG, "Folder on drive created. " + driveFolderResult.getDriveFolder().getDriveId());
             // Retrieve created folder and save it in data structure
-            foldersTree.setDriveFolder(driveFolderResult.getDriveFolder());
+            foldersTree.setCurrentDriveFolder(driveFolderResult.getDriveFolder());
             // Upload the next file
             uploadNextFile();
         }
@@ -91,6 +85,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
                 }
 
                 // Reached up main folder without finding another folder... finished
+                disconnect();
                 Toast.makeText(this, "FINITO", Toast.LENGTH_SHORT).show();
             }
 
@@ -116,6 +111,9 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             Toast.makeText(this, "File non creato", Toast.LENGTH_SHORT).show();     //TODO FARE QUALCOSA
             return;
         }
+
+        // Retrieve created file and save it in data structure
+        foldersTree.setCurrentFileId(driveFile.getDriveId());
 
         uploadNextFile();
     }
