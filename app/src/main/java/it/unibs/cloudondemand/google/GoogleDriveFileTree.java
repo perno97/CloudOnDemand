@@ -6,8 +6,6 @@ import com.google.android.gms.drive.DriveId;
 import java.io.File;
 import java.io.FileFilter;
 
-import it.unibs.cloudondemand.utils.GenericFileTree;
-
 class GoogleDriveFileTree {
     private GoogleDriveFileTree parentFolder;
 
@@ -69,7 +67,7 @@ class GoogleDriveFileTree {
     }
 
     private GoogleDriveFileTree nextSubFolder (GoogleDriveFileTree googleDriveFileTree) {
-        if (googleDriveFileTree.hasNextSubFolder())
+        if (hasNextSubFolder())
             return googleDriveFileTree.subFolders[++googleDriveFileTree.currentSubFolder];
         else
             return null;
@@ -128,7 +126,7 @@ class GoogleDriveFileTree {
     }
 
     // Element class of tree
-    private class GoogleDriveCustomFolder implements GenericFileTree {
+    private class GoogleDriveCustomFolder {
         private File folder;
         private DriveFolder driveFolder;
         private File[] files;
@@ -154,13 +152,11 @@ class GoogleDriveFileTree {
             return files;
         }
 
-        @Override
-        public boolean hasNextFile () {
+        private boolean hasNextFile () {
             return currentFile + 1 != files.length;
         }
 
-        @Override
-        public File nextFile () {
+        private File nextFile () {
             return files[++currentFile];
         }
 
@@ -172,8 +168,7 @@ class GoogleDriveFileTree {
             this.driveFolder = driveFolder;
         }
 
-        @Override
-        public String getFolderName () {
+        private String getFolderName () {
             return folder.getName();
         }
 
