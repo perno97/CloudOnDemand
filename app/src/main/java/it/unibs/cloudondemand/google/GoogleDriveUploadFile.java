@@ -2,6 +2,7 @@ package it.unibs.cloudondemand.google;
 
 import android.Manifest;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.TextView;
@@ -83,64 +84,71 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 return;
             }
 
-            // Get content of new file
-            final DriveContents driveContents = driveContentsResult.getDriveContents();
-
-            final File file = fileToUpload;
-            final DriveFolder folder = driveFolder;
-            // Upload file into drive content
-            new Thread() {
-                @Override
-                public void run() {
-                    // Create stream based on which data need to be saved
-                    OutputStream outputStream = null;
-
-                    try {
-                        // Open file
-                        FileInputStream fileInputStream = new FileInputStream(file);
-                        outputStream = driveContents.getOutputStream();
-
-                        byte[] buffer = new byte[8];
-                        long k = 0;
-                        long fileLenght = file.length();
-                        // Write on drive content stream with buffer of 8 bytes
-                        while (fileInputStream.read(buffer) != -1) {
-                            fileProgress((int) (100*k/fileLenght));
-                            outputStream.write(buffer);
-                            k+=8;
-                        }
-
-                    } catch (FileNotFoundException e) {
-                        Log.e(TAG, "File not found." + e.toString(), e.getCause());
-                    } catch (IOException e) {
-                        Log.e(TAG, "Exception while writing on driveConetents output stream." + e.toString(), e.getCause());
-                    } finally {
-                        // Close output stream
-                        try {
-                            if (outputStream != null)
-                                outputStream.close();
-                        } catch (IOException e) {
-                            Log.e(TAG, "Exception while closing streams." + e.toString(), e.getCause());
-                        }
-                    }
-
-                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle(file.getName())
-                            .setStarred(true)
-                            .build();
-
-                    folder
-                            .createFile(getGoogleApiClient(), changeSet, driveContents)
-                            .setResultCallback(fileCallback);
-                }
-            }.start();
+            new UploadFileAsyncTask().execute(driveContentsResult);
         }
     };
 
-    // Called when file on drive was fully created
-    final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
+    private class UploadFileAsyncTask extends AsyncTask<DriveApi.DriveContentsResult, Integer, DriveFolder.DriveFileResult> {
+
         @Override
-        public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
+        protected DriveFolder.DriveFileResult doInBackground(DriveApi.DriveContentsResult... driveContentsResult) {
+            // Create stream based on which data need to be saved
+            OutputStream outputStream = null;
+
+            // Get content of new file
+            final DriveContents driveContents = driveContentsResult[0].getDriveContents();
+
+            final File file = fileToUpload;
+            final DriveFolder folder = driveFolder;
+
+            try {
+                // Open file
+                FileInputStream fileInputStream = new FileInputStream(file);
+                outputStream = driveContents.getOutputStream();
+
+                byte[] buffer = new byte[8];
+                long k = 0;
+                long fileLenght = file.length();
+                // Write on drive content stream with buffer of 8 bytes
+                while (fileInputStream.read(buffer) != -1) {
+                    publishProgress((int) (100*k/fileLenght));
+                    outputStream.write(buffer);
+                    k+=8;
+                }
+
+            } catch (FileNotFoundException e) {
+                Log.e(TAG, "File not found." + e.toString(), e.getCause());
+            } catch (IOException e) {
+                Log.e(TAG, "Exception while writing on driveConetents output stream." + e.toString(), e.getCause());
+            } finally {
+                // Close output stream
+                try {
+                    if (outputStream != null)
+                        outputStream.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Exception while closing streams." + e.toString(), e.getCause());
+                }
+            }
+
+            MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                    .setTitle(file.getName())
+                    .setStarred(true)
+                    .build();
+
+            DriveFolder.DriveFileResult driveFileResult = folder
+                    .createFile(getGoogleApiClient(), changeSet, driveContents)
+                    .await();
+
+            return driveFileResult;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            fileProgress(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(DriveFolder.DriveFileResult driveFileResult) {
             // Finished to upload file
             if (!driveFileResult.getStatus().isSuccess()) {
                 Log.e(TAG, "Unable to create file on drive folder.");
@@ -152,7 +160,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 onFileUploaded(driveFileResult.getDriveFile());
             }
         }
-    };
+    }
 
     // Called many times during the file upload. To edit UI implement runOnUiThread(runnable);
     public abstract void fileProgress (int percent);
