@@ -6,7 +6,10 @@ import com.google.android.gms.drive.DriveId;
 import java.io.File;
 import java.io.FileFilter;
 
-class GoogleDriveFileTree {
+import it.unibs.cloudondemand.utils.FileTree;
+import it.unibs.cloudondemand.utils.GenericFileTree;
+
+class GoogleDriveFileTree extends FileTree<GoogleDriveFileTree.GoogleDriveCustomFolder>{
     private GoogleDriveFileTree parentFolder;
 
     private GoogleDriveCustomFolder thisFolder;
@@ -22,7 +25,7 @@ class GoogleDriveFileTree {
         this.currentSubFolder = -1;
     }
 
-    private GoogleDriveFileTree[] generateSubFolders (File folder) {
+    public GoogleDriveFileTree[] generateSubFolders (File folder) {
         // List directories into the folder
         File[] directories = folder.listFiles(new FileFilter() {
             @Override
@@ -54,11 +57,11 @@ class GoogleDriveFileTree {
         }
     }
 
-    GoogleDriveFileTree getCurrentFolder() {
+    public GoogleDriveFileTree getCurrentFolder() {
         return getCurrentFolder(this);
     }
 
-    GoogleDriveFileTree nextCurrentSubFolder () {
+    public GoogleDriveFileTree nextCurrentSubFolder () {
         GoogleDriveFileTree currentGoogleDriveFileTree = getCurrentFolder();
         if (currentGoogleDriveFileTree.subFolders.length == currentGoogleDriveFileTree.currentSubFolder)
             return null;
@@ -67,7 +70,7 @@ class GoogleDriveFileTree {
     }
 
     private GoogleDriveFileTree nextSubFolder (GoogleDriveFileTree googleDriveFileTree) {
-        if (hasNextSubFolder())
+        if (googleDriveFileTree.hasNextSubFolder())
             return googleDriveFileTree.subFolders[++googleDriveFileTree.currentSubFolder];
         else
             return null;
@@ -126,21 +129,21 @@ class GoogleDriveFileTree {
     }
 
     // Element class of tree
-    private class GoogleDriveCustomFolder {
+    public class GoogleDriveCustomFolder implements GenericFileTree {
         private File folder;
         private DriveFolder driveFolder;
         private File[] files;
         private int currentFile;
         private DriveId[] filesId;
 
-        private GoogleDriveCustomFolder(File folder) {
+        public GoogleDriveCustomFolder(File folder) {
             this.folder = folder;
             this.files = generateFiles(folder);
             this.filesId = new DriveId[files.length];
             this.currentFile = -1;
         }
 
-        private File[] generateFiles (File folder) {
+        public File[] generateFiles (File folder) {
             // List files into the folder
             File[] files = folder.listFiles(new FileFilter() {
                 @Override
@@ -152,27 +155,35 @@ class GoogleDriveFileTree {
             return files;
         }
 
-        private boolean hasNextFile () {
+        @Override
+        public boolean hasNextFile () {
             return currentFile + 1 != files.length;
         }
 
-        private File nextFile () {
+        @Override
+        public File nextFile () {
             return files[++currentFile];
         }
 
-        private DriveFolder getDriveFolder () {
+        public DriveFolder getDriveFolder () {
             return driveFolder;
         }
 
-        private void setDriveFolder (DriveFolder driveFolder) {
+        public void setDriveFolder (DriveFolder driveFolder) {
             this.driveFolder = driveFolder;
         }
 
-        private String getFolderName () {
+        @Override
+        public String getFolderName () {
             return folder.getName();
         }
 
-        private void setFileId (DriveId driveId) {
+        @Override
+        public void setFile(File file) {
+
+        }
+
+        public void setFileId (DriveId driveId) {
             filesId[currentFile] = driveId;
         }
     }
