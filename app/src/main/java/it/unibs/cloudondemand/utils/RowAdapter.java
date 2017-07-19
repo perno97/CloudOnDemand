@@ -102,6 +102,9 @@ public class RowAdapter extends BaseAdapter{
         else if (Utils.isCompressedArchiveFile(extension))
             drawableResource = R.drawable.ic_file_compressed_archive;
 
+        else if (Utils.isPdfFile(extension))
+            drawableResource = R.drawable.ic_file_pdf;
+
         else
             drawableResource = R.drawable.ic_file_empty;
 
