@@ -7,20 +7,18 @@ import it.unibs.cloudondemand.google.GoogleDriveCustomFolder;
 
 public class FileTree <T extends GenericFileTree<T>> {
 
-    private FileTree parentFolder;
+    private FileTree<T> parentFolder;
     private T thisFolder;
-    private FileTree[] subFolders;
+    private FileTree<T>[] subFolders;
 
     private int currentSubFolder;
 
-    public FileTree(FileTree parentFolder, T thisFolder){
+    public FileTree(FileTree<T> parentFolder, T thisFolder){
         this.parentFolder = parentFolder;
         this.thisFolder = thisFolder;
         this.subFolders = generateSubFolders(thisFolder);
         this.currentSubFolder = -1;
     }
-
-    public FileTree() {}    // Not used
 
     private FileTree<T>[] generateSubFolders(T folder) {
         // List directories into the folder
@@ -36,7 +34,7 @@ public class FileTree <T extends GenericFileTree<T>> {
     private FileTree<T> getCurrentFolder(FileTree<T> fileTree){
         int i = fileTree.currentSubFolder;
         if (i == -1)
-            return fileTree.parentFolder;
+            return fileTree;
         else
             return getCurrentFolder(subFolders[i]);
     }
@@ -46,7 +44,8 @@ public class FileTree <T extends GenericFileTree<T>> {
     }
 
     public T getCurrentThisFolder() {
-        return getCurrentFolder(this).thisFolder;
+        FileTree<T> currentFileTree = getCurrentFolder();
+        return currentFileTree.thisFolder;
     }
 
     public FileTree<T> nextCurrentSubFolder(){
