@@ -4,10 +4,12 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
+import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 
@@ -29,10 +31,9 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         // Initialize list of files to upload
         File mainFolder = new File(getContent());
         foldersTree = new GoogleDriveFileTree(null, mainFolder);
-        // Create base foldersTree on Drive
+        // Create main folder on Drive then start uploading
         createDriveFolder(null, mainFolder.getName());
     }
-
 
     // Send input to create a foldersTree on drive (parent foldersTree // root if parentFolder = null), retrieve it by callback (onDriveFolderCreated)
     private void createDriveFolder (DriveFolder parentFolder, String name) {
@@ -52,16 +53,21 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private final ResultCallback<DriveFolder.DriveFolderResult> onDriveFolderCreated = new ResultCallback<DriveFolder.DriveFolderResult>() {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
-            // Retrieve created foldersTree and save it
+            if(!driveFolderResult.getStatus().isSuccess()) {
+                Log.e(TAG, "Unable to create drive folder.");
+            }
+
+            Log.i(TAG, "Folder on drive created. " + driveFolderResult.getDriveFolder().getDriveId());
+            // Retrieve created folder and save it in data structure
             foldersTree.setDriveFolder(driveFolderResult.getDriveFolder());
             // Upload the next file
-            uploadFile();
+            uploadNextFile();
         }
     };
 
 
     // Upload the next file or create the foldersTree in which is in
-    private void uploadFile() {
+    private void uploadNextFile() {
         // Check if there is another file to upload in current folder
         if (!foldersTree.getCurrentFolder().hasNextFile()) {
             // Check if current folder has another subfolder
@@ -95,79 +101,22 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         currentDriveFolder = foldersTree.getCurrentDriveFolder();
         currentFile = foldersTree.getCurrentFolder().nextCurrentFile();
 
-        // Start creating new drive content and fill it in callback with fileList[currentFile]
-        Drive.DriveApi.newDriveContents(getGoogleApiClient())
-                .setResultCallback(driveContentsCallback);
+        // Upload current file
+        uploadFile(currentFile, currentDriveFolder);
     }
 
-    // Called when new content on Drive was created
-    // upload content
-    final private ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback = new ResultCallback<DriveApi.DriveContentsResult>() {
-        @Override
-        public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
-            if (!driveContentsResult.getStatus().isSuccess()) {
-                Log.e(TAG, "Error while creating new file on Drive");
-                return;
-            }
+    @Override
+    public void fileProgress(int percent) {
+        //TODO
+    }
 
-            // Get content of new file
-            final DriveContents driveContents = driveContentsResult.getDriveContents();
-
-            // Upload file into drive content
-            new Thread() {
-                @Override
-                public void run() {
-                    // Create stream based on which data need to be saved
-                    OutputStream outputStream = null;
-
-                    try {
-                        // Open file
-                        FileInputStream fileInputStream = new FileInputStream(currentFile);
-                        outputStream = driveContents.getOutputStream();
-                        // Write on drive content stream with buffer of 8 bytes
-                        byte[] buffer = new byte[8];
-                        while (fileInputStream.read(buffer) != -1) {
-                            outputStream.write(buffer);
-                        }
-                    } catch (FileNotFoundException e) {
-                        Log.e(TAG, "File not found." + e.toString(), e.getCause());
-                    } catch (IOException e) {
-                        Log.e(TAG, "Exception while writing on driveConetents output stream." + e.toString(), e.getCause());
-                    } finally {
-                        // Close output stream
-                        try {
-                            if (outputStream != null)
-                                outputStream.close();
-                        } catch (IOException e) {
-                            Log.e(TAG, "Exception while closing streams." + e.toString(), e.getCause());
-                        }
-                    }
-
-                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle(currentFile.getName())
-                            .setStarred(true)
-                            .build();
-
-                    currentDriveFolder
-                            .createFile(getGoogleApiClient(), changeSet, driveContents)
-                            .setResultCallback(fileCallback);
-                }
-            }.start();
+    @Override
+    public void onFileUploaded(DriveFile driveFile) {
+        if (driveFile == null) {
+            Toast.makeText(this, "File non creato", Toast.LENGTH_SHORT).show();     //TODO FARE QUALCOSA
+            return;
         }
-    };
 
-    // Called when file on drive was fully created
-    final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
-        @Override
-        public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
-            if (!driveFileResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDriveUploadFileFolder.this, "File non Creato", Toast.LENGTH_SHORT).show();   //TODO FARE QUALCOSA
-                Log.e(TAG, "File not created");
-            } else {
-                Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
-            }
-
-            uploadFile();
-        }
-    };
+        uploadNextFile();
+    }
 }
