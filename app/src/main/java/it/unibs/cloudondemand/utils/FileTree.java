@@ -24,7 +24,7 @@ public class FileTree <T extends GenericFileTree<T>> {
         // List directories into the folder
         T[] subFolders = folder.getSubFolders();
 
-        FileTree[] folders=new FileTree[subFolders.length];
+        FileTree<T>[] folders=new FileTree[subFolders.length];
         for(int i = 0; i < subFolders.length; i++) {
             folders[i] = new FileTree(this, subFolders[i]);
         }
@@ -36,7 +36,7 @@ public class FileTree <T extends GenericFileTree<T>> {
         if (i == -1)
             return fileTree;
         else
-            return getCurrentFolder(subFolders[i]);
+            return getCurrentFolder(fileTree.subFolders[i]);
     }
 
     public FileTree<T> getCurrentFolder() {
