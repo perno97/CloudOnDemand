@@ -69,7 +69,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             // Check if current folder has another subfolder
             if(foldersTree.getCurrentFolder().hasNextSubFolder())
                 // Create that subfolder
-                createDriveFolder(foldersTree.getCurrentThisFolder().getDriveFolder(), foldersTree.nextCurrentSubFolder().getFolderName());
+                createDriveFolder(foldersTree.getCurrentThisFolder().getDriveFolder(), foldersTree.getCurrentFolder().nextSubFolder().getFolderName());
             else {
                 // Go to parent's foldersTree next subdirectory
                 FileTree<GoogleDriveCustomFolder> subFolder = foldersTree.getCurrentFolder().nextParentSubFolder();
@@ -96,7 +96,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
         // Retrieve file to upload into this drive folder
         currentDriveFolder = foldersTree.getCurrentThisFolder().getDriveFolder();
-        currentFile = foldersTree.getCurrentFolder().nextCurrentFile();
+        currentFile = foldersTree.getCurrentFolder().nextFile();
 
         // Upload current file
         uploadFile(currentFile, currentDriveFolder);
