@@ -11,7 +11,6 @@ import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.MetadataChangeSet;
 
 import java.io.File;
-import java.util.Arrays;
 
 import it.unibs.cloudondemand.utils.FileTree;
 
@@ -52,7 +51,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
             Log.i(TAG, "Folder on drive created. " + driveFolderResult.getDriveFolder().getDriveId());
             // Retrieve created folder and save it in data structure
-            foldersTree.getCurrentThisFolder().setDriveFolder(driveFolderResult.getDriveFolder());
+            foldersTree.getCurrentFolderThis().setDriveFolder(driveFolderResult.getDriveFolder());
             // Upload the next file
             uploadNextFile();
         }
@@ -62,11 +61,11 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     // Upload the next file or create the foldersTree in which is in
     private void uploadNextFile() {
         // Check if there is another file to upload in current folder
-        if (!foldersTree.getCurrentFolder().hasNextFile()) {
+        if (!foldersTree.hasNextFile()) {
             // Check if current folder has another subfolder
             if(foldersTree.getCurrentFolder().hasNextSubFolder())
                 // Create that subfolder
-                createDriveFolder(foldersTree.getCurrentThisFolder().getDriveFolder(), foldersTree.getCurrentFolder().nextSubFolder().getFolderName());
+                createDriveFolder(foldersTree.getCurrentFolderThis().getDriveFolder(), foldersTree.getCurrentFolder().nextSubFolder().getFolderName());
             else {
                 // Go to parent's foldersTree next subdirectory
                 FileTree<GoogleDriveCustomFolder> subFolder = foldersTree.getCurrentFolder().nextParentSubFolder();
@@ -92,8 +91,8 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         }
 
         // Retrieve file to upload into this drive folder
-        DriveFolder currentDriveFolder = foldersTree.getCurrentThisFolder().getDriveFolder();
-        File currentFile = foldersTree.getCurrentFolder().nextFile();
+        DriveFolder currentDriveFolder = foldersTree.getCurrentFolderThis().getDriveFolder();
+        File currentFile = foldersTree.nextFile();
 
         // Upload current file
         uploadFile(currentFile, currentDriveFolder);
@@ -112,7 +111,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         }
 
         // Retrieve created file and save it in data structure
-        foldersTree.getCurrentThisFolder().setFileId(driveFile.getDriveId());
+        foldersTree.getCurrentFolderThis().setFileId(driveFile.getDriveId());
 
         uploadNextFile();
     }

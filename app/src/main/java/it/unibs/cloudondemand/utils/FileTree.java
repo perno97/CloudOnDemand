@@ -83,7 +83,7 @@ public class FileTree <T extends GenericFileTree<T>> {
      * Invoke this on main folder node object.
      * @return Working folder node of tree.
      */
-    public T getCurrentThisFolder() {
+    public T getCurrentFolderThis() {
         FileTree<T> currentFileTree = getCurrentFolder();
         return currentFileTree.thisFolder;
     }
@@ -100,13 +100,13 @@ public class FileTree <T extends GenericFileTree<T>> {
     }
 
     /**
-     * Get next subfolder of this parent folder.
+     * Get next subfolder of parent folder of this node.
      * @return Tree object of parent subfolder or null if there isn't next subfolder.
      */
     public FileTree<T> nextParentSubFolder () {
         if (!hasParentFolder())
             return null;
-        return parentFolder.nextSubFolder(parentFolder);
+        return nextSubFolder(parentFolder);
     }
 
     /**
@@ -125,11 +125,19 @@ public class FileTree <T extends GenericFileTree<T>> {
      * Get next file of this node.
      * @return File requested or null if there isn't another file in this node folder.
      */
-    public File nextFile () {
+    private File nextFileThis () {
         if (thisFolder.hasNextFile())
             return thisFolder.nextFile();
         else
             return null;
+    }
+
+    /**
+     * Get next file.
+     * @return File requested or null if there isn't another file in this node folder.
+     */
+    public File nextFile () {
+        return getCurrentFolder().nextFileThis();
     }
 
     /**
@@ -152,8 +160,16 @@ public class FileTree <T extends GenericFileTree<T>> {
      * Check if this node folder has another file.
      * @return True if has another file, False otherwise.
      */
-    public boolean hasNextFile () {
+    private boolean hasNextFileThis () {
         return thisFolder.hasNextFile();
+    }
+
+    /**
+     * Check if there is another file.
+     * @return True if has another file, False otherwise.
+     */
+    public boolean hasNextFile () {
+        return getCurrentFolder().hasNextFileThis();
     }
 
     /**
@@ -178,5 +194,11 @@ public class FileTree <T extends GenericFileTree<T>> {
      */
     public T getThisFolder() {
         return thisFolder;
+    }
+
+    //TODO implementare tutto il codice in GoogleDriveUploadFolder
+    public FileTree<T> nextFolder () {
+
+        return null;
     }
 }
