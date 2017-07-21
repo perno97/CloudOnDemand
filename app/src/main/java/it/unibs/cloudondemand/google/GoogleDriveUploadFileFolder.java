@@ -62,26 +62,12 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private void uploadNextFile() {
         // Check if there is another file to upload in current folder
         if (!foldersTree.hasNextFile()) {
+            FileTree<GoogleDriveCustomFolder> folder = foldersTree.nextFolder();
             // Check if current folder has another subfolder
-            if(foldersTree.getCurrentFolder().hasNextSubFolder())
+            if(folder != null)
                 // Create that subfolder
-                createDriveFolder(foldersTree.getCurrentFolderThis().getDriveFolder(), foldersTree.getCurrentFolder().nextSubFolder().getFolderName());
+                createDriveFolder(folder.getParentFolder().getThisFolder().getDriveFolder(), folder.getCurrentFolder().getFolderName());
             else {
-                // Go to parent's foldersTree next subdirectory
-                FileTree<GoogleDriveCustomFolder> subFolder = foldersTree.getCurrentFolder().nextParentSubFolder();
-                FileTree<GoogleDriveCustomFolder> thisFolder = foldersTree.getCurrentFolder();
-                // Go up to main directory
-                while(subFolder == null && thisFolder.hasParentFolder()) {
-                    thisFolder = thisFolder.getParentFolder();
-                    subFolder = thisFolder.nextParentSubFolder();
-                }
-
-                // Found another folder in the tree
-                if(subFolder != null) {
-                    createDriveFolder(subFolder.getParentFolder().getThisFolder().getDriveFolder(), subFolder.getFolderName());
-                    return;
-                }
-
                 // Reached up main folder without finding another folder... finished
                 disconnect();
                 Toast.makeText(this, "FINITO", Toast.LENGTH_SHORT).show();

@@ -92,7 +92,7 @@ public class FileTree <T extends GenericFileTree<T>> {
      * Get next subfolder of this node.
      * @return Tree object of subfolder or null if there isn't next subfolder.
      */
-    public FileTree<T> nextSubFolder() {
+    private FileTree<T> nextSubFolder() {
         if (!hasNextSubFolder())
             return null;
         else
@@ -103,7 +103,7 @@ public class FileTree <T extends GenericFileTree<T>> {
      * Get next subfolder of parent folder of this node.
      * @return Tree object of parent subfolder or null if there isn't next subfolder.
      */
-    public FileTree<T> nextParentSubFolder () {
+    private FileTree<T> nextParentSubFolder () {
         if (!hasParentFolder())
             return null;
         return nextSubFolder(parentFolder);
@@ -144,7 +144,7 @@ public class FileTree <T extends GenericFileTree<T>> {
      * Check if this node has the parent folder (isn't main directory).
      * @return True if has parent folder, False otherwise.
      */
-    public boolean hasParentFolder () {
+    private boolean hasParentFolder () {
         return parentFolder != null;
     }
 
@@ -152,7 +152,7 @@ public class FileTree <T extends GenericFileTree<T>> {
      * Check if this node has another subfolder.
      * @return True if has another subfolder, False otherwise.
      */
-    public boolean hasNextSubFolder () {
+    private boolean hasNextSubFolder () {
         return currentSubFolder + 1 != subFolders.length;
     }
 
@@ -198,7 +198,15 @@ public class FileTree <T extends GenericFileTree<T>> {
 
     //TODO implementare tutto il codice in GoogleDriveUploadFolder
     public FileTree<T> nextFolder () {
+        FileTree<T> current = getCurrentFolder();
 
-        return null;
+        if(current.hasNextSubFolder())
+            return current.nextSubFolder();
+
+        FileTree<T> next;
+        while ((next = current.nextParentSubFolder()) == null && current.parentFolder.hasParentFolder())
+            current = current.parentFolder;
+
+        return next;
     }
 }
