@@ -15,23 +15,21 @@ public class GoogleDriveCustomFolder implements GenericFileTree<GoogleDriveCusto
     private int currentFile;
     private DriveId[] filesId;
 
-    public GoogleDriveCustomFolder(File folder) {
+    GoogleDriveCustomFolder(File folder) {
         this.folder = folder;
         this.files = generateFiles(folder);
         this.filesId = new DriveId[files.length];
         this.currentFile = -1;
     }
 
-    public File[] generateFiles (File folder) {
+    private File[] generateFiles (File folder) {
         // List files into the folder
-        File[] files = folder.listFiles(new FileFilter() {
+        return folder.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
                 return pathname.isFile();
             }
         });
-
-        return files;
     }
 
     @Override
@@ -44,11 +42,11 @@ public class GoogleDriveCustomFolder implements GenericFileTree<GoogleDriveCusto
         return files[++currentFile];
     }
 
-    public DriveFolder getDriveFolder () {
+    DriveFolder getDriveFolder () {
         return driveFolder;
     }
 
-    public void setDriveFolder (DriveFolder driveFolder) {
+    void setDriveFolder (DriveFolder driveFolder) {
         this.driveFolder = driveFolder;
     }
 
@@ -58,7 +56,7 @@ public class GoogleDriveCustomFolder implements GenericFileTree<GoogleDriveCusto
     }
 
 
-    public void setFileId (DriveId driveId) {
+    void setFileId (DriveId driveId) {
         filesId[currentFile] = driveId;
     }
 

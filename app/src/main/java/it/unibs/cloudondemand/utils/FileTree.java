@@ -17,13 +17,24 @@ public class FileTree <T extends GenericFileTree<T>> {
     // Used to remember the sub folder on which it's working
     private int currentSubFolder;
 
+    /**
+     * Create the main folder instance.
+     * @param thisFolder Folder node.
+     */
+    public FileTree(T thisFolder){
+        this.parentFolder = null;
+        this.thisFolder = thisFolder;
+        this.subFolders = generateSubFolders(thisFolder);
+        this.currentSubFolder = -1;
+    }
+
     // Constructor call generateSubFolders to fill subFolders array (recursion done by method that call the constructor)
     /**
      * Create all the tree recursively by the first calling.
      * @param parentFolder Parent folder of thisFolder.
      * @param thisFolder Folder node.
      */
-    public FileTree(FileTree<T> parentFolder, T thisFolder){
+    private FileTree(FileTree<T> parentFolder, T thisFolder){
         this.parentFolder = parentFolder;
         this.thisFolder = thisFolder;
         this.subFolders = generateSubFolders(thisFolder);

@@ -19,14 +19,11 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpFolder";
     private FileTree<GoogleDriveCustomFolder> foldersTree;
 
-    private File currentFile;
-    private DriveFolder currentDriveFolder;
-
     @Override
     public void startUploading() {
         // Initialize list of files to upload
         File mainFolder = new File(getContent());
-        foldersTree = new FileTree<>(null, new GoogleDriveCustomFolder(mainFolder));
+        foldersTree = new FileTree<>(new GoogleDriveCustomFolder(mainFolder));
         // Create main folder on Drive then start uploading
         createDriveFolder(null, mainFolder.getName());
     }
@@ -95,8 +92,8 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         }
 
         // Retrieve file to upload into this drive folder
-        currentDriveFolder = foldersTree.getCurrentThisFolder().getDriveFolder();
-        currentFile = foldersTree.getCurrentFolder().nextFile();
+        DriveFolder currentDriveFolder = foldersTree.getCurrentThisFolder().getDriveFolder();
+        File currentFile = foldersTree.getCurrentFolder().nextFile();
 
         // Upload current file
         uploadFile(currentFile, currentDriveFolder);
