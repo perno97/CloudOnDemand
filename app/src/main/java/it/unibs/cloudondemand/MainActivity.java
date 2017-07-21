@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,13 +91,32 @@ public class MainActivity extends AppCompatActivity {
     public void readFiles() throws IOException {
         if(currentPath.exists()) {
             if (currentPath.isDirectory()) {
-                File[] fileList=currentPath.listFiles();
-                Arrays.sort(fileList);
                 // Clear string array
                 currentFileList.clear();
                 // Add first directory (back) /..
                 currentFileList.add(new FileAdaptable(currentPath.getParentFile()));
-                // Fill it with name of files
+
+                // Fill first with name of folders
+                File[] folderList = currentPath.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File pathname) {
+                        return pathname.isDirectory();
+                    }
+                });
+                Arrays.sort(folderList );
+                for (File file : folderList )
+                {
+                    currentFileList.add(new FileAdaptable(file));
+                }
+
+                // Fill first with name of files
+                File[] fileList = currentPath.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File pathname) {
+                        return pathname.isFile();
+                    }
+                });
+                Arrays.sort(fileList);
                 for (File file : fileList)
                 {
                     currentFileList.add(new FileAdaptable(file));
