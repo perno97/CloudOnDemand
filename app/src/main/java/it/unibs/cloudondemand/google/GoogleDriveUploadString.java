@@ -1,6 +1,10 @@
 package it.unibs.cloudondemand.google;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,13 +19,33 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+import it.unibs.cloudondemand.R;
+
 public class GoogleDriveUploadString extends GoogleDriveConnection {
     private static final String TAG = "GoogleDriveUpString";
+
+    private static final int NOTIFICATION_ID = 1;
+    private NotificationManager mNotificationManager;
 
     @Override
     public void onConnected() {
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
+
+        // Start foreground notification
+        startForeground(NOTIFICATION_ID, buildNotification());
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+
+    private Notification buildNotification() {
+        // Construct first time the notification
+        NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.ic_file_folder)
+                    .setContentTitle("Uploading file to Drive...")
+                    .setProgress(0, 0, true)
+                    .setOngoing(true);
+
+        return mNotificationBuilder.build();
     }
 
     // Called when new content on Drive was created
@@ -56,7 +80,7 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
                     }
 
                     MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle("nome")
+                            .setTitle("String.txt")
                             .setMimeType("text/plain")
                             .setStarred(true)
                             .build();
@@ -78,9 +102,21 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
                 Log.e(TAG, "File not created");
             }
             else {
-                Toast.makeText(GoogleDriveUploadString.this, "File Creato", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
+
+
+            // Construct final notification
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(GoogleDriveUploadString.this)
+                            .setSmallIcon(R.drawable.ic_file_folder)
+                            .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
+                            .setContentText("Finito");
+
+            // Stop foreground and substitute notification
+            stopForeground(true);
+            mNotificationManager.cancel(NOTIFICATION_ID);
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
 
             disconnect();
         }

@@ -42,7 +42,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     }
 
     private Notification buildNotification(int progress, String filename) {
-        // Construct first time all the notification
+        // Construct first time the notification
         if(mNotificationBuilder == null) {
             mNotificationBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_file_folder)

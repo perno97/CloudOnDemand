@@ -77,6 +77,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
             // ...
         }
+        finish();
     }
 
     public static Intent getIntent (Context context, String contentType, String content) {
