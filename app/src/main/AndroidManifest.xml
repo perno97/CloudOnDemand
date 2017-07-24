@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +13,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,37 +21,51 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".LoginActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-
-        <activity android:name=".google.GoogleDriveUploadString"
+        <activity
+            android:name=".google.GoogleDriveUploadString"
             android:configChanges="orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-
-        <activity android:name=".google.GoogleDriveUploadFileSingle"
+        <activity
+            android:name=".google.GoogleDriveUploadFileSingle"
             android:configChanges="orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-
-        <activity android:name=".google.GoogleDriveUploadFileFolder"
+        <activity
+            android:name=".google.GoogleDriveUploadFileFolder"
             android:configChanges="orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+        <activity
+            android:name=".utils.PermissionRequest"
+            android:theme="@style/Theme.TransparentTheme" />
+        <activity
+            android:name=".dropbox.AuthActivity"
+            android:configChanges="orientation|keyboard"
+            android:launchMode="singleTask">
+            <intent-filter>
+                //Insert your app key after "db- ..."
+                <data android:scheme="db-APP_KEY" />
 
-        <activity android:name=".utils.PermissionRequest"
-                 android:theme="@style/Theme.TransparentTheme" />
+                <action android:name="android.intent.action.VIEW" />
 
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".dropbox.DropboxMainActivity" />
+        <activity android:name=".dropbox.DropboxLoginActivity"></activity>
     </application>
 
 </manifest>

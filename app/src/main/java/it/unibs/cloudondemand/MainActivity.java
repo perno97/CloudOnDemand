@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**Read files from external storage*/ //TODO gestire IOEXceotion
+    /**Read files from external storage*/
     public void readFiles() throws IOException {
         if(currentPath.exists()) {
             if (currentPath.isDirectory()) {

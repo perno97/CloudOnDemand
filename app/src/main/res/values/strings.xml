@@ -12,4 +12,9 @@
 
     <string name="shared_pref_account">accountSignedIn</string>
     <string name="saved_account_google">googleAccount</string>
+
+    //App key Dropbox
+    <string name="APP_KEY">k4r9giw251cnll0</string>
+
+    <string name="sign_in">Sign in with Dropbox</string>
 </resources>

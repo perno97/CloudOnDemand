@@ -12,6 +12,13 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true    // Add for vector icons
     }
+    //Avoid duplicate file error (Dropbox)
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -25,13 +32,14 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    //Google play services
+    apply plugin: 'com.google.gms.google-services'
+    //compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    //Google play services
     compile 'com.google.android.gms:play-services-auth:11.0.1'
     compile 'com.google.android.gms:play-services-drive:11.0.1'
-    apply plugin: 'com.google.gms.google-services'
-    //Facebook
-    //compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    compile 'com.dropbox.core:dropbox-core-sdk:2.0.1'
+    compile 'com.squareup.picasso:picasso:2.5.2'
     testCompile 'junit:junit:4.12'
 }
