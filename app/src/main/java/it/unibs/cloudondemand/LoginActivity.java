@@ -70,10 +70,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.google_sign_in_button :
-                startActivity(GoogleDriveUtil.getIntent(this, mContentType, mContent, true));
+                startService(GoogleDriveUtil.getIntent(this, mContentType, mContent, true));
                 break;
             case R.id.google_signed_in_button :
-                startActivity(GoogleDriveUtil.getIntent(this, mContentType, mContent));
+                startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));
                 break;
             // ...
         }

@@ -57,7 +57,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 // Permission denied, show to user and close activity
                 Toast.makeText(GoogleDriveUploadFile.this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Permission to read external storage denied");
-                finish();
+                //TODO stop service
             }
         }
     };

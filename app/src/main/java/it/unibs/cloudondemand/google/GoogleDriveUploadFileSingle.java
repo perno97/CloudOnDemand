@@ -1,53 +1,67 @@
 package it.unibs.cloudondemand.google;
 
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.MetadataChangeSet;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import it.unibs.cloudondemand.R;
 
 public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
 
-    // Inflate xml layout file
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_upload);
-    }
+    private static final int NOTIFICATION_ID = 1;
+    private NotificationManager mNotificationManager;
+    private NotificationCompat.Builder mNotificationBuilder;
+    private String filename;
+    private int lastProgress;
 
     // Entry point
     @Override
     public void startUploading() {
-        // Start creating new drive content and fill it in callback
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Start uploading the file into drive root dir.
         File file = new File(getContent());
         DriveFolder folder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
-        uploadFile(file, folder);
 
-        // Set textview name to file path
-        TextView textname = (TextView) findViewById(R.id.upload_textname);
-        textname.setText("File : " + getContent());
+        // Start foreground notification
+        filename = file.getName();
+        lastProgress = 0;
+        startForeground(NOTIFICATION_ID, buildNotification(0));
+
+        uploadFile(file, folder);
     }
 
-    // Update progress bar status
+    private Notification buildNotification(int percent) {
+        // Construct first time all the notification
+        if(mNotificationBuilder == null) {
+            mNotificationBuilder = new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.ic_file_folder)
+                            .setContentTitle("Uploading files to Drive...")
+                            .setContentText(filename + " ~ " + percent + "%")
+                            .setOngoing(true);
+        }
+        else
+            mNotificationBuilder.setContentText(filename + " ~ " + percent + "%");
+
+        return mNotificationBuilder.build();
+    }
+
+
+    @Override
+    public void fileProgress(int percent) {
+        if(lastProgress != percent)
+            mNotificationManager.notify(NOTIFICATION_ID, buildNotification(percent));
+    }
+    /* Update progress bar status
     @Override
     public void fileProgress(final int percent) {
         runOnUiThread(new Runnable() {
@@ -59,7 +73,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
                 textProtgress.setText(percent + "%");
             }
         });
-    }
+    }   */
 
     @Override
     public void onFileUploaded(DriveFile driveFile) {
@@ -68,10 +82,17 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
             return;
         }
 
-        // Finished to upload and set textview id to driveId
-        fileProgress(100);
-        TextView textid = (TextView) findViewById(R.id.upload_textid);
-        textid.setText("DriveID : " + driveFile.getDriveId());
+        // Construct final notification
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_file_folder)
+                        .setContentTitle("Uploading files to Drive...") //TODO mettere dentro res/values
+                        .setContentText("Finito");
+
+        // Stop foreground and substitute notification
+        stopForeground(true);
+        mNotificationManager.cancel(NOTIFICATION_ID);
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
 
         disconnect();
     }

@@ -1,5 +1,6 @@
 package it.unibs.cloudondemand.google;
 
+import android.app.IntentService;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.support.annotation.NonNull;
@@ -22,27 +23,29 @@ import com.google.android.gms.drive.Drive;
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
 
-public abstract class GoogleDriveConnection extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+import static android.app.Activity.RESULT_OK;
+
+public abstract class GoogleDriveConnection extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "GoogleDriveConnection";
 
     public static final String SIGN_OUT_EXTRA = "signOut";
     private boolean signOut = false;
 
     private static final int clientConnectionType = GoogleApiClient.SIGN_IN_MODE_OPTIONAL;
-    private static final int RC_SIGN_IN = 1;
     private static final int RC_RESOLUTION = 2;
     private GoogleApiClient mGoogleApiClient;
     private String content;
 
+    public GoogleDriveConnection() {
+        super("GoogleDriveSync");
+    }
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Intent data=getIntent();
-        content = data.getStringExtra(LoginActivity.CONTENT_EXTRA);
+    protected void onHandleIntent(@Nullable Intent intent) {
+        content = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
 
 
-        createGoogleClient();
+        mGoogleApiClient = createGoogleClient();
 
 
         if(!GoogleDriveUtil.isSignedIn(this)) {
@@ -50,14 +53,14 @@ public abstract class GoogleDriveConnection extends AppCompatActivity implements
         }
         else {
             // If signOut is true after is connected, do sign-out stuff
-            if(data.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
+            if(intent.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
                 signOut = true;
             }
             mGoogleApiClient.connect(clientConnectionType);
         }
     }
 
-    private void createGoogleClient() {
+    private GoogleApiClient createGoogleClient() {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -67,7 +70,7 @@ public abstract class GoogleDriveConnection extends AppCompatActivity implements
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the
         // options specified by gso.
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        return mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .addApi(Drive.API)
                 .addConnectionCallbacks(this)
@@ -75,6 +78,12 @@ public abstract class GoogleDriveConnection extends AppCompatActivity implements
                 .build();
     }
 
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.e(TAG, "Connection to google service failed.");
+    }
+    /*  TODO Cercare di ripristinare il codice
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult result) {
         // An error has occurred
@@ -92,20 +101,28 @@ public abstract class GoogleDriveConnection extends AppCompatActivity implements
         // Display an error message
         Log.e(TAG, "Connection failed - Result : " + result.getErrorCode());
         Toast.makeText(this, R.string.unable_connect_googleservices, Toast.LENGTH_SHORT).show();
+    }*/
+
+    private void doSignIn() {
+        Intent intent = GoogleSignIn.getSignInIntent(this, signInCallback);
+        startActivity(intent);
     }
 
-    public void doSignIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
+    // Handle result of sign in request o user
+    private final GoogleSignIn.GoogleSignInCallback signInCallback = new GoogleSignIn.GoogleSignInCallback() {
+        @Override
+        public void onSignInResult(boolean isSignedIn) {
+            if(isSignedIn)
+                mGoogleApiClient.connect(clientConnectionType);
+            else {
+                Log.i(TAG, "Unable to sign in into google account");
+                Toast.makeText(GoogleDriveConnection.this, "Impossibile connettersi all'account", Toast.LENGTH_SHORT).show();  //TODO cambiare
+            }
+        }
+    };
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case RC_SIGN_IN :
-                // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-                handleSignInResult(result);
-                break;
             case RC_RESOLUTION :
                 if(resultCode == RESULT_OK)
                     mGoogleApiClient.connect(clientConnectionType);
@@ -114,24 +131,6 @@ public abstract class GoogleDriveConnection extends AppCompatActivity implements
                 break;
         }
     }
-
-    private void handleSignInResult(GoogleSignInResult result) {
-        if (result.isSuccess()) {
-            // Signed in successfully, connect to play services.
-            GoogleSignInAccount account = result.getSignInAccount();
-            // Save account name to shared preferences (Already signed in for future operations)
-            if(account.getDisplayName()==null)
-                GoogleDriveUtil.saveAccountSignedIn(this, "Google");    // This should never happen
-            else
-                GoogleDriveUtil.saveAccountSignedIn(this, account.getDisplayName());
-            mGoogleApiClient.connect(clientConnectionType);
-        } else {
-            // Signed out, show unauthenticated UI.
-            Toast.makeText(this, R.string.unable_connect_account, Toast.LENGTH_SHORT).show();
-            Log.e(TAG, result.getStatus().toString());
-        }
-    }
-
 
 
 
@@ -157,6 +156,7 @@ public abstract class GoogleDriveConnection extends AppCompatActivity implements
         }
 
         Log.i(TAG, "Connected to Play Services.");
+
         onConnected();
     }
     //Entry point for class extended
@@ -164,7 +164,7 @@ public abstract class GoogleDriveConnection extends AppCompatActivity implements
 
     @Override
     public void onConnectionSuspended(int i) {
-        StringBuilder msg=new StringBuilder("Connection to Play Services Suspended. Cause ");
+        StringBuilder msg = new StringBuilder("Connection to Play Services Suspended. Cause ");
         if(i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST)
             msg.append("NETWORK LOST");
         else if(i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED)
@@ -173,6 +173,9 @@ public abstract class GoogleDriveConnection extends AppCompatActivity implements
         Log.i(TAG, msg.toString());
     }
 
+    /**
+     * Disconnect from google service.
+     */
     public void disconnect() {
         if(mGoogleApiClient.isConnected()) {
             Log.i(TAG, "Disconnect to Play Services");
@@ -181,7 +184,7 @@ public abstract class GoogleDriveConnection extends AppCompatActivity implements
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         disconnect();
     }
