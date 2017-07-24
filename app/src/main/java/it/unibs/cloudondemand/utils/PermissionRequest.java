@@ -31,8 +31,7 @@ public class PermissionRequest extends AppCompatActivity {
     private void verifyPermission(String permission) {
         // Check if permission is already granted
         if (ContextCompat.checkSelfPermission(this,
-                permission)
-                != PackageManager.PERMISSION_GRANTED) {
+                permission) != PERMISSION_GRANTED) {
             
             // Request always for permission when is not already granted
             ActivityCompat.requestPermissions(this,

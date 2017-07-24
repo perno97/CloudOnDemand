@@ -22,7 +22,7 @@ import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.PermissionResultCallback;
 
-public class GoogleSignIn extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class GoogleSignIn extends AppCompatActivity {
     private static final String TAG = "GoogleSignIn";
 
     private static GoogleSignInCallback signInCallback;
@@ -52,8 +52,6 @@ public class GoogleSignIn extends AppCompatActivity implements GoogleApiClient.C
         return mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .addApi(Drive.API)
-                .addOnConnectionFailedListener(this)
-                .addConnectionCallbacks(this)
                 .build();
     }
 
@@ -99,27 +97,11 @@ public class GoogleSignIn extends AppCompatActivity implements GoogleApiClient.C
     // Constuctor of intent
     public static Intent getSignInIntent(Context context, GoogleSignInCallback callback) {
         signInCallback = callback;
-        Intent intent = new Intent(context, GoogleSignIn.class);
-        return intent;
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        return new Intent(context, GoogleSignIn.class);
     }
 
     // Callback interface
-    public interface GoogleSignInCallback {
+    interface GoogleSignInCallback {
         void onSignInResult(boolean isSignedIn);
     }
 }

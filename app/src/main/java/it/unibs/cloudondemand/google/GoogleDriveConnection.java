@@ -40,9 +40,11 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
         super("GoogleDriveSync");
     }
 
+
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        content = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
+        if(intent != null)
+            content = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
 
 
         mGoogleApiClient = createGoogleClient();
@@ -78,30 +80,25 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
                 .build();
     }
 
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.e(TAG, "Connection to google service failed.");
-    }
-    /*  TODO Cercare di ripristinare il codice
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult result) {
         // An error has occurred
         // and try to resolve it
+        /*  TODO Cercare di ripristinare il codice
         if(result.hasResolution()) {
             try {
                 result.startResolutionForResult(this, RC_RESOLUTION);
             } catch (IntentSender.SendIntentException e) {
                 Log.e(TAG, "Intent sender exception while trying to resolve error.", e.getCause());
             }
-        }
+        }*/
 
         // An unresolvable error has occurred and a connection to Google APIs
         // could not be established.
         // Display an error message
         Log.e(TAG, "Connection failed - Result : " + result.getErrorCode());
         Toast.makeText(this, R.string.unable_connect_googleservices, Toast.LENGTH_SHORT).show();
-    }*/
+    }
 
     private void doSignIn() {
         Intent intent = GoogleSignIn.getSignInIntent(this, signInCallback);
@@ -181,6 +178,9 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
             Log.i(TAG, "Disconnect to Play Services");
             mGoogleApiClient.disconnect();
         }
+
+        // Stop service
+        stopSelf();
     }
 
     @Override

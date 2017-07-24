@@ -20,60 +20,53 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     private NotificationCompat.Builder mNotificationBuilder;
-    private String filename;
     private int lastProgress;
 
     // Entry point
     @Override
     public void startUploading() {
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
         // Start uploading the file into drive root dir.
         File file = new File(getContent());
         DriveFolder folder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
 
         // Start foreground notification
-        filename = file.getName();
         lastProgress = 0;
-        startForeground(NOTIFICATION_ID, buildNotification(0));
+        startForeground(NOTIFICATION_ID, buildNotification(0, file.getName()));
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         uploadFile(file, folder);
     }
 
-    private Notification buildNotification(int percent) {
+    private Notification buildNotification(int progress, String filename) {
         // Construct first time all the notification
         if(mNotificationBuilder == null) {
             mNotificationBuilder = new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.ic_file_folder)
-                            .setContentTitle("Uploading files to Drive...")
-                            .setContentText(filename + " ~ " + percent + "%")
-                            .setOngoing(true);
+                    .setSmallIcon(R.drawable.ic_file_folder)
+                    .setContentTitle("Uploading files to Drive...")
+                    .setContentText(filename)
+                    .setProgress(100, progress, false)
+                    .setOngoing(true);
         }
         else
-            mNotificationBuilder.setContentText(filename + " ~ " + percent + "%");
+        if(filename == null)
+            mNotificationBuilder.setProgress(100, progress, false);
+        else
+            mNotificationBuilder.setProgress(100, progress, false)
+                    .setContentText(filename);
 
         return mNotificationBuilder.build();
     }
 
+    private Notification buildNotification(int progress) {
+        return buildNotification(progress, null);
+    }
 
     @Override
-    public void fileProgress(int percent) {
-        if(lastProgress != percent)
-            mNotificationManager.notify(NOTIFICATION_ID, buildNotification(percent));
+    public void fileProgress(int progress) {
+        if(lastProgress != progress)
+            mNotificationManager.notify(NOTIFICATION_ID, buildNotification(progress));
+        lastProgress = progress;
     }
-    /* Update progress bar status
-    @Override
-    public void fileProgress(final int percent) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ProgressBar progressBar = (ProgressBar) findViewById(R.id.upload_progress_bar);
-                progressBar.setProgress(percent);
-                TextView textProtgress = (TextView) findViewById(R.id.upload_textprogress);
-                textProtgress.setText(percent + "%");
-            }
-        });
-    }   */
 
     @Override
     public void onFileUploaded(DriveFile driveFile) {
@@ -86,7 +79,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_file_folder)
-                        .setContentTitle("Uploading files to Drive...") //TODO mettere dentro res/values
+                        .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
                         .setContentText("Finito");
 
         // Stop foreground and substitute notification

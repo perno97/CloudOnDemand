@@ -1,6 +1,10 @@
 package it.unibs.cloudondemand.google;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,11 +16,17 @@ import com.google.android.gms.drive.MetadataChangeSet;
 
 import java.io.File;
 
+import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.FileTree;
 
 public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpFolder";
     private FileTree<GoogleDriveCustomFolder> foldersTree;
+
+    private static final int NOTIFICATION_ID = 1;
+    private NotificationManager mNotificationManager;
+    private NotificationCompat.Builder mNotificationBuilder;
+    private int lastProgress;
 
     @Override
     public void startUploading() {
@@ -25,7 +35,36 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         foldersTree = new FileTree<>(new GoogleDriveCustomFolder(mainFolder));
         // Create main folder on Drive then start uploading
         createDriveFolder(null, mainFolder.getName());
+
+        // Start foreground notification
+        startForeground(NOTIFICATION_ID, buildNotification(0, ""));
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
+
+    private Notification buildNotification(int progress, String filename) {
+        // Construct first time all the notification
+        if(mNotificationBuilder == null) {
+            mNotificationBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.ic_file_folder)
+                    .setContentTitle("Uploading files to Drive...")
+                    .setContentText(filename)
+                    .setProgress(100, progress, false)
+                    .setOngoing(true);
+        }
+        else
+            if(filename == null)
+                mNotificationBuilder.setProgress(100, progress, false);
+            else
+                mNotificationBuilder.setProgress(100, progress, false)
+                                    .setContentText(filename);
+
+        return mNotificationBuilder.build();
+    }
+
+    private Notification buildNotification(int progress) {
+        return buildNotification(progress, null);
+    }
+
 
     // Send input to create a foldersTree on drive (parent foldersTree // root if parentFolder = null), retrieve it by callback (onDriveFolderCreated)
     private void createDriveFolder (DriveFolder parentFolder, String name) {
@@ -68,9 +107,20 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
                 // Create that subfolder
                 createDriveFolder(folder.getParentFolder().getThisFolder().getDriveFolder(), folder.getCurrentFolder().getFolderName());
             else {
-                // Reached up main folder without finding another folder... finished
+                // Finished
                 disconnect();
-                Toast.makeText(this, "FINITO", Toast.LENGTH_SHORT).show();
+
+                // Construct final notification
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(this)
+                                .setSmallIcon(R.drawable.ic_file_folder)
+                                .setContentTitle("Uploading files to Drive...") //TODO mettere dentro res/values
+                                .setContentText("Finito");
+
+                // Stop foreground and substitute notification
+                stopForeground(true);
+                mNotificationManager.cancel(NOTIFICATION_ID);
+                mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             }
 
             return;
@@ -80,13 +130,19 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         DriveFolder currentDriveFolder = foldersTree.getCurrentFolderThis().getDriveFolder();
         File currentFile = foldersTree.nextFile();
 
+        // Edit notification
+        lastProgress = 0;
+        mNotificationManager.notify(NOTIFICATION_ID, buildNotification(0, currentFile.getName()));
+
         // Upload current file
         uploadFile(currentFile, currentDriveFolder);
     }
 
     @Override
-    public void fileProgress(int percent) {
-        //TODO
+    public void fileProgress(int progress) {
+        if(lastProgress != progress)
+            mNotificationManager.notify(NOTIFICATION_ID, buildNotification(progress));
+        lastProgress = progress;
     }
 
     @Override

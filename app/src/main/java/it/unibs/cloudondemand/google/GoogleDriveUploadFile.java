@@ -37,7 +37,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     public void onConnected() {
         // Check if storage is readable and start upload
         if (Utils.isExternalStorageReadable()) {
-            // Verify permission and after create new drive content when permission is granted
+            // Verify permission and after call startUploading when permission is granted
             Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
             startActivity(intent);
         }
@@ -135,11 +135,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                     .setStarred(true)
                     .build();
 
-            DriveFolder.DriveFileResult driveFileResult = folder
-                    .createFile(getGoogleApiClient(), changeSet, driveContents)
+            return folder.createFile(getGoogleApiClient(), changeSet, driveContents)
                     .await();
-
-            return driveFileResult;
         }
 
         @Override
@@ -163,7 +160,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     }
 
     // Called many times during the file upload. To edit UI implement runOnUiThread(runnable);
-    public abstract void fileProgress (int percent);
+    public abstract void fileProgress (int progress);
 
     // Called when a file has been uploaded. driveFile = null when file on drive wasn't created.
     public abstract void onFileUploaded (DriveFile driveFile);
