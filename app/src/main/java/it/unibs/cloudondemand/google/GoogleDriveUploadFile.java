@@ -24,7 +24,6 @@ import java.io.OutputStream;
 
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.PermissionRequest;
-import it.unibs.cloudondemand.utils.PermissionResultCallback;
 import it.unibs.cloudondemand.utils.Utils;
 
 public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
@@ -48,7 +47,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     }
 
     // Called when user chose to grant permission
-    final private PermissionResultCallback permissionResultCallback = new PermissionResultCallback() {
+    final private PermissionRequest.PermissionRequestCallback permissionResultCallback = new PermissionRequest.PermissionRequestCallback() {
         @Override
         public void onPermissionResult(int isGranted) {
             if (isGranted == PermissionRequest.PERMISSION_GRANTED)
@@ -135,11 +134,9 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                     .setStarred(true)
                     .build();
 
-            DriveFolder.DriveFileResult driveFileResult = folder
+            return folder
                     .createFile(getGoogleApiClient(), changeSet, driveContents)
                     .await();
-
-            return driveFileResult;
         }
 
         @Override

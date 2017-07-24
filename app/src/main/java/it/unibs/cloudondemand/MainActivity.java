@@ -3,7 +3,6 @@ package it.unibs.cloudondemand;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,7 +22,6 @@ import java.util.Arrays;
 
 import it.unibs.cloudondemand.utils.FileListable;
 import it.unibs.cloudondemand.utils.PermissionRequest;
-import it.unibs.cloudondemand.utils.PermissionResultCallback;
 import it.unibs.cloudondemand.utils.RowAdapter;
 import it.unibs.cloudondemand.utils.Utils;
 
@@ -50,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Called when user chose to grant permission
-    private final PermissionResultCallback permissionResultCallback = new PermissionResultCallback() {
+    private final PermissionRequest.PermissionRequestCallback permissionResultCallback = new PermissionRequest.PermissionRequestCallback() {
         @Override
         public void onPermissionResult(int isGranted) {
             // Blocks code if permission is denied
