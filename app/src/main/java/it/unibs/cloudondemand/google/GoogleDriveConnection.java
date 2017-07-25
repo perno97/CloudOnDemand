@@ -1,6 +1,9 @@
 package it.unibs.cloudondemand.google;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.support.annotation.NonNull;
@@ -32,9 +35,12 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
     private boolean signOut = false;
 
     private static final int clientConnectionType = GoogleApiClient.SIGN_IN_MODE_OPTIONAL;
-    private static final int RC_RESOLUTION = 2;
     private GoogleApiClient mGoogleApiClient;
+
     private String content;
+
+    private static final int NOTIFICATION_ID = 1;
+    private NotificationManager mNotificationManager;
 
     public GoogleDriveConnection() {
         super("GoogleDriveSync");
@@ -42,14 +48,17 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
 
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
+    protected void onHandleIntent(Intent intent) {
+        // Initialize attributes
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        startForeground(NOTIFICATION_ID, new Notification());
+
         if(intent != null)
             content = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
 
-
         mGoogleApiClient = createGoogleClient();
 
-
+        // Connect to google services
         if(!GoogleDriveUtil.isSignedIn(this)) {
             doSignIn();
         }
@@ -112,23 +121,11 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
             if(isSignedIn)
                 mGoogleApiClient.connect(clientConnectionType);
             else {
-                Log.i(TAG, "Unable to sign in into google account");
+                Log.i(TAG, "Unable to sign in into google account.");
                 Toast.makeText(GoogleDriveConnection.this, "Impossibile connettersi all'account", Toast.LENGTH_SHORT).show();  //TODO cambiare
             }
         }
     };
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case RC_RESOLUTION :
-                if(resultCode == RESULT_OK)
-                    mGoogleApiClient.connect(clientConnectionType);
-                else
-                    Log.e(TAG, "Tried with error to resolve onConnectionFailed");
-                break;
-        }
-    }
-
 
 
     @Override
@@ -180,6 +177,7 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
         }
 
         // Stop service
+        stopForeground(true);
         stopSelf();
     }
 
@@ -195,5 +193,13 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
 
     public String getContent() {
         return content;
+    }
+
+    public NotificationManager getNotificationManager() {
+        return mNotificationManager;
+    }
+
+    public int getNotificationId() {
+        return NOTIFICATION_ID;
     }
 }

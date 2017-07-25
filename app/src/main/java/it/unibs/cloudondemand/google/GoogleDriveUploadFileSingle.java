@@ -18,7 +18,6 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
 
     private static final int NOTIFICATION_ID = 1;
-    private NotificationManager mNotificationManager;
     private NotificationCompat.Builder mNotificationBuilder;
     private int lastProgress;
 
@@ -31,8 +30,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
 
         // Start foreground notification
         lastProgress = 0;
-        startForeground(NOTIFICATION_ID, buildNotification(0, file.getName()));
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        getNotificationManager().notify(NOTIFICATION_ID, buildNotification(0, file.getName()));
 
         uploadFile(file, folder);
     }
@@ -64,7 +62,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     @Override
     public void fileProgress(int progress) {
         if(lastProgress != progress)
-            mNotificationManager.notify(NOTIFICATION_ID, buildNotification(progress));
+            getNotificationManager().notify(NOTIFICATION_ID, buildNotification(progress));
         lastProgress = progress;
     }
 
@@ -82,10 +80,9 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
                         .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
                         .setContentText("Finito");
 
-        // Stop foreground and substitute notification
-        stopForeground(true);
-        mNotificationManager.cancel(NOTIFICATION_ID);
-        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        // Substitute notification
+        getNotificationManager().cancel(NOTIFICATION_ID);
+        getNotificationManager().notify(NOTIFICATION_ID, mBuilder.build());
 
         disconnect();
     }

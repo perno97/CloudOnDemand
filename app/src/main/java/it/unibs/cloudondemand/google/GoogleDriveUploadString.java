@@ -25,16 +25,14 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
     private static final String TAG = "GoogleDriveUpString";
 
     private static final int NOTIFICATION_ID = 1;
-    private NotificationManager mNotificationManager;
+
 
     @Override
     public void onConnected() {
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
 
-        // Start foreground notification
-        startForeground(NOTIFICATION_ID, buildNotification());
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        getNotificationManager().notify(getNotificationId(), buildNotification());
     }
 
     private Notification buildNotification() {
@@ -109,14 +107,13 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
             // Construct final notification
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(GoogleDriveUploadString.this)
-                            .setSmallIcon(R.drawable.ic_file_folder)
+                            .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
                             .setContentText("Finito");
 
-            // Stop foreground and substitute notification
-            stopForeground(true);
-            mNotificationManager.cancel(NOTIFICATION_ID);
-            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+            // Substitute notification
+            getNotificationManager().cancel(NOTIFICATION_ID);
+            getNotificationManager().notify(NOTIFICATION_ID, mBuilder.build());
 
             disconnect();
         }

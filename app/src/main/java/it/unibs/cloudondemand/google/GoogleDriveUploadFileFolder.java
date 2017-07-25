@@ -24,7 +24,6 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private FileTree<GoogleDriveCustomFolder> foldersTree;
 
     private static final int NOTIFICATION_ID = 1;
-    private NotificationManager mNotificationManager;
     private NotificationCompat.Builder mNotificationBuilder;
     private int lastProgress;
 
@@ -37,8 +36,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         createDriveFolder(null, mainFolder.getName());
 
         // Start foreground notification
-        startForeground(NOTIFICATION_ID, buildNotification(0, ""));
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        getNotificationManager().notify(NOTIFICATION_ID, buildNotification(0, ""));
     }
 
     private Notification buildNotification(int progress, String filename) {
@@ -119,8 +117,8 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
                 // Stop foreground and substitute notification
                 stopForeground(true);
-                mNotificationManager.cancel(NOTIFICATION_ID);
-                mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+                getNotificationManager().cancel(NOTIFICATION_ID);
+                getNotificationManager().notify(NOTIFICATION_ID, mBuilder.build());
             }
 
             return;
@@ -132,7 +130,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
         // Edit notification
         lastProgress = 0;
-        mNotificationManager.notify(NOTIFICATION_ID, buildNotification(0, currentFile.getName()));
+        getNotificationManager().notify(NOTIFICATION_ID, buildNotification(0, currentFile.getName()));
 
         // Upload current file
         uploadFile(currentFile, currentDriveFolder);
@@ -141,7 +139,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     @Override
     public void fileProgress(int progress) {
         if(lastProgress != progress)
-            mNotificationManager.notify(NOTIFICATION_ID, buildNotification(progress));
+            getNotificationManager().notify(NOTIFICATION_ID, buildNotification(progress));
         lastProgress = progress;
     }
 
