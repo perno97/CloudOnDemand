@@ -23,8 +23,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpFolder";
     private FileTree<GoogleDriveCustomFolder> foldersTree;
 
-    private static final int NOTIFICATION_ID = 1;
-    private NotificationCompat.Builder mNotificationBuilder;
+
     private int lastProgress;
 
     @Override
@@ -36,31 +35,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         createDriveFolder(null, mainFolder.getName());
 
         // Start foreground notification
-        getNotificationManager().notify(NOTIFICATION_ID, buildNotification(0, ""));
-    }
-
-    private Notification buildNotification(int progress, String filename) {
-        // Construct first time the notification
-        if(mNotificationBuilder == null) {
-            mNotificationBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.ic_file_folder)
-                    .setContentTitle("Uploading files to Drive...")
-                    .setContentText(filename)
-                    .setProgress(100, progress, false)
-                    .setOngoing(true);
-        }
-        else
-            if(filename == null)
-                mNotificationBuilder.setProgress(100, progress, false);
-            else
-                mNotificationBuilder.setProgress(100, progress, false)
-                                    .setContentText(filename);
-
-        return mNotificationBuilder.build();
-    }
-
-    private Notification buildNotification(int progress) {
-        return buildNotification(progress, null);
+        getNotificationManager().notify(getNotificationId(), buildNotification(this, 0, ""));
     }
 
 
@@ -107,18 +82,6 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             else {
                 // Finished
                 disconnect();
-
-                // Construct final notification
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(this)
-                                .setSmallIcon(R.drawable.ic_file_folder)
-                                .setContentTitle("Uploading files to Drive...") //TODO mettere dentro res/values
-                                .setContentText("Finito");
-
-                // Stop foreground and substitute notification
-                stopForeground(true);
-                getNotificationManager().cancel(NOTIFICATION_ID);
-                getNotificationManager().notify(NOTIFICATION_ID, mBuilder.build());
             }
 
             return;
@@ -130,7 +93,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
         // Edit notification
         lastProgress = 0;
-        getNotificationManager().notify(NOTIFICATION_ID, buildNotification(0, currentFile.getName()));
+        getNotificationManager().notify(getNotificationId(), buildNotification(this, 0, currentFile.getName()));
 
         // Upload current file
         uploadFile(currentFile, currentDriveFolder);
@@ -139,7 +102,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     @Override
     public void fileProgress(int progress) {
         if(lastProgress != progress)
-            getNotificationManager().notify(NOTIFICATION_ID, buildNotification(progress));
+            getNotificationManager().notify(getNotificationId(), buildNotification(this, progress));
         lastProgress = progress;
     }
 
@@ -154,5 +117,16 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         foldersTree.getCurrentFolderThis().setFileId(driveFile.getDriveId());
 
         uploadNextFile();
+    }
+
+    @Override
+    public Notification getFinalNotification() {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_file_folder)
+                        .setContentTitle("Uploading files to Drive...") //TODO mettere dentro res/values
+                        .setContentText("Finito");
+
+        return mBuilder.build();
     }
 }

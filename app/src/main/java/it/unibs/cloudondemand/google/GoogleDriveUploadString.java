@@ -24,26 +24,13 @@ import it.unibs.cloudondemand.R;
 public class GoogleDriveUploadString extends GoogleDriveConnection {
     private static final String TAG = "GoogleDriveUpString";
 
-    private static final int NOTIFICATION_ID = 1;
-
 
     @Override
     public void onConnected() {
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
 
-        getNotificationManager().notify(getNotificationId(), buildNotification());
-    }
-
-    private Notification buildNotification() {
-        // Construct first time the notification
-        NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.ic_file_folder)
-                    .setContentTitle("Uploading file to Drive...")
-                    .setProgress(0, 0, true)
-                    .setOngoing(true);
-
-        return mNotificationBuilder.build();
+        getNotificationManager().notify(getNotificationId(), buildNotification(this, 0, true));
     }
 
     // Called when new content on Drive was created
@@ -103,19 +90,18 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
 
-
-            // Construct final notification
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(GoogleDriveUploadString.this)
-                            .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
-                            .setContentText("Finito");
-
-            // Substitute notification
-            getNotificationManager().cancel(NOTIFICATION_ID);
-            getNotificationManager().notify(NOTIFICATION_ID, mBuilder.build());
-
             disconnect();
         }
     };
+
+    @Override
+    public Notification getFinalNotification() {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(GoogleDriveUploadString.this)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
+                        .setContentText("Finito");
+
+        return mBuilder.build();
+    }
 }

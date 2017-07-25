@@ -21,7 +21,6 @@ import it.unibs.cloudondemand.utils.StopServices;
 public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
 
-    private static final int NOTIFICATION_ID = 1;
     private NotificationCompat.Builder mNotificationBuilder;
     private int lastProgress;
 
@@ -34,52 +33,16 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
 
         // Start foreground notification
         lastProgress = 0;
-        getNotificationManager().notify(NOTIFICATION_ID, buildNotification(0, file.getName()));
+        getNotificationManager().notify(getNotificationId(), buildNotification(this, 0, file.getName()));
 
         uploadFile(file, folder);
     }
 
 
-    private Notification buildNotification(int progress, String filename) {
-        // Construct first time the notification
-        if(mNotificationBuilder == null) {
-
-            mNotificationBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.ic_file_folder)
-                    .setContentTitle("Uploading files to Drive...")
-                    .setContentText(filename)
-                    .setProgress(100, progress, false)
-                    //.addAction()
-                    .setOngoing(true);
-
-            // Add action button to stop service
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, StopServices.class), PendingIntent.FLAG_UPDATE_CURRENT);
-            if(Build.VERSION.SDK_INT > 23) {
-                NotificationCompat.Action stopAction = new NotificationCompat.Action.Builder(R.drawable.ic_close, "Stop", pendingIntent).build();
-                mNotificationBuilder.addAction(stopAction);
-            }
-            else {
-                mNotificationBuilder.addAction(R.drawable.ic_close, "Stop", pendingIntent);
-            }
-        }
-        else
-        if(filename == null)
-            mNotificationBuilder.setProgress(100, progress, false);
-        else
-            mNotificationBuilder.setProgress(100, progress, false)
-                    .setContentText(filename);
-
-        return mNotificationBuilder.build();
-    }
-
-    private Notification buildNotification(int progress) {
-        return buildNotification(progress, null);
-    }
-
     @Override
     public void fileProgress(int progress) {
         if(lastProgress != progress)
-            ((NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, buildNotification(progress));
+            getNotificationManager().notify(getNotificationId(), buildNotification(this, progress));
         lastProgress = progress;
     }
 
@@ -90,17 +53,17 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
             return;
         }
 
-        // Construct final notification
+        disconnect();
+    }
+
+    @Override
+    public Notification getFinalNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_file_folder)
+                        .setSmallIcon(GoogleDriveConnection.NOTIFICATION_ICON)
                         .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
                         .setContentText("Finito");
 
-        // Substitute notification
-        getNotificationManager().cancel(NOTIFICATION_ID);
-        getNotificationManager().notify(NOTIFICATION_ID, mBuilder.build());
-
-        disconnect();
+        return mBuilder.build();
     }
 }

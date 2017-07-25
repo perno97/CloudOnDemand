@@ -1,21 +1,15 @@
 package it.unibs.cloudondemand;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.SignInButton;
 
-import it.unibs.cloudondemand.google.GoogleDriveConnection;
-import it.unibs.cloudondemand.google.GoogleDriveUploadFileFolder;
-import it.unibs.cloudondemand.google.GoogleDriveUploadFileSingle;
-import it.unibs.cloudondemand.google.GoogleDriveUploadString;
 import it.unibs.cloudondemand.google.GoogleDriveUtil;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
@@ -78,13 +72,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (v.getId()) {
             case R.id.google_sign_in_button :
                 //Check before if service is running
-                if(GoogleDriveUtil.isServiceRunning())
+                if(GoogleDriveUtil.isUploadServiceRunning())
                     Toast.makeText(this, "Wait", Toast.LENGTH_SHORT).show();    //TODO res/strings
                 else
                     startService(GoogleDriveUtil.getIntent(this, mContentType, mContent, true));
                 break;
             case R.id.google_signed_in_button :
-                if(GoogleDriveUtil.isServiceRunning())
+                if(GoogleDriveUtil.isUploadServiceRunning())
                     Toast.makeText(this, "Wait", Toast.LENGTH_SHORT).show();    //TODO res/strings
                 else
                     startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));

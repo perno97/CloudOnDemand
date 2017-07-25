@@ -1,11 +1,16 @@
 package it.unibs.cloudondemand.google;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.utils.StopServices;
 
 public class GoogleDriveUtil {
 
@@ -49,7 +54,11 @@ public class GoogleDriveUtil {
         return  getIntent(context, contentType, content, false);
     }
 
-    public static boolean isServiceRunning() {
+    /**
+     * Check if an upload service is running.
+     * @return True if an upload service is running, False otherwise.
+     */
+    public static boolean isUploadServiceRunning() {
         return GoogleDriveConnection.isRunning;
     }
 

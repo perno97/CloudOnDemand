@@ -30,7 +30,7 @@ public class StopServices extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         Log.i("Notification", "Stopping service.");
 
-
+                        /*
                         ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
                         List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = am.getRunningAppProcesses();
 
@@ -45,7 +45,8 @@ public class StopServices extends AppCompatActivity {
                                 android.os.Process.killProcess(next.pid);
                                 break;
                             }
-                        }
+                        }*/
+                        stopService(new Intent(StopServices.this, GoogleDriveUploadFileSingle.class));
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {

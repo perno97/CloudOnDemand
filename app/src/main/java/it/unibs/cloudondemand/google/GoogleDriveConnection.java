@@ -3,11 +3,17 @@ package it.unibs.cloudondemand.google;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Build;
+import android.os.IBinder;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,10 +31,11 @@ import com.google.android.gms.drive.Drive;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.utils.StopServices;
 
 import static android.app.Activity.RESULT_OK;
 
-public abstract class GoogleDriveConnection extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public abstract class GoogleDriveConnection extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "GoogleDriveConnection";
 
     // Used to control running status of service    //TODO NON FUNZIONA
@@ -46,14 +53,10 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
     // Foreground notification
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
-
-    public GoogleDriveConnection() {
-        super("GoogleDriveSync");
-    }
-
+    private NotificationCompat.Builder mNotificationBuilder;
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public int onStartCommand(Intent intent, int flags, int startId) {
         // Initialize attributes
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         startForeground(NOTIFICATION_ID, new Notification());
@@ -74,6 +77,14 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
             }
             mGoogleApiClient.connect(clientConnectionType);
         }
+
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     private GoogleApiClient createGoogleClient() {
@@ -104,13 +115,14 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
                 result.startResolutionForResult(this, RC_RESOLUTION);
             } catch (IntentSender.SendIntentException e) {
                 Log.e(TAG, "Intent sender exception while trying to resolve error.", e.getCause());
+                Toast.makeText(this, R.string.unable_connect_googleservices, Toast.LENGTH_SHORT).show();
             }
         }*/
 
         // An unresolvable error has occurred and a connection to Google APIs
         // could not be established.
         // Display an error message
-        Log.e(TAG, "Connection failed - Result : " + result.getErrorCode());
+        Log.e(TAG, "Connection failed - Result code : " + result.getErrorCode());
         Toast.makeText(this, R.string.unable_connect_googleservices, Toast.LENGTH_SHORT).show();
     }
 
@@ -183,9 +195,19 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
         }
 
         // Stop service
-        Toast.makeText(this, "Disconnect", Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "Stopping service (Google).");
         isRunning = false;
-        stopForeground(true);
+        mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
+        stopForeground(false);
+        stopSelf();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Toast.makeText(this, "onDestroy, google client connected ? " + mGoogleApiClient.isConnected(), Toast.LENGTH_SHORT).show();
+        if(mGoogleApiClient.isConnected())
+            disconnect();
     }
 
     public GoogleApiClient getGoogleApiClient() {
@@ -194,6 +216,57 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
 
     public String getContent() {
         return content;
+    }
+
+    // NOTIFICATION
+    // Should implement this to keep last notification with onGoing=false
+    public abstract Notification getFinalNotification();
+
+    public static final int NOTIFICATION_ICON = R.mipmap.ic_launcher;
+
+    private Notification buildNotification(Context context, int progress, String contentText, boolean indeterminateProgress) {
+        // Construct first time the notification
+        if(mNotificationBuilder == null) {
+
+            mNotificationBuilder = new NotificationCompat.Builder(context)
+                    .setSmallIcon(NOTIFICATION_ICON)
+                    .setContentTitle("Uploading files to Drive...") //TODO res/strings
+                    .setContentText(contentText)
+                    .setProgress(100, progress, indeterminateProgress)
+                    //.addAction()
+                    .setOngoing(true);
+
+            // Add action button to stop service
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(context, StopServices.class), PendingIntent.FLAG_UPDATE_CURRENT);
+            if(Build.VERSION.SDK_INT > 23) {
+                NotificationCompat.Action stopAction = new NotificationCompat.Action.Builder(R.drawable.ic_close, "Stop", pendingIntent).build();
+                mNotificationBuilder.addAction(stopAction);
+            }
+            else {
+                mNotificationBuilder.addAction(R.drawable.ic_close, "Stop", pendingIntent);
+            }
+        }
+        else
+            // Edit already created notification
+            if(contentText == null)
+                mNotificationBuilder.setProgress(100, progress, false);
+            else
+                mNotificationBuilder.setProgress(100, progress, false)
+                        .setContentText(contentText);
+
+        return mNotificationBuilder.build();
+    }
+
+    public Notification buildNotification(Context context, int progress, String contentText) {
+        return buildNotification(context, progress, contentText, false);
+    }
+
+    public Notification buildNotification(Context context, int progress) {
+        return buildNotification(context, progress, null, false);
+    }
+
+    public Notification buildNotification(Context context, int progress, boolean indeterminateProgress) {
+        return buildNotification(context, progress, null, indeterminateProgress);
     }
 
     public NotificationManager getNotificationManager() {
