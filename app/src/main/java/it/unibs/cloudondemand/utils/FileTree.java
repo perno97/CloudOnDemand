@@ -1,9 +1,6 @@
 package it.unibs.cloudondemand.utils;
 
 import java.io.File;
-import java.io.FileFilter;
-
-import it.unibs.cloudondemand.google.GoogleDriveCustomFolder;
 
 public class FileTree <T extends GenericFileTree<T>> {
     // Parent folder of thisFolder
@@ -53,7 +50,7 @@ public class FileTree <T extends GenericFileTree<T>> {
 
         FileTree<T>[] folders=new FileTree[subFolders.length];
         for(int i = 0; i < subFolders.length; i++) {
-            folders[i] = new FileTree(this, subFolders[i]);
+            folders[i] = new FileTree<>(this, subFolders[i]);
         }
         return folders;
     }
@@ -114,7 +111,7 @@ public class FileTree <T extends GenericFileTree<T>> {
      * @param fileTree Working file tree.
      * @return Tree object of subfolder or null if there isn't next subfolder.
      */
-    private FileTree<T> nextSubFolder (FileTree fileTree) {
+    private FileTree<T> nextSubFolder (FileTree<T> fileTree) {
         if (fileTree.hasNextSubFolder())
             return fileTree.subFolders[++fileTree.currentSubFolder];
         else
@@ -196,7 +193,10 @@ public class FileTree <T extends GenericFileTree<T>> {
         return thisFolder;
     }
 
-    //TODO implementare tutto il codice in GoogleDriveUploadFolder
+    /**
+     * Get next folder.
+     * @return Folder requested or null if there isn't another folder in the tree.
+     */
     public FileTree<T> nextFolder () {
         FileTree<T> current = getCurrentFolder();
 

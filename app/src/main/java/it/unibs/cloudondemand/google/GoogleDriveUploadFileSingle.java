@@ -64,7 +64,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     @Override
     public void onFileUploaded(DriveFile driveFile) {
         if (driveFile == null) {
-            Toast.makeText(GoogleDriveUploadFileSingle.this, "File non Creato", Toast.LENGTH_SHORT).show();   //TODO spostare stringe nelle res
+            Toast.makeText(GoogleDriveUploadFileSingle.this, R.string.unable_create_file_googledrive, Toast.LENGTH_SHORT).show();
             return;
         }
 

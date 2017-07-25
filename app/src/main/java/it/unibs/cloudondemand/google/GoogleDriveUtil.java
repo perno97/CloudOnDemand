@@ -17,7 +17,7 @@ public class GoogleDriveUtil {
      * @param signOut True if want to Sign-out before do something.
      * @return Intent to launch with startActivity(intent). Return null if content type is not found.
      */
-    public static Intent getIntent(Context context, String contentType, String content, boolean signOut) {
+    public static Intent getIntent(Context context, int contentType, String content, boolean signOut) {
         Intent intent=null;
         switch (contentType) {
             case LoginActivity.CONTENT_STRING :
@@ -45,7 +45,7 @@ public class GoogleDriveUtil {
      * @param content String, File path or Folder path.
      * @return Intent to launch with startActivity(intent). Return null if content type is not found.
      */
-    public static Intent getIntent(Context context, String contentType, String content) {
+    public static Intent getIntent(Context context, int contentType, String content) {
         return  getIntent(context, contentType, content, false);
     }
 

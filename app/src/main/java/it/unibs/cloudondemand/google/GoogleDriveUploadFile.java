@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ResultCallback;
@@ -54,7 +53,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 startUploading();
             else {
                 // Permission denied, show to user and close activity
-                Toast.makeText(GoogleDriveUploadFile.this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveUploadFile.this, R.string.requested_permission_read_storage, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Permission to read external storage denied");
                 finish();
             }
@@ -159,7 +158,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         }
     }
 
-    // Called many times during the file upload. To edit UI implement runOnUiThread(runnable);
+    // Called many times during the file upload.
     public abstract void fileProgress (int percent);
 
     // Called when a file has been uploaded. driveFile = null when file on drive wasn't created.

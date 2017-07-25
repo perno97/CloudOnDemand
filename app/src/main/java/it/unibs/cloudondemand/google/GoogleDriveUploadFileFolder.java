@@ -12,6 +12,7 @@ import com.google.android.gms.drive.MetadataChangeSet;
 
 import java.io.File;
 
+import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.FileTree;
 
 public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
@@ -92,7 +93,9 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     @Override
     public void onFileUploaded(DriveFile driveFile) {
         if (driveFile == null) {
-            Toast.makeText(this, "File non creato", Toast.LENGTH_SHORT).show();     //TODO FARE QUALCOSA
+            Toast.makeText(this, R.string.unable_create_file_googledrive, Toast.LENGTH_SHORT).show();
+
+            uploadNextFile();
             return;
         }
 

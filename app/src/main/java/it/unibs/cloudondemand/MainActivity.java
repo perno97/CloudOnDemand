@@ -6,6 +6,7 @@ import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -15,8 +16,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -26,6 +25,8 @@ import it.unibs.cloudondemand.utils.RowAdapter;
 import it.unibs.cloudondemand.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
     private static final String initialPath = Environment.getExternalStorageDirectory().getAbsolutePath();
     private FileAdaptable currentPath = new FileAdaptable(initialPath);
     private final ArrayList<FileListable> currentFileList = new ArrayList<>();
@@ -35,16 +36,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Check if external storage is readable
+        // Check if external storage is readable before filling listview
         if (Utils.isExternalStorageReadable()) {
-            // Verify permission and after fill listview
+            // Verify permission and after fill file manager listview
             Intent intent = PermissionRequest.getRequestPermissionIntent(this, android.Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
             startActivity(intent);
         }
         else {
-                Toast.makeText(this, "Errore lettura file", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.requested_permission_read_storage, Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    // Called when user click send button
+    public void sendMessage(View view) {
+        Intent intent = new Intent(this, LoginActivity.class);
+        EditText editText = (EditText) findViewById(R.id.editText);
+        String message = editText.getText().toString();
+        if(message.isEmpty())
+            Toast.makeText(this, R.string.insert_not_empty_string, Toast.LENGTH_LONG ).show();
+        else
+        {
+            sendIntent(LoginActivity.CONTENT_STRING, message);
+        }
     }
 
     // Called when user chose to grant permission
@@ -57,14 +71,10 @@ public class MainActivity extends AppCompatActivity {
 
             // Fill listview
             ListView listView = (ListView) findViewById(R.id.listview);
-            try {
-                readFiles();
-                RowAdapter adapter = new RowAdapter(MainActivity.this, currentFileList);
-                listView.setAdapter(adapter);
-            }
-            catch (IOException e) {
-                Toast.makeText(MainActivity.this, "Errore lettura file", Toast.LENGTH_SHORT).show();
-            }
+
+            readFiles();
+            RowAdapter adapter = new RowAdapter(MainActivity.this, currentFileList);
+            listView.setAdapter(adapter);
 
             // Add on item click listener to listview items
             listView.setOnItemClickListener(onItemClick);
@@ -72,21 +82,8 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    /** Called when the user taps the Send button */
-    public void sendMessage(View view) {
-        Intent intent = new Intent(this, LoginActivity.class);
-        EditText editText = (EditText) findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        if(message.isEmpty())
-            Toast.makeText(this, "Inserisci una stringa non vuota", Toast.LENGTH_LONG ).show();
-        else
-        {
-            sendIntent(LoginActivity.CONTENT_STRING, message);
-        }
-    }
-
-    /**Read files from external storage*/ //TODO gestire IOEXceotion
-    public void readFiles() throws IOException {
+    // List files into currentPath
+    public void readFiles() {
         if(currentPath.exists()) {
             if (currentPath.isDirectory()) {
                 // Clear string array
@@ -122,7 +119,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else {
-            throw new FileNotFoundException();
+            Log.e(TAG, "File not found on external storage directory.");
+            Toast.makeText(this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -157,15 +155,10 @@ public class MainActivity extends AppCompatActivity {
 
 
             if (refreshListView) {
-                //TODO rimuovere try catch
-                try {
-                    // Update array with new path
-                    readFiles();
-                    // Notify update to listview (update UI)
-                    ((BaseAdapter) parent.getAdapter()).notifyDataSetChanged();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                // Update array with new path
+                readFiles();
+                // Notify update to listview (update UI)
+                ((BaseAdapter) parent.getAdapter()).notifyDataSetChanged();
             }
         }
     };
@@ -189,9 +182,9 @@ public class MainActivity extends AppCompatActivity {
     // Called when user click on a file in path finder UI
     private void onFileClick (final File selected) {
         AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setMessage("Vuoi caricare il file selezionato?")   //TODO spostare in values/string
-                .setTitle("Carica")
-                .setPositiveButton("Si", new DialogInterface.OnClickListener() {
+                .setMessage(R.string.dialog_upload_content)
+                .setTitle(R.string.dialog_upload_title)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if(selected.isDirectory())
@@ -200,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                             sendIntent(LoginActivity.CONTENT_FILE, selected.getPath());
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // User doesn't want to upload the selected file/folder
@@ -212,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Start another activity
-    private void sendIntent (String contentType, String content) {
+    private void sendIntent (int contentType, String content) {
         startActivity(LoginActivity.getIntent(this, contentType, content));
     }
 
