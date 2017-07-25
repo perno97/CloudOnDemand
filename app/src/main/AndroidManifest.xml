@@ -33,9 +33,10 @@
         <activity
             android:name=".utils.PermissionRequest"
             android:theme="@style/Theme.TransparentTheme" />
-
-        <activity android:name=".google.GoogleSignIn"
+        <activity
+            android:name=".google.GoogleSignIn"
             android:theme="@style/Theme.TransparentTheme" />
+        <activity android:name=".utils.StopServices" />
     </application>
 
 </manifest>

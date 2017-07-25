@@ -31,6 +31,10 @@ import static android.app.Activity.RESULT_OK;
 public abstract class GoogleDriveConnection extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "GoogleDriveConnection";
 
+    // Used to control running status of service    //TODO NON FUNZIONA
+    static boolean isRunning;
+
+    // Extra of receiving intent
     public static final String SIGN_OUT_EXTRA = "signOut";
     private boolean signOut = false;
 
@@ -39,6 +43,7 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
 
     private String content;
 
+    // Foreground notification
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
 
@@ -64,7 +69,7 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
         }
         else {
             // If signOut is true after is connected, do sign-out stuff
-            if(intent.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
+            if(intent != null && intent.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
                 signOut = true;
             }
             mGoogleApiClient.connect(clientConnectionType);
@@ -150,6 +155,7 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
         }
 
         Log.i(TAG, "Connected to Play Services.");
+        isRunning = true;
 
         onConnected();
     }
@@ -177,14 +183,9 @@ public abstract class GoogleDriveConnection extends IntentService implements Goo
         }
 
         // Stop service
+        Toast.makeText(this, "Disconnect", Toast.LENGTH_SHORT).show();
+        isRunning = false;
         stopForeground(true);
-        stopSelf();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        disconnect();
     }
 
     public GoogleApiClient getGoogleApiClient() {

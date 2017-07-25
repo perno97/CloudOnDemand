@@ -2,7 +2,10 @@ package it.unibs.cloudondemand.google;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
@@ -13,6 +16,7 @@ import com.google.android.gms.drive.DriveFolder;
 import java.io.File;
 
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.utils.StopServices;
 
 public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
@@ -35,15 +39,28 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
         uploadFile(file, folder);
     }
 
+
     private Notification buildNotification(int progress, String filename) {
         // Construct first time the notification
         if(mNotificationBuilder == null) {
+
             mNotificationBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_file_folder)
                     .setContentTitle("Uploading files to Drive...")
                     .setContentText(filename)
                     .setProgress(100, progress, false)
+                    //.addAction()
                     .setOngoing(true);
+
+            // Add action button to stop service
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, StopServices.class), PendingIntent.FLAG_UPDATE_CURRENT);
+            if(Build.VERSION.SDK_INT > 23) {
+                NotificationCompat.Action stopAction = new NotificationCompat.Action.Builder(R.drawable.ic_close, "Stop", pendingIntent).build();
+                mNotificationBuilder.addAction(stopAction);
+            }
+            else {
+                mNotificationBuilder.addAction(R.drawable.ic_close, "Stop", pendingIntent);
+            }
         }
         else
         if(filename == null)
@@ -62,7 +79,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     @Override
     public void fileProgress(int progress) {
         if(lastProgress != progress)
-            getNotificationManager().notify(NOTIFICATION_ID, buildNotification(progress));
+            ((NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, buildNotification(progress));
         lastProgress = progress;
     }
 
