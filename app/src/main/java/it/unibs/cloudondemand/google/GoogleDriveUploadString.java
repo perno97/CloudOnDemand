@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+import it.unibs.cloudondemand.R;
+
 public class GoogleDriveUploadString extends GoogleDriveConnection {
     private static final String TAG = "GoogleDriveUpString";
 
@@ -74,11 +76,11 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
             if(!driveFileResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDriveUploadString.this, "File non Creato", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveUploadString.this, R.string.unable_create_file_googledrive, Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "File not created");
             }
             else {
-                Toast.makeText(GoogleDriveUploadString.this, "File Creato", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveUploadString.this, R.string.files_created_googledrive, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
 

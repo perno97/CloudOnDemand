@@ -69,9 +69,9 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
                 // Create that subfolder
                 createDriveFolder(folder.getParentFolder().getThisFolder().getDriveFolder(), folder.getCurrentFolder().getFolderName());
             else {
-                // Reached up main folder without finding another folder... finished
+                // Finished
                 disconnect();
-                Toast.makeText(this, "FINITO", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.files_created_googledrive, Toast.LENGTH_SHORT).show();
             }
 
             return;
