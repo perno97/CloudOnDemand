@@ -1,27 +1,21 @@
 package it.unibs.cloudondemand.google;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.Drive;
 
-import it.unibs.cloudondemand.R;
-import it.unibs.cloudondemand.utils.PermissionRequest;
-import it.unibs.cloudondemand.utils.PermissionResultCallback;
-
+/**
+ * Sign in to google account activity
+ */
 public class GoogleSignIn extends AppCompatActivity {
     private static final String TAG = "GoogleSignIn";
 
@@ -39,6 +33,10 @@ public class GoogleSignIn extends AppCompatActivity {
         doSignIn();
     }
 
+    /**
+     * Construct GoogleApiClient.
+     * @return Created client.
+     */
     private GoogleApiClient createGoogleClient() {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -49,12 +47,15 @@ public class GoogleSignIn extends AppCompatActivity {
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the
         // options specified by gso.
-        return mGoogleApiClient = new GoogleApiClient.Builder(this)
+        return new GoogleApiClient.Builder(this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .addApi(Drive.API)
                 .build();
     }
 
+    /**
+     * Start account chooser dialog.
+     */
     private void doSignIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -71,6 +72,10 @@ public class GoogleSignIn extends AppCompatActivity {
         }
     }
 
+    /**
+     * Handle sign in result.
+     * @param result Sign in result.
+     */
     private void handleSignInResult(GoogleSignInResult result) {
         if (result.isSuccess()) {
             // Signed in successfully, connect to play services.
@@ -83,8 +88,7 @@ public class GoogleSignIn extends AppCompatActivity {
             signInCallback.onSignInResult(true);
         } else {
             // Signed out, show unauthenticated UI.
-            Toast.makeText(this, R.string.unable_connect_account, Toast.LENGTH_SHORT).show();
-            Log.e(TAG, result.getStatus().toString());
+            Log.e(TAG, "Unable to connect to google account. Result : " + result.getStatus().toString());
 
             // Return result of sign in
             signInCallback.onSignInResult(false);
@@ -94,13 +98,20 @@ public class GoogleSignIn extends AppCompatActivity {
     }
 
 
-    // Constuctor of intent
+    /**
+     * Contructor intent to start GoogleSignIn activity.
+     * @param context Caller context.
+     * @param callback Callback called when sign in is finished.
+     * @return Intent to call.
+     */
     public static Intent getSignInIntent(Context context, GoogleSignInCallback callback) {
         signInCallback = callback;
         return new Intent(context, GoogleSignIn.class);
     }
 
-    // Callback interface
+    /**
+     * Callback interface for sign in activity
+     */
     interface GoogleSignInCallback {
         void onSignInResult(boolean isSignedIn);
     }

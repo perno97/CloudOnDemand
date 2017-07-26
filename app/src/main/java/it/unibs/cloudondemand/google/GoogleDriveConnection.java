@@ -35,19 +35,24 @@ import it.unibs.cloudondemand.utils.StopServices;
 
 import static android.app.Activity.RESULT_OK;
 
+/**
+ * Google account connection service.
+ */
 public abstract class GoogleDriveConnection extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "GoogleDriveConnection";
 
     // Used to control running status of service    //TODO NON FUNZIONA
     static boolean isRunning;
 
-    // Extra of receiving intent
+    // Extra of calling intent
     public static final String SIGN_OUT_EXTRA = "signOut";
     private boolean signOut = false;
 
+    // Google client
     private static final int clientConnectionType = GoogleApiClient.SIGN_IN_MODE_OPTIONAL;
     private GoogleApiClient mGoogleApiClient;
 
+    // Intent content
     private String content;
 
     // Foreground notification
@@ -56,13 +61,18 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     private NotificationCompat.Builder mNotificationBuilder;
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public void onCreate() {
+        super.onCreate();
         // Initialize attributes
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // Start foreground notification
         startForeground(NOTIFICATION_ID, new Notification());
 
-        if(intent != null)
-            content = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
+        content = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
 
         mGoogleApiClient = createGoogleClient();
 
@@ -81,12 +91,17 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         return super.onStartCommand(intent, flags, startId);
     }
 
+    // Not used because is a started service
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
+    /**
+     * Construct GoogleApiClient.
+     * @return Created client.
+     */
     private GoogleApiClient createGoogleClient() {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -97,7 +112,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the
         // options specified by gso.
-        return mGoogleApiClient = new GoogleApiClient.Builder(this)
+        return new GoogleApiClient.Builder(this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .addApi(Drive.API)
                 .addConnectionCallbacks(this)
@@ -108,30 +123,22 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult result) {
         // An error has occurred
-        // and try to resolve it
-        /*  TODO Cercare di ripristinare il codice
-        if(result.hasResolution()) {
-            try {
-                result.startResolutionForResult(this, RC_RESOLUTION);
-            } catch (IntentSender.SendIntentException e) {
-                Log.e(TAG, "Intent sender exception while trying to resolve error.", e.getCause());
-                Toast.makeText(this, R.string.unable_connect_googleservices, Toast.LENGTH_SHORT).show();
-            }
-        }*/
-
-        // An unresolvable error has occurred and a connection to Google APIs
-        // could not be established.
-        // Display an error message
         Log.e(TAG, "Connection failed - Result code : " + result.getErrorCode());
         Toast.makeText(this, R.string.unable_connect_googleservices, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Start activity to sign in to google account.
+     */
     private void doSignIn() {
         Intent intent = GoogleSignIn.getSignInIntent(this, signInCallback);
         startActivity(intent);
     }
 
-    // Handle result of sign in request o user
+
+    /**
+     * Handle result of sign in request o user
+     */
     private final GoogleSignIn.GoogleSignInCallback signInCallback = new GoogleSignIn.GoogleSignInCallback() {
         @Override
         public void onSignInResult(boolean isSignedIn) {
@@ -139,7 +146,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
                 mGoogleApiClient.connect(clientConnectionType);
             else {
                 Log.i(TAG, "Unable to sign in into google account.");
-                Toast.makeText(GoogleDriveConnection.this, "Impossibile connettersi all'account", Toast.LENGTH_SHORT).show();  //TODO cambiare
+                Toast.makeText(GoogleDriveConnection.this, R.string.unable_connect_account, Toast.LENGTH_SHORT).show();  //TODO cambiare
             }
         }
     };
@@ -171,7 +178,10 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
 
         onConnected();
     }
-    //Entry point for class extended
+
+    /**
+     * Entry point for class extended
+     */
     public abstract void onConnected();
 
     @Override
@@ -209,20 +219,36 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
             disconnect();
     }
 
+    /**
+     * Getter GoogleApiClient.
+     * @return GoogleApiClient (may be connected).
+     */
     public GoogleApiClient getGoogleApiClient() {
         return mGoogleApiClient;
     }
 
+    /**
+     * Getter intent content,
+     * @return Content extra of intent.
+     */
     public String getContent() {
         return content;
     }
 
+    // ------------
     // NOTIFICATION
-    // Should implement this to keep last notification with onGoing=false
+    // ------------
+
+    /**
+     * Should implement this to keep last notification with onGoing=false.
+     * @return Last notification to show.
+     */
     public abstract Notification getFinalNotification();
 
+    // Small icon for notification
     public static final int NOTIFICATION_ICON = R.mipmap.ic_launcher;
 
+    // Build new notification or edit old
     private Notification buildNotification(Context context, int progress, String contentText, boolean indeterminateProgress) {
         // Construct first time the notification
         if(mNotificationBuilder == null) {
@@ -256,23 +282,47 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         return mNotificationBuilder.build();
     }
 
-    public Notification buildNotification(Context context, int progress, String contentText) {
-        return buildNotification(context, progress, contentText, false);
+    /**
+     * Show or update notification with determinate progress bar.
+     * @param context Calling context.
+     * @param progress Percent progress.
+     * @param contentText Text of notification content.
+     */
+    public void showNotification(Context context, int progress, String contentText) {
+        Notification notification = buildNotification(context, progress, contentText, false);
+        mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 
-    public Notification buildNotification(Context context, int progress) {
-        return buildNotification(context, progress, null, false);
+    /**
+     * Update notification with determinate progress bar (doesn't change content text).
+     * @param context Calling context.
+     * @param progress Percent progress.
+     */
+    public void showNotification(Context context, int progress) {
+        Notification notification = buildNotification(context, progress, null, false);
+        mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 
-    public Notification buildNotification(Context context, int progress, boolean indeterminateProgress) {
-        return buildNotification(context, progress, null, indeterminateProgress);
+    /**
+     * Show or update notification.
+     * @param context Calling context.
+     * @param progress Percent progress.
+     * @param indeterminateProgress True if want indeterminate progress bar.
+     * @param contentText Text of notification content.
+     */
+    public void showNotification(Context context, int progress, boolean indeterminateProgress, String contentText) {
+        Notification notification = buildNotification(context, progress, contentText, indeterminateProgress);
+        mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 
-    public NotificationManager getNotificationManager() {
-        return mNotificationManager;
-    }
-
-    public int getNotificationId() {
-        return NOTIFICATION_ID;
+    /**
+     * Update notification (doesn't change content text).
+     * @param context Calling context.
+     * @param progress Percent progress.
+     * @param indeterminateProgress True if want indeterminate progress bar.
+     */
+    public void showNotification(Context context, int progress, boolean indeterminateProgress) {
+        Notification notification = buildNotification(context, progress, null, indeterminateProgress);
+        mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 }

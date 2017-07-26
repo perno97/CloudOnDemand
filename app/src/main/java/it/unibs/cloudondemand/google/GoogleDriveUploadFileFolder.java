@@ -21,25 +21,32 @@ import it.unibs.cloudondemand.utils.FileTree;
 
 public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpFolder";
+
+    // Folder tree structure
     private FileTree<GoogleDriveCustomFolder> foldersTree;
 
-
-    private int lastProgress;
+    // Last progress in fileProgress
+    private int lastProgress = 0;
 
     @Override
     public void startUploading() {
-        // Initialize list of files to upload
+        // Initialize file tree to upload
         File mainFolder = new File(getContent());
         foldersTree = new FileTree<>(new GoogleDriveCustomFolder(mainFolder));
+
         // Create main folder on Drive then start uploading
         createDriveFolder(null, mainFolder.getName());
 
-        // Start foreground notification
-        getNotificationManager().notify(getNotificationId(), buildNotification(this, 0, ""));
+        // Show initial notification
+        showNotification(this, 0, "");
     }
 
 
-    // Send input to create a foldersTree on drive (parent foldersTree // root if parentFolder = null), retrieve it by callback (onDriveFolderCreated)
+    /**
+     * Send input ro create a folder on drive. Created when is called the callback.
+     * @param parentFolder Drive parent folder, if null parent is root drive folder.
+     * @param name Name of folder to create.
+     */
     private void createDriveFolder (DriveFolder parentFolder, String name) {
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                 .setTitle(name)
@@ -54,6 +61,9 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
                 .setResultCallback(onDriveFolderCreated);
     }
 
+    /**
+     * Callback : Folder on drive created
+     */
     private final ResultCallback<DriveFolder.DriveFolderResult> onDriveFolderCreated = new ResultCallback<DriveFolder.DriveFolderResult>() {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFolderResult driveFolderResult) {
@@ -71,6 +81,10 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
 
     // Upload the next file or create the foldersTree in which is in
+
+    /**
+     *
+     */
     private void uploadNextFile() {
         // Check if there is another file to upload in current folder
         if (!foldersTree.hasNextFile()) {
@@ -93,7 +107,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
         // Edit notification
         lastProgress = 0;
-        getNotificationManager().notify(getNotificationId(), buildNotification(this, 0, currentFile.getName()));
+        showNotification(this, 0, currentFile.getName());
 
         // Upload current file
         uploadFile(currentFile, currentDriveFolder);
@@ -102,7 +116,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     @Override
     public void fileProgress(int progress) {
         if(lastProgress != progress)
-            getNotificationManager().notify(getNotificationId(), buildNotification(this, progress));
+            showNotification(this, progress);
         lastProgress = progress;
     }
 
