@@ -1,8 +1,6 @@
 package it.unibs.cloudondemand.google;
 
 import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -75,17 +73,15 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             // Retrieve created folder and save it in data structure
             foldersTree.getCurrentFolderThis().setDriveFolder(driveFolderResult.getDriveFolder());
             // Upload the next file
-            uploadNextFile();
+            uploadNext();
         }
     };
 
 
-    // Upload the next file or create the foldersTree in which is in
-
     /**
-     *
+     * Upload the next file or create the next folder if current is empty
      */
-    private void uploadNextFile() {
+    private void uploadNext() {
         // Check if there is another file to upload in current folder
         if (!foldersTree.hasNextFile()) {
             FileTree<GoogleDriveCustomFolder> folder = foldersTree.nextFolder();
@@ -130,7 +126,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         // Retrieve created file and save it in data structure
         foldersTree.getCurrentFolderThis().setFileId(driveFile.getDriveId());
 
-        uploadNextFile();
+        uploadNext();
     }
 
     @Override
