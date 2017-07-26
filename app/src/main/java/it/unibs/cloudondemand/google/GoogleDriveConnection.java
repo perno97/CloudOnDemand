@@ -190,7 +190,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
      */
     public void disconnect() {
         if(mGoogleApiClient.isConnected()) {
-            Log.i(TAG, "Disconnect to Play Services");
+            Log.i(TAG, "Disconnect to Play Services.");
             mGoogleApiClient.disconnect();
         }
 
@@ -205,7 +205,6 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Toast.makeText(this, "onDestroy, google client connected ? " + mGoogleApiClient.isConnected(), Toast.LENGTH_SHORT).show();
         if(mGoogleApiClient.isConnected())
             disconnect();
     }

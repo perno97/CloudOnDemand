@@ -33,6 +33,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     private File fileToUpload;
     private DriveFolder driveFolder;
 
+    private UploadFileAsyncTask uploadFileAsyncTask;
+
     @Override
     public void onConnected() {
         // Check if storage is readable and start upload
@@ -84,7 +86,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 return;
             }
 
-            new UploadFileAsyncTask().execute(driveContentsResult);
+            uploadFileAsyncTask = new UploadFileAsyncTask();
+            uploadFileAsyncTask.execute(driveContentsResult);
         }
     };
 
@@ -157,6 +160,18 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 onFileUploaded(driveFileResult.getDriveFile());
             }
         }
+
+        @Override
+        protected void onCancelled(DriveFolder.DriveFileResult driveFileResult) {
+            Log.i(TAG, "User stop to upload files");
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(uploadFileAsyncTask.getStatus() == AsyncTask.Status.RUNNING)
+            uploadFileAsyncTask.cancel(true);
     }
 
     // Called many times during the file upload. To edit UI implement runOnUiThread(runnable);
