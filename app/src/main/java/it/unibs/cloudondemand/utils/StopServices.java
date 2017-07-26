@@ -37,12 +37,14 @@ public class StopServices extends AppCompatActivity {
                         stopService(new Intent(StopServices.this, GoogleDriveUploadString.class));
                         stopService(new Intent(StopServices.this, GoogleDriveUploadFileSingle.class));
                         stopService(new Intent(StopServices.this, GoogleDriveUploadFileFolder.class));
+                        finish();
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // User doesn't want to upload the selected file/folder
+                        finish();
                     }
                 })
                 .create();

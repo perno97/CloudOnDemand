@@ -36,7 +36,9 @@
         <activity
             android:name=".google.GoogleSignIn"
             android:theme="@style/Theme.TransparentTheme" />
-        <activity android:name=".utils.StopServices" />
+
+        <activity android:name=".utils.StopServices"
+            android:theme="@style/Theme.TransparentTheme" />
     </application>
 
 </manifest>
