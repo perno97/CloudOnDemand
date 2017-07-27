@@ -122,7 +122,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         if (driveFile == null) {
             Toast.makeText(this, R.string.unable_create_file_googledrive, Toast.LENGTH_SHORT).show();
 
-            uploadNextFile();
+            uploadNext();
             return;
         }
 

@@ -11,6 +11,8 @@ import com.google.android.gms.drive.DriveFolder;
 
 import java.io.File;
 
+import it.unibs.cloudondemand.R;
+
 public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
 

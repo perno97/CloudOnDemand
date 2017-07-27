@@ -45,19 +45,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         handleSignedInButtonGoogle();
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.google_sign_in_new_account_button :
-                startActivity(GoogleDriveUtil.getIntent(this, mContentType, mContent, true));
-                break;
-            case R.id.google_signed_in_button :
-                startActivity(GoogleDriveUtil.getIntent(this, mContentType, mContent));
-                break;
-            // ... Add here when implement more services
-        }
-    }
-
     public static Intent getIntent (Context context, int contentType, String content) {
         Intent intent = new Intent(context, LoginActivity.class);
         intent.putExtra(CONTENT_TYPE_EXTRA, contentType);
@@ -93,7 +80,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.google_sign_in_button :
+            case R.id.google_sign_in_new_account_button :
                 //Check before if service is running
                 if(GoogleDriveUtil.isUploadServiceRunning())
                     Toast.makeText(this, "Wait", Toast.LENGTH_SHORT).show();    //TODO res/strings
@@ -109,12 +96,5 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             // ...
         }
         finish();
-    }
-
-    public static Intent getIntent (Context context, String contentType, String content) {
-        Intent intent = new Intent(context, LoginActivity.class);
-        intent.putExtra(CONTENT_TYPE_EXTRA, contentType);
-        intent.putExtra(CONTENT_EXTRA, content);
-        return intent;
     }
 }

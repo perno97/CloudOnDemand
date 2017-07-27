@@ -74,7 +74,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         }
         else {
             // If signOut is true after is connected, do sign-out stuff
-            if(intent.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
+            if(intent != null && intent.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
                 signOut = true;
             }
             mGoogleApiClient.connect(clientConnectionType);

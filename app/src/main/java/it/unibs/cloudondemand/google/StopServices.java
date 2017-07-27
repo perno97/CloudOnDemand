@@ -37,7 +37,7 @@ public class StopServices extends Service {
                 break;
         }
 
-        Log.i(TAG, "Stop google service");
+        Log.i(TAG, "Stop google service. Type : " + intent.getIntExtra(SERVICE_EXTRA, -1));
         // Stop the service
         stopService(toStop);
 

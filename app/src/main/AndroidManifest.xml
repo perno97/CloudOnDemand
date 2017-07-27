@@ -31,6 +31,8 @@
         <service android:name=".google.GoogleDriveUploadFileSingle" />
         <service android:name=".google.GoogleDriveUploadFileFolder" />
 
+        <service android:name=".google.StopServices" />
+
         <activity
             android:name=".utils.PermissionRequest"
             android:theme="@style/Theme.TransparentTheme" />
@@ -38,7 +40,6 @@
             android:name=".google.GoogleSignIn"
             android:theme="@style/Theme.TransparentTheme" />
 
-        <service android:name=".google.StopServices" />
 
         <activity android:name=".IntentActivity">
             <intent-filter>
