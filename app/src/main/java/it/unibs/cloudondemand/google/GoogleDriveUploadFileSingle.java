@@ -60,4 +60,9 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
 
         return mBuilder.build();
     }
+
+    @Override
+    public int getStopServiceExtra() {
+        return StopServices.SERVICE_UPLOAD_FILE;
+    }
 }

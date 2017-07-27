@@ -1,28 +1,22 @@
 package it.unibs.cloudondemand.google;
 
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -31,9 +25,7 @@ import com.google.android.gms.drive.Drive;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
-import it.unibs.cloudondemand.utils.StopServices;
 
-import static android.app.Activity.RESULT_OK;
 
 /**
  * Google account connection service.
@@ -82,7 +74,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         }
         else {
             // If signOut is true after is connected, do sign-out stuff
-            if(intent != null && intent.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
+            if(intent.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
                 signOut = true;
             }
             mGoogleApiClient.connect(clientConnectionType);
@@ -205,7 +197,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         }
 
         // Stop service
-        Log.i(TAG, "Stopping service (Google).");
+        Log.i(TAG, "Finished service (Google).");
         isRunning = false;
         mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
         stopForeground(false);
@@ -240,10 +232,16 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     // ------------
 
     /**
-     * Should implement this to keep last notification with onGoing=false.
+     * Should implement this to keep last notification with onGoing=false (cancelable).
      * @return Last notification to show.
      */
     public abstract Notification getFinalNotification();
+
+    /**
+     * Return the integer that determinate which service is running.
+     * @return A StopServices constant.
+     */
+    public abstract int getStopServiceExtra();
 
     // Small icon for notification
     public static final int NOTIFICATION_ICON = R.mipmap.ic_launcher;
@@ -261,8 +259,12 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
                     //.addAction()
                     .setOngoing(true);
 
-            // Add action button to stop service
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(context, StopServices.class), PendingIntent.FLAG_UPDATE_CURRENT);
+            // Intent to launch when stop pressed
+            Intent stopIntent = new Intent(this, StopServices.class);
+            stopIntent.putExtra(StopServices.SERVICE_EXTRA, getStopServiceExtra());
+
+            PendingIntent pendingIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_ONE_SHOT);
+            // Add pending intent to notification builder
             if(Build.VERSION.SDK_INT > 23) {
                 NotificationCompat.Action stopAction = new NotificationCompat.Action.Builder(R.drawable.ic_close, "Stop", pendingIntent).build();
                 mNotificationBuilder.addAction(stopAction);

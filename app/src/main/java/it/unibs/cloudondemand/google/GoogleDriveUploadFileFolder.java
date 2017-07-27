@@ -133,10 +133,15 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     public Notification getFinalNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_file_folder)
+                        .setSmallIcon(GoogleDriveConnection.NOTIFICATION_ICON)
                         .setContentTitle("Uploading files to Drive...") //TODO mettere dentro res/values
                         .setContentText("Finito");
 
         return mBuilder.build();
+    }
+
+    @Override
+    public int getStopServiceExtra() {
+        return StopServices.SERVICE_UPLOAD_FOLDER;
     }
 }
