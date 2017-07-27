@@ -15,7 +15,7 @@ public class PermissionRequest extends AppCompatActivity {
     public static final int PERMISSION_DENIED = PackageManager.PERMISSION_DENIED;
 
     private static final int RC_PERMISSION = 1;
-    private static PermissionResultCallback permissionCallback;
+    private static PermissionRequestCallback permissionCallback;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +63,14 @@ public class PermissionRequest extends AppCompatActivity {
     }
 
     // Constuctor of intent
-    public static Intent getRequestPermissionIntent(Context context, String permission, PermissionResultCallback permissionResultCallback) {
+    public static Intent getRequestPermissionIntent(Context context, String permission, PermissionRequestCallback permissionResultCallback) {
         permissionCallback = permissionResultCallback;
         Intent intent = new Intent(context, PermissionRequest.class);
         intent.putExtra(PERMISSION_EXTRA, permission);
         return intent;
+    }
+
+    public interface PermissionRequestCallback {
+        void onPermissionResult(int isGranted);
     }
 }

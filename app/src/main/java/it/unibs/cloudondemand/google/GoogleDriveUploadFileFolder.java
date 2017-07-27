@@ -92,6 +92,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             else {
                 // Finished
                 disconnect();
+                Toast.makeText(this, R.string.files_created_googledrive, Toast.LENGTH_SHORT).show();
             }
 
             return;
@@ -119,7 +120,9 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     @Override
     public void onFileUploaded(DriveFile driveFile) {
         if (driveFile == null) {
-            Toast.makeText(this, "File non creato", Toast.LENGTH_SHORT).show();     //TODO FARE QUALCOSA
+            Toast.makeText(this, R.string.unable_create_file_googledrive, Toast.LENGTH_SHORT).show();
+
+            uploadNextFile();
             return;
         }
 

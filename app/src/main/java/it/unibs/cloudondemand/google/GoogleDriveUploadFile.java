@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ResultCallback;
@@ -24,7 +23,6 @@ import java.io.OutputStream;
 
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.PermissionRequest;
-import it.unibs.cloudondemand.utils.PermissionResultCallback;
 import it.unibs.cloudondemand.utils.Utils;
 
 public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
@@ -50,14 +48,14 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     }
 
     // Called when user chose to grant permission
-    final private PermissionResultCallback permissionResultCallback = new PermissionResultCallback() {
+    final private PermissionRequest.PermissionRequestCallback permissionResultCallback = new PermissionRequest.PermissionRequestCallback() {
         @Override
         public void onPermissionResult(int isGranted) {
             if (isGranted == PermissionRequest.PERMISSION_GRANTED)
                 startUploading();
             else {
                 // Permission denied, show to user and close activity
-                Toast.makeText(GoogleDriveUploadFile.this, R.string.permission_read_storage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveUploadFile.this, R.string.requested_permission_read_storage, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Permission to read external storage denied");
                 //TODO stop service
             }
@@ -138,7 +136,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                     .setStarred(true)
                     .build();
 
-            return folder.createFile(getGoogleApiClient(), changeSet, driveContents)
+            return folder
+                    .createFile(getGoogleApiClient(), changeSet, driveContents)
                     .await();
         }
 
@@ -174,8 +173,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
             uploadFileAsyncTask.cancel(true);
     }
 
-    // Called many times during the file upload. To edit UI implement runOnUiThread(runnable);
-    public abstract void fileProgress (int progress);
+    // Called many times during the file upload.
+    public abstract void fileProgress (int percent);
 
     // Called when a file has been uploaded. driveFile = null when file on drive wasn't created.
     public abstract void onFileUploaded (DriveFile driveFile);

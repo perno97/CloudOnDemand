@@ -1,15 +1,30 @@
 <resources>
     <string name="app_name">CloudOnDemand</string>
+
+    <!-- Common -->
+    <string name="yes">Sì</string>
+    <string name="no">no</string>
+    <string name="unable_read_storage">Impossibile leggere la memoria esterna</string>
+    <string name="unable_connect_account">Impossibile collegarsi all\'account</string>
+    <string name="requested_permission_read_storage">Sono richiesti i permessi\ndi lettura della memoria</string>
+
+
+    <!-- MainActivity -->
     <string name="edit_message">Inserisci una stringa</string>
-    <string name="button_send">Send</string>
+    <string name="button_send">Invia</string>
+    <string name="dialog_upload_title">Caricare&#8230;</string>
+    <string name="dialog_upload_content">Vuoi caricare il file/cartella selezionato/a?</string>
+    <string name="insert_not_empty_string">Inserisci una stringa non vuota</string>
+
+    <!-- LoginActivity -->
     <string name="button_google_another_account">Accedi con un altro account</string>
 
+    <!-- Google -->
+    <string name="unable_connect_googleservices">Impossibile collegarsi ai Google Play Services</string>
+    <string name="unable_create_file_googledrive">Impossibile creare il file su Drive</string>
+    <string name="files_created_googledrive">File creato/i su Drive</string>
 
-    <string name="unable_connect_googleservices">Impossibile collegarsi a Google Play Services</string>
-    <string name="unable_connect_account">Impossibile collegarsi all\'account</string>
-    <string name="unable_read_storage">Impossibile leggere la memoria esterna</string>
-    <string name="permission_read_storage">Sono richiesti i permessi\ndi lettura della memoria</string>
-
+    <!-- Shared preferences (google) -->
     <string name="shared_pref_account">accountSignedIn</string>
     <string name="saved_account_google">googleAccount</string>
 </resources>

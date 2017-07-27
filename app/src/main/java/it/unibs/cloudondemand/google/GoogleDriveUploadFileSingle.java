@@ -43,7 +43,8 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     public void onFileUploaded(DriveFile driveFile) {
         if (driveFile == null) {
             Log.e(TAG, "File on Drive not created.");
-            Toast.makeText(GoogleDriveUploadFileSingle.this, "File non Creato", Toast.LENGTH_SHORT).show();   //TODO spostare stringe nelle res
+            Toast.makeText(GoogleDriveUploadFileSingle.this, R.string.unable_create_file_googledrive, Toast.LENGTH_SHORT).show();
+
             return;
         }
 
