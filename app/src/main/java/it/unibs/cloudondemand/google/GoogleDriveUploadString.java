@@ -28,7 +28,7 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
 
-        showNotification(this, 0, true);
+        showNotification(0, true);
     }
 
     // Called when new content on Drive was created
@@ -85,7 +85,6 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
                 Log.e(TAG, "File not created");
             }
             else {
-                Toast.makeText(GoogleDriveUploadString.this, R.string.files_created_googledrive, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "File created. " + driveFileResult.getDriveFile().getDriveId());
             }
 

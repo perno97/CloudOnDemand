@@ -26,7 +26,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
         DriveFolder folder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
 
         // Show initial notification
-        showNotification(this, 0, file.getName());
+        showNotification(0, file.getName());
 
         uploadFile(file, folder);
     }
@@ -36,7 +36,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     public void fileProgress(int progress) {
         // Update notification if lastProgress is different of current progress
         if(lastProgress != progress)
-            showNotification(this, progress);
+            showNotification(progress);
 
         lastProgress = progress;
     }

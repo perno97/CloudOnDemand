@@ -36,7 +36,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         createDriveFolder(null, mainFolder.getName());
 
         // Show initial notification
-        showNotification(this, 0, "");
+        showNotification(0, "");
     }
 
 
@@ -92,7 +92,6 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             else {
                 // Finished
                 disconnect();
-                Toast.makeText(this, R.string.files_created_googledrive, Toast.LENGTH_SHORT).show();
             }
 
             return;
@@ -104,7 +103,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
         // Edit notification
         lastProgress = 0;
-        showNotification(this, 0, currentFile.getName());
+        showNotification(0, currentFile.getName());
 
         // Upload current file
         uploadFile(currentFile, currentDriveFolder);
@@ -113,7 +112,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     @Override
     public void fileProgress(int progress) {
         if(lastProgress != progress)
-            showNotification(this, progress);
+            showNotification(progress);
         lastProgress = progress;
     }
 

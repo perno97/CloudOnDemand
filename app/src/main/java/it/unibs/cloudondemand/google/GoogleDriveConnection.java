@@ -199,7 +199,6 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         // Stop service
         Log.i(TAG, "Finished service (Google).");
         isRunning = false;
-        mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
         stopForeground(false);
         stopSelf();
     }
@@ -209,6 +208,9 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         super.onDestroy();
         if(mGoogleApiClient.isConnected())
             disconnect();
+
+        // Show last notification
+        mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
     }
 
     /**
@@ -247,11 +249,11 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     public static final int NOTIFICATION_ICON = R.mipmap.ic_launcher;
 
     // Build new notification or edit old
-    private Notification buildNotification(Context context, int progress, String contentText, boolean indeterminateProgress) {
+    private Notification buildNotification(int progress, String contentText, boolean indeterminateProgress) {
         // Construct first time the notification
         if(mNotificationBuilder == null) {
 
-            mNotificationBuilder = new NotificationCompat.Builder(context)
+            mNotificationBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(NOTIFICATION_ICON)
                     .setContentTitle("Uploading files to Drive...") //TODO res/strings
                     .setContentText(contentText)
@@ -286,45 +288,41 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
 
     /**
      * Show or update notification with determinate progress bar.
-     * @param context Calling context.
      * @param progress Percent progress.
      * @param contentText Text of notification content.
      */
-    public void showNotification(Context context, int progress, String contentText) {
-        Notification notification = buildNotification(context, progress, contentText, false);
+    public void showNotification(int progress, String contentText) {
+        Notification notification = buildNotification(progress, contentText, false);
         mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     /**
      * Update notification with determinate progress bar (doesn't change content text).
-     * @param context Calling context.
      * @param progress Percent progress.
      */
-    public void showNotification(Context context, int progress) {
-        Notification notification = buildNotification(context, progress, null, false);
+    public void showNotification(int progress) {
+        Notification notification = buildNotification(progress, null, false);
         mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     /**
      * Show or update notification.
-     * @param context Calling context.
      * @param progress Percent progress.
      * @param indeterminateProgress True if want indeterminate progress bar.
      * @param contentText Text of notification content.
      */
-    public void showNotification(Context context, int progress, boolean indeterminateProgress, String contentText) {
-        Notification notification = buildNotification(context, progress, contentText, indeterminateProgress);
+    public void showNotification(int progress, boolean indeterminateProgress, String contentText) {
+        Notification notification = buildNotification(progress, contentText, indeterminateProgress);
         mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     /**
      * Update notification (doesn't change content text).
-     * @param context Calling context.
      * @param progress Percent progress.
      * @param indeterminateProgress True if want indeterminate progress bar.
      */
-    public void showNotification(Context context, int progress, boolean indeterminateProgress) {
-        Notification notification = buildNotification(context, progress, null, indeterminateProgress);
+    public void showNotification(int progress, boolean indeterminateProgress) {
+        Notification notification = buildNotification(progress, null, indeterminateProgress);
         mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 }
