@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.SignInButton;
 
@@ -87,5 +88,33 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 ((TextView) v).setText(text);
             }
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.google_sign_in_button :
+                //Check before if service is running
+                if(GoogleDriveUtil.isUploadServiceRunning())
+                    Toast.makeText(this, "Wait", Toast.LENGTH_SHORT).show();    //TODO res/strings
+                else
+                    startService(GoogleDriveUtil.getIntent(this, mContentType, mContent, true));
+                break;
+            case R.id.google_signed_in_button :
+                if(GoogleDriveUtil.isUploadServiceRunning())
+                    Toast.makeText(this, "Wait", Toast.LENGTH_SHORT).show();    //TODO res/strings
+                else
+                    startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));
+                break;
+            // ...
+        }
+        finish();
+    }
+
+    public static Intent getIntent (Context context, String contentType, String content) {
+        Intent intent = new Intent(context, LoginActivity.class);
+        intent.putExtra(CONTENT_TYPE_EXTRA, contentType);
+        intent.putExtra(CONTENT_EXTRA, content);
+        return intent;
     }
 }

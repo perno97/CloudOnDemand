@@ -195,14 +195,20 @@ public class FileTree <T extends GenericFileTree<T>> {
 
     /**
      * Get next folder.
-     * @return Folder requested or null if there isn't another folder in the tree.
+     * @return Next folder or null if there isn't another folder.
      */
     public FileTree<T> nextFolder () {
         FileTree<T> current = getCurrentFolder();
 
+        // Check subfolders
         if(current.hasNextSubFolder())
             return current.nextSubFolder();
 
+        // Check if possible to search to up folders
+        if(!current.hasParentFolder())
+            return null;
+
+        // Search in up folders
         FileTree<T> next;
         while ((next = current.nextParentSubFolder()) == null && current.parentFolder.hasParentFolder())
             current = current.parentFolder;

@@ -1,6 +1,8 @@
 package it.unibs.cloudondemand.google;
 
+import android.app.Notification;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,10 +22,13 @@ import it.unibs.cloudondemand.R;
 public class GoogleDriveUploadString extends GoogleDriveConnection {
     private static final String TAG = "GoogleDriveUpString";
 
+
     @Override
     public void onConnected() {
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
+
+        showNotification(this, 0, true);
     }
 
     // Called when new content on Drive was created
@@ -58,7 +63,7 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
                     }
 
                     MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle("nome")
+                            .setTitle("String.txt")
                             .setMimeType("text/plain")
                             .setStarred(true)
                             .build();
@@ -87,4 +92,20 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
             disconnect();
         }
     };
+
+    @Override
+    public Notification getFinalNotification() {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(GoogleDriveUploadString.this)
+                        .setSmallIcon(GoogleDriveConnection.NOTIFICATION_ICON)
+                        .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
+                        .setContentText("Finito");
+
+        return mBuilder.build();
+    }
+
+    @Override
+    public int getStopServiceExtra() {
+        return StopServices.SERVICE_UPLOAD_STRING;
+    }
 }

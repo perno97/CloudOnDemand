@@ -31,11 +31,13 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     private File fileToUpload;
     private DriveFolder driveFolder;
 
+    private UploadFileAsyncTask uploadFileAsyncTask;
+
     @Override
     public void onConnected() {
         // Check if storage is readable and start upload
         if (Utils.isExternalStorageReadable()) {
-            // Verify permission and after create new drive content when permission is granted
+            // Verify permission and after call startUploading when permission is granted
             Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
             startActivity(intent);
         }
@@ -55,7 +57,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 // Permission denied, show to user and close activity
                 Toast.makeText(GoogleDriveUploadFile.this, R.string.requested_permission_read_storage, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Permission to read external storage denied");
-                finish();
+                //TODO stop service
             }
         }
     };
@@ -82,7 +84,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 return;
             }
 
-            new UploadFileAsyncTask().execute(driveContentsResult);
+            uploadFileAsyncTask = new UploadFileAsyncTask();
+            uploadFileAsyncTask.execute(driveContentsResult);
         }
     };
 
@@ -156,6 +159,18 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 onFileUploaded(driveFileResult.getDriveFile());
             }
         }
+
+        @Override
+        protected void onCancelled(DriveFolder.DriveFileResult driveFileResult) {
+            Log.i(TAG, "User stop to upload files");
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(uploadFileAsyncTask.getStatus() == AsyncTask.Status.RUNNING)
+            uploadFileAsyncTask.cancel(true);
     }
 
     // Called many times during the file upload.

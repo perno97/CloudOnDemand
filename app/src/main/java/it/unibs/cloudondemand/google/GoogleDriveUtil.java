@@ -18,7 +18,7 @@ public class GoogleDriveUtil {
      * @return Intent to launch with startActivity(intent). Return null if content type is not found.
      */
     public static Intent getIntent(Context context, int contentType, String content, boolean signOut) {
-        Intent intent=null;
+        Intent intent = null;
         switch (contentType) {
             case LoginActivity.CONTENT_STRING :
                 intent = new Intent(context, GoogleDriveUploadString.class);
@@ -47,6 +47,14 @@ public class GoogleDriveUtil {
      */
     public static Intent getIntent(Context context, int contentType, String content) {
         return  getIntent(context, contentType, content, false);
+    }
+
+    /**
+     * Check if an upload service is running.
+     * @return True if an upload service is running, False otherwise.
+     */
+    public static boolean isUploadServiceRunning() {
+        return GoogleDriveConnection.isRunning;
     }
 
     // Read account name from shared preferences and verify if user is signed in
