@@ -57,7 +57,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 // Permission denied, show to user and close activity
                 Toast.makeText(GoogleDriveUploadFile.this, R.string.requested_permission_read_storage, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Permission to read external storage denied");
-                //TODO stop service
+                // Stop service
+                stopSelf();
             }
         }
     };
@@ -109,10 +110,10 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
                 byte[] buffer = new byte[8];
                 long k = 0;
-                long fileLenght = file.length();
+                long fileLength = file.length();
                 // Write on drive content stream with buffer of 8 bytes
                 while (fileInputStream.read(buffer) != -1) {
-                    publishProgress((int) (100*k/fileLenght));
+                    publishProgress((int) (100*k/fileLength));
                     outputStream.write(buffer);
                     k+=8;
                 }
@@ -141,9 +142,16 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                     .await();
         }
 
+        private int lastValue = 0;
         @Override
         protected void onProgressUpdate(Integer... values) {
+            // Call abstract method
             fileProgress(values[0]);
+            // Show on log the progress
+            if(lastValue != values[0]) {
+                Log.i(TAG, "Upload progress : " + values[0] + "%");
+                lastValue = values[0];
+            }
         }
 
         @Override
@@ -162,15 +170,17 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
         @Override
         protected void onCancelled(DriveFolder.DriveFileResult driveFileResult) {
+            Toast.makeText(GoogleDriveUploadFile.this, "Task cancelled", Toast.LENGTH_SHORT).show();
             Log.i(TAG, "User stop to upload files");
         }
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        // Stop async task if running and user stop the service
         if(uploadFileAsyncTask.getStatus() == AsyncTask.Status.RUNNING)
             uploadFileAsyncTask.cancel(true);
+        super.onDestroy();
     }
 
     // Called many times during the file upload.

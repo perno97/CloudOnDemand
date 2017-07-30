@@ -203,6 +203,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         stopSelf();
     }
 
+    // Disconnect api client if is connected and user stop the service
     @Override
     public void onDestroy() {
         super.onDestroy();
