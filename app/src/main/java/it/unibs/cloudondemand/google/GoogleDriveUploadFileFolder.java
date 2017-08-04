@@ -23,9 +23,6 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     // Folder tree structure
     private FileTree<GoogleDriveCustomFolder> foldersTree;
 
-    // Last progress in fileProgress
-    private int lastProgress = 0;
-
     @Override
     public void startUploading() {
         // Initialize file tree to upload
@@ -102,7 +99,6 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         File currentFile = foldersTree.nextFile();
 
         // Edit notification
-        lastProgress = 0;
         showNotification(0, currentFile.getName());
 
         // Upload current file
@@ -111,9 +107,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
     @Override
     public void fileProgress(int progress) {
-        if(lastProgress != progress)
-            showNotification(progress);
-        lastProgress = progress;
+        showNotification(progress);
     }
 
     @Override

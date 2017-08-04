@@ -1,18 +1,20 @@
 package it.unibs.cloudondemand.google;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
+import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.MetadataChangeSet;
 
 import java.io.File;
@@ -22,19 +24,31 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.databaseManager.FileListContract.FileList;
+import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.Utils;
 
 public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     private static final String TAG = "GoogleDriveUpFile";
 
+    // File to upload
     private File fileToUpload;
+    // Drive folder in witch file need to be uploaded
     private DriveFolder driveFolder;
+
 
     private UploadFileAsyncTask uploadFileAsyncTask;
 
+    // Database that contains files and folders already uploaded
+    SQLiteDatabase database;
+
     @Override
     public void onConnected() {
+        // Initialize attributes
+        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());
+        database = mDbHelper.getReadableDatabase();
+
         // Check if storage is readable and start upload
         if (Utils.isExternalStorageReadable()) {
             // Verify permission and after call startUploading when permission is granted
@@ -58,7 +72,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 Toast.makeText(GoogleDriveUploadFile.this, R.string.requested_permission_read_storage, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Permission to read external storage denied");
                 // Stop service
-                stopSelf();
+                disconnect();
             }
         }
     };
@@ -70,47 +84,43 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     public void uploadFile (File file, DriveFolder folder) {
         this.fileToUpload = file;
         this.driveFolder = folder;
-        // Start creating new drive content and fill it in callback
-        Drive.DriveApi.newDriveContents(getGoogleApiClient())
-                .setResultCallback(driveContentsCallback);
+
+        // Delete file on drive if already exists
+        deleteFileIfExists(fileToUpload);
+
+        // Start to upload
+        uploadFileAsyncTask = new UploadFileAsyncTask();
+        uploadFileAsyncTask.execute();
     }
 
-    // Called when new content on Drive was created
-    // upload content
-    final private ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback = new ResultCallback<DriveApi.DriveContentsResult>() {
+    /**
+     * Upload the file in another thread
+     */
+    private class UploadFileAsyncTask extends AsyncTask<Void, Integer, DriveFolder.DriveFileResult> {
+
         @Override
-        public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
+        protected DriveFolder.DriveFileResult doInBackground(Void... voids) {
+            // Get new drive content
+            DriveApi.DriveContentsResult driveContentsResult= Drive.DriveApi.newDriveContents(getGoogleApiClient()).await();
+
             if (!driveContentsResult.getStatus().isSuccess()) {
                 Log.e(TAG, "Error while creating new file on Drive");
-                return;
+                return null;
             }
 
-            uploadFileAsyncTask = new UploadFileAsyncTask();
-            uploadFileAsyncTask.execute(driveContentsResult);
-        }
-    };
-
-    private class UploadFileAsyncTask extends AsyncTask<DriveApi.DriveContentsResult, Integer, DriveFolder.DriveFileResult> {
-
-        @Override
-        protected DriveFolder.DriveFileResult doInBackground(DriveApi.DriveContentsResult... driveContentsResult) {
-            // Create stream based on which data need to be saved
-            OutputStream outputStream = null;
-
             // Get content of new file
-            final DriveContents driveContents = driveContentsResult[0].getDriveContents();
+            final DriveContents driveContents = driveContentsResult.getDriveContents();
 
-            final File file = fileToUpload;
-            final DriveFolder folder = driveFolder;
 
+            OutputStream outputStream = null;
             try {
                 // Open file
-                FileInputStream fileInputStream = new FileInputStream(file);
+                FileInputStream fileInputStream = new FileInputStream(fileToUpload);
                 outputStream = driveContents.getOutputStream();
 
                 byte[] buffer = new byte[8];
                 long k = 0;
-                long fileLength = file.length();
+                long fileLength = fileToUpload.length();
                 // Write on drive content stream with buffer of 8 bytes
                 while (fileInputStream.read(buffer) != -1) {
                     publishProgress((int) (100*k/fileLength));
@@ -133,11 +143,11 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
             }
 
             MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                    .setTitle(file.getName())
+                    .setTitle(fileToUpload.getName())
                     .setStarred(true)
                     .build();
 
-            return folder
+            return driveFolder
                     .createFile(getGoogleApiClient(), changeSet, driveContents)
                     .await();
         }
@@ -145,10 +155,10 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         private int lastValue = 0;
         @Override
         protected void onProgressUpdate(Integer... values) {
-            // Call abstract method
-            fileProgress(values[0]);
-            // Show on log the progress
             if(lastValue != values[0]) {
+                // Call abstract method
+                fileProgress(values[0]);
+                // Show on log the progress
                 Log.i(TAG, "Upload progress : " + values[0] + "%");
                 lastValue = values[0];
             }
@@ -164,6 +174,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
             } else {
                 Log.i(TAG, "File on drive created. " + driveFileResult.getDriveFile().getDriveId());
 
+                addFileToDatabase(driveFileResult.getDriveFile().getDriveId().encodeToString(), fileToUpload.getPath());
                 onFileUploaded(driveFileResult.getDriveFile());
             }
         }
@@ -177,9 +188,12 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
     @Override
     public void onDestroy() {
-        // Stop async task if running and user stop the service
+        // Stop async task if running when user stop the service
         if(uploadFileAsyncTask.getStatus() == AsyncTask.Status.RUNNING)
             uploadFileAsyncTask.cancel(true);
+
+        // Close connection to DB
+        database.close();
         super.onDestroy();
     }
 
@@ -188,4 +202,54 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
     // Called when a file has been uploaded. driveFile = null when file on drive wasn't created.
     public abstract void onFileUploaded (DriveFile driveFile);
+
+    private void deleteFileIfExists(File file) {
+        String[] projection = {FileList.COLUMN_DRIVEID};
+
+        String selection = FileList.COLUMN_FILEPATH + " = ?";
+        String[] selectionArgs = {file.getPath()};
+
+        Cursor cursor = database.query(
+                FileList.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if(cursor == null)
+            return;
+
+        if(cursor.getCount() == 0)
+            return;
+
+        cursor.moveToNext();
+        String driveId = cursor.getString(cursor.getColumnIndex(FileList.COLUMN_DRIVEID));
+        Log.i(TAG, "Deleting file with drive ID (if exists) : " + driveId);
+
+        DriveFile toDelete = DriveId.decodeFromString(driveId).asDriveFile();
+        toDelete.delete(getGoogleApiClient());
+        cursor.close();
+
+        // Delete from db the file deleted on drive
+        selection = FileList.COLUMN_DRIVEID + " = ?";
+        selectionArgs[0] = driveId;
+        database.delete(FileList.TABLE_NAME, selection, selectionArgs);
+    }
+
+    private void addFileToDatabase(String driveId, String filePath){
+        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());
+
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(FileList.COLUMN_DRIVEID, driveId);
+        values.put(FileList.COLUMN_FILEPATH, filePath);
+
+        // Insert the new row, returning the primary key value of the new row
+        db.insert(FileList.TABLE_NAME, null, values);
+    }
 }

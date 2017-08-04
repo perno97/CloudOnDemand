@@ -16,9 +16,6 @@ import it.unibs.cloudondemand.R;
 public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
 
-    // Last progress in fileProgress
-    private int lastProgress = 0;
-
     @Override
     public void startUploading() {
         // Start uploading the file into drive root dir.
@@ -34,11 +31,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
 
     @Override
     public void fileProgress(int progress) {
-        // Update notification if lastProgress is different of current progress
-        if(lastProgress != progress)
-            showNotification(progress);
-
-        lastProgress = progress;
+        showNotification(progress);
     }
 
     @Override
