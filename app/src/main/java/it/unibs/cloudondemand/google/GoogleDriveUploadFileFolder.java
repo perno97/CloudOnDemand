@@ -55,7 +55,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         // Folder already exists on Drive
         DriveFolder existingDriveFolder = getExistingDriveFolder(folder);
         if(existingDriveFolder != null) {
-            // Save already existing folder in data strucure
+            // Save already existing folder in data structure
             foldersTree.getCurrentFolderThis().setDriveFolder(existingDriveFolder);
             // Upload the next file
             uploadNext();
@@ -196,11 +196,17 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             return null;
 
         cursor.moveToNext();
-        String driveId = cursor.getString(cursor.getColumnIndex(FolderList.COLUMN_DRIVEID));
-        Log.i(TAG, "Folder on drive found. Drive ID : " + driveId);
+        String driveIdString = cursor.getString(cursor.getColumnIndex(FolderList.COLUMN_DRIVEID));
         cursor.close();
 
-        return DriveId.decodeFromString(driveId).asDriveFolder();   //TODO Check if decoded drive id is available... folder was not deleted by user
+        DriveId driveId = DriveId.decodeFromString(driveIdString);
+
+        Log.i(TAG, "Folder on drive found. Drive ID : " + driveIdString);
+
+        if(driveId.getResourceType() == DriveId.RESOURCE_TYPE_FOLDER)
+            return driveId.asDriveFolder();
+        else
+            return null;
     }
 
     private void addFolderToDatabase(String driveId, String folderPath){
