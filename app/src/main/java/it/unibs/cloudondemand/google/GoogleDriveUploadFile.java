@@ -41,12 +41,13 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     private UploadFileAsyncTask uploadFileAsyncTask;
 
     // Database that contains files and folders already uploaded
-    SQLiteDatabase database;
+    private SQLiteDatabase database;
+    private FileListDbHelper mDbHelper;
 
     @Override
     public void onConnected() {
         // Initialize attributes
-        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());
+        mDbHelper = new FileListDbHelper(getApplicationContext());
         database = mDbHelper.getReadableDatabase();
 
         // Check if storage is readable and start upload
@@ -193,7 +194,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
             uploadFileAsyncTask.cancel(true);
 
         // Close connection to DB
-        database.close();
+        mDbHelper.close();
         super.onDestroy();
     }
 
@@ -251,5 +252,11 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
         // Insert the new row, returning the primary key value of the new row
         db.insert(FileList.TABLE_NAME, null, values);
+
+        mDbHelper.close();
+    }
+
+    public SQLiteDatabase getDatabase() {
+        return database;
     }
 }

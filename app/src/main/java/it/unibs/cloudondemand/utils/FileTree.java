@@ -171,10 +171,10 @@ public class FileTree <T extends GenericFileTree<T>> {
 
     /**
      * Getter for this node folder name.
-     * @return Name of the folder
+     * @return This folder.
      */
-    public String getFolderName () {
-        return thisFolder.getFolderName();
+    public File getFolder () {
+        return thisFolder.getFolder();
     }
 
     /**
@@ -189,7 +189,7 @@ public class FileTree <T extends GenericFileTree<T>> {
      * Getter this folder object for custom implementations.
      * @return This folder (node).
      */
-    public T getThisFolder() {
+    public T getThisNode() {
         return thisFolder;
     }
 

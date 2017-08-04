@@ -5,6 +5,6 @@ import java.io.File;
 public interface GenericFileTree <T> {
     boolean hasNextFile ();
     File nextFile ();
-    String getFolderName ();
+    File getFolder ();
     T[] getSubFolders ();
 }

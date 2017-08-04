@@ -39,7 +39,10 @@ public class GoogleDriveCustomFolder implements GenericFileTree<GoogleDriveCusto
 
     @Override
     public File nextFile () {
-        return files[++currentFile];
+        if(hasNextFile())
+            return files[++currentFile];
+        else
+            return null;
     }
 
     DriveFolder getDriveFolder () {
@@ -51,10 +54,9 @@ public class GoogleDriveCustomFolder implements GenericFileTree<GoogleDriveCusto
     }
 
     @Override
-    public String getFolderName () {
-        return folder.getName();
+    public File getFolder() {
+        return folder;
     }
-
 
     void setFileId (DriveId driveId) {
         filesId[currentFile] = driveId;
