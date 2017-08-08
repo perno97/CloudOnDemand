@@ -1,6 +1,7 @@
 package it.unibs.cloudondemand.google;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -44,5 +45,11 @@ public class StopServices extends Service {
         // Finished
         stopSelf();
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    public static Intent getStopIntent(Context context, int serviceExtra) {
+        Intent intent = new Intent(context, StopServices.class);
+        intent.putExtra(SERVICE_EXTRA, serviceExtra);
+        return intent;
     }
 }

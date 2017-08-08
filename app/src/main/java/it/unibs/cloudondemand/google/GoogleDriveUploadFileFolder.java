@@ -2,6 +2,7 @@ package it.unibs.cloudondemand.google;
 
 import android.app.Notification;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
@@ -23,6 +24,7 @@ import it.unibs.cloudondemand.databaseManager.FileListContract;
 import it.unibs.cloudondemand.databaseManager.FileListContract.FolderList;
 import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.FileTree;
+import it.unibs.cloudondemand.utils.ProgressNotification;
 
 public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpFolder";
@@ -33,6 +35,8 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     // Folder that is going to be created
     private File folderToCreate;
 
+    private ProgressNotification mNotification;
+
     @Override
     public void startUploading() {
         // Initialize file tree to upload
@@ -42,8 +46,12 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         // Create main folder on Drive then start uploading
         createDriveFolder(null, mainFolder);
 
+
+        // Initialize notification
+        Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FOLDER);
+        mNotification = new ProgressNotification(this, "", false, stopIntent);
         // Show initial notification
-        showNotification(0, "");
+        showNotification(mNotification.getNotification());
     }
 
 
@@ -53,16 +61,6 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
      * @param folder Folder to create.
      */
     private void createDriveFolder (DriveFolder parentFolder, File folder) {
-        /* Folder already exists on Drive
-        DriveFolder existingDriveFolder = getExistingDriveFolder(folder);
-        if(existingDriveFolder != null) {
-            // Save already existing folder in data structure
-            foldersTree.getCurrentFolderThis().setDriveFolder(existingDriveFolder);
-            // Upload the next file
-            uploadNext();
-
-            return;
-        }*/
         // Delete folder on drive if already exists
         deleteFolderIfExists(folder);
 
@@ -131,7 +129,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         File currentFile = foldersTree.nextFile();
 
         // Edit notification
-        showNotification(0, currentFile.getName());
+        showNotification(mNotification.editNotification(0, currentFile.getName()));
 
         // Upload current file
         uploadFile(currentFile, currentDriveFolder);
@@ -139,7 +137,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
     @Override
     public void fileProgress(int progress) {
-        showNotification(progress);
+        showNotification(mNotification.editNotification(progress));
     }
 
     @Override
@@ -161,16 +159,11 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     public Notification getFinalNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(GoogleDriveConnection.NOTIFICATION_ICON)
+                        .setSmallIcon(ProgressNotification.NOTIFICATION_ICON)
                         .setContentTitle("Uploading files to Drive...") //TODO mettere dentro res/values
                         .setContentText("Finito");
 
         return mBuilder.build();
-    }
-
-    @Override
-    public int getStopServiceExtra() {
-        return StopServices.SERVICE_UPLOAD_FOLDER;
     }
 
     /**
@@ -204,7 +197,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         cursor.close();
 
         // Delete folder from drive
-        Log.i(TAG, "Deleting folder with drive ID (if exists) : " + driveId);
+        Log.i(TAG, "Deleting folder with drive ID (if exists) : " + driveId);   //TODO CARTELLE NON VENGONO ELIMINATE
         DriveFolder toDelete = DriveId.decodeFromString(driveId).asDriveFolder();
         toDelete.delete(getGoogleApiClient());
 

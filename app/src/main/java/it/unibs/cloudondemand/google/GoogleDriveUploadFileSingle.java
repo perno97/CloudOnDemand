@@ -1,6 +1,7 @@
 package it.unibs.cloudondemand.google;
 
 import android.app.Notification;
+import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -12,9 +13,12 @@ import com.google.android.gms.drive.DriveFolder;
 import java.io.File;
 
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.utils.ProgressNotification;
 
 public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
+
+    private ProgressNotification mNotification;
 
     @Override
     public void startUploading() {
@@ -22,8 +26,11 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
         File file = new File(getContent());
         DriveFolder folder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
 
+        // Initialize notification
+        Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FILE);
+        mNotification = new ProgressNotification(this, file.getName(), false, stopIntent);
         // Show initial notification
-        showNotification(0, file.getName());
+        showNotification(mNotification.getNotification());
 
         uploadFile(file, folder);
     }
@@ -31,7 +38,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
 
     @Override
     public void fileProgress(int progress) {
-        showNotification(progress);
+        showNotification(mNotification.editNotification(progress));
     }
 
     @Override
@@ -50,15 +57,10 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     public Notification getFinalNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(GoogleDriveConnection.NOTIFICATION_ICON)
+                        .setSmallIcon(ProgressNotification.NOTIFICATION_ICON)
                         .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
                         .setContentText("Finito");
 
         return mBuilder.build();
-    }
-
-    @Override
-    public int getStopServiceExtra() {
-        return StopServices.SERVICE_UPLOAD_FILE;
     }
 }

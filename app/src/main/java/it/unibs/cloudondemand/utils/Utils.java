@@ -1,9 +1,18 @@
 package it.unibs.cloudondemand.utils;
 
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
 
 import java.io.File;
 import java.io.FileFilter;
+
+import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.google.StopServices;
 
 public class Utils {
     // Check if external storage is readable

@@ -1,6 +1,7 @@
 package it.unibs.cloudondemand.google;
 
 import android.app.Notification;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -18,17 +19,23 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.utils.ProgressNotification;
 
 public class GoogleDriveUploadString extends GoogleDriveConnection {
     private static final String TAG = "GoogleDriveUpString";
 
+    private ProgressNotification mNotification;
 
     @Override
     public void onConnected() {
         Drive.DriveApi.newDriveContents(getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
 
-        showNotification(0, true);
+        // Initialize notification
+        Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_STRING);
+        mNotification = new ProgressNotification(this, "", true, stopIntent);
+        // Show initial notification
+        showNotification(mNotification.getNotification());
     }
 
     // Called when new content on Drive was created
@@ -96,15 +103,10 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
     public Notification getFinalNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(GoogleDriveUploadString.this)
-                        .setSmallIcon(GoogleDriveConnection.NOTIFICATION_ICON)
+                        .setSmallIcon(ProgressNotification.NOTIFICATION_ICON)
                         .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
                         .setContentText("Finito");
 
         return mBuilder.build();
-    }
-
-    @Override
-    public int getStopServiceExtra() {
-        return StopServices.SERVICE_UPLOAD_STRING;
     }
 }

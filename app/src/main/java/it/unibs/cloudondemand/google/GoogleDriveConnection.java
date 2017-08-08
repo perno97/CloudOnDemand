@@ -25,6 +25,7 @@ import com.google.android.gms.drive.Drive;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.utils.ProgressNotification;
 
 
 /**
@@ -50,7 +51,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     // Foreground notification
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
-    private NotificationCompat.Builder mNotificationBuilder;
+    //private NotificationCompat.Builder mNotificationBuilder;  //TODO Delete
 
     @Override
     public void onCreate() {
@@ -241,89 +242,12 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     public abstract Notification getFinalNotification();
 
     /**
-     * Return the integer that determinate which service is running.
-     * @return A StopServices constant.
+     * Show or update foreground notification.
+     * @param notification New or updated notification.
      */
-    public abstract int getStopServiceExtra();
-
-    // Small icon for notification
-    public static final int NOTIFICATION_ICON = R.mipmap.ic_launcher;
-
-    // Build new notification or edit old
-    private Notification buildNotification(int progress, String contentText, boolean indeterminateProgress) {
-        // Construct first time the notification
-        if(mNotificationBuilder == null) {
-
-            mNotificationBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(NOTIFICATION_ICON)
-                    .setContentTitle("Uploading files to Drive...") //TODO res/strings
-                    .setContentText(contentText)
-                    .setProgress(100, progress, indeterminateProgress)
-                    //.addAction()
-                    .setOngoing(true);
-
-            // Intent to launch when stop pressed
-            Intent stopIntent = new Intent(this, StopServices.class);
-            stopIntent.putExtra(StopServices.SERVICE_EXTRA, getStopServiceExtra());
-
-            PendingIntent pendingIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-            // Add pending intent to notification builder
-            if(Build.VERSION.SDK_INT > 23) {
-                NotificationCompat.Action stopAction = new NotificationCompat.Action.Builder(R.drawable.ic_close, "Stop", pendingIntent).build();
-                mNotificationBuilder.addAction(stopAction);
-            }
-            else {
-                mNotificationBuilder.addAction(R.drawable.ic_close, "Stop", pendingIntent);
-            }
-        }
-        else
-            // Edit already created notification
-            if(contentText == null)
-                mNotificationBuilder.setProgress(100, progress, false);
-            else
-                mNotificationBuilder.setProgress(100, progress, false)
-                        .setContentText(contentText);
-
-        return mNotificationBuilder.build();
-    }
-
-    /**
-     * Show or update notification with determinate progress bar.
-     * @param progress Percent progress.
-     * @param contentText Text of notification content.
-     */
-    public void showNotification(int progress, String contentText) {
-        Notification notification = buildNotification(progress, contentText, false);
+    public void showNotification(Notification notification) {
         mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 
-    /**
-     * Update notification with determinate progress bar (doesn't change content text).
-     * @param progress Percent progress.
-     */
-    public void showNotification(int progress) {
-        Notification notification = buildNotification(progress, null, false);
-        mNotificationManager.notify(NOTIFICATION_ID, notification);
-    }
 
-    /**
-     * Show or update notification.
-     * @param progress Percent progress.
-     * @param indeterminateProgress True if want indeterminate progress bar.
-     * @param contentText Text of notification content.
-     */
-    public void showNotification(int progress, boolean indeterminateProgress, String contentText) {
-        Notification notification = buildNotification(progress, contentText, indeterminateProgress);
-        mNotificationManager.notify(NOTIFICATION_ID, notification);
-    }
-
-    /**
-     * Update notification (doesn't change content text).
-     * @param progress Percent progress.
-     * @param indeterminateProgress True if want indeterminate progress bar.
-     */
-    public void showNotification(int progress, boolean indeterminateProgress) {
-        Notification notification = buildNotification(progress, null, indeterminateProgress);
-        mNotificationManager.notify(NOTIFICATION_ID, notification);
-    }
 }
