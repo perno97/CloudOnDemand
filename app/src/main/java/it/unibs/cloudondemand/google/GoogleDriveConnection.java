@@ -74,7 +74,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         }
         else {
             // If signOut is true after is connected, do sign-out stuff
-            if(intent != null && intent.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
+            if(intent.getBooleanExtra(SIGN_OUT_EXTRA, false)) {
                 signOut = true;
             }
             mGoogleApiClient.connect(clientConnectionType);
@@ -266,7 +266,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
             Intent stopIntent = new Intent(this, StopServices.class);
             stopIntent.putExtra(StopServices.SERVICE_EXTRA, getStopServiceExtra());
 
-            PendingIntent pendingIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent pendingIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);
             // Add pending intent to notification builder
             if(Build.VERSION.SDK_INT > 23) {
                 NotificationCompat.Action stopAction = new NotificationCompat.Action.Builder(R.drawable.ic_close, "Stop", pendingIntent).build();

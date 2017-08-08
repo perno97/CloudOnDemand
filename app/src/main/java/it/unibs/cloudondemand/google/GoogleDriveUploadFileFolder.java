@@ -19,6 +19,7 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import java.io.File;
 
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.databaseManager.FileListContract;
 import it.unibs.cloudondemand.databaseManager.FileListContract.FolderList;
 import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.FileTree;
@@ -52,7 +53,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
      * @param folder Folder to create.
      */
     private void createDriveFolder (DriveFolder parentFolder, File folder) {
-        // Folder already exists on Drive
+        /* Folder already exists on Drive
         DriveFolder existingDriveFolder = getExistingDriveFolder(folder);
         if(existingDriveFolder != null) {
             // Save already existing folder in data structure
@@ -61,7 +62,9 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             uploadNext();
 
             return;
-        }
+        }*/
+        // Delete folder on drive if already exists
+        deleteFolderIfExists(folder);
 
         // Folder doesn't exist on Drive, so create it
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
@@ -92,8 +95,10 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             DriveFolder createdDriveFolder = driveFolderResult.getDriveFolder();
 
             Log.i(TAG, "Folder on drive created. " +  createdDriveFolder.getDriveId());
+
             // Save folder into database
             addFolderToDatabase(createdDriveFolder.getDriveId().encodeToString(), folderToCreate.getPath());
+
             // Retrieve created folder and save it in data structure
             foldersTree.getCurrentFolderThis().setDriveFolder(createdDriveFolder);
             // Upload the next file
@@ -169,11 +174,10 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     }
 
     /**
-     * Getter for existing drive folder.
-     * @param folder Offline folder.
-     * @return Drive folder requested or null if not exist on drive
+     * Delete corresponding drive folder of folder path.
+     * @param folder Offline foler to get path.
      */
-    private DriveFolder getExistingDriveFolder(File folder) {
+    private void deleteFolderIfExists(File folder) {
         String[] projection = {FolderList.COLUMN_DRIVEID};
 
         String selection = FolderList.COLUMN_FOLDERPATH + " = ?";
@@ -190,23 +194,24 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         );
 
         if(cursor == null)
-            return null;
+            return;
 
         if(cursor.getCount() == 0)
-            return null;
+            return;
 
         cursor.moveToNext();
-        String driveIdString = cursor.getString(cursor.getColumnIndex(FolderList.COLUMN_DRIVEID));
+        String driveId = cursor.getString(cursor.getColumnIndex(FolderList.COLUMN_DRIVEID));
         cursor.close();
 
-        DriveId driveId = DriveId.decodeFromString(driveIdString);
+        // Delete folder from drive
+        Log.i(TAG, "Deleting folder with drive ID (if exists) : " + driveId);
+        DriveFolder toDelete = DriveId.decodeFromString(driveId).asDriveFolder();
+        toDelete.delete(getGoogleApiClient());
 
-        Log.i(TAG, "Folder on drive found. Drive ID : " + driveIdString);
-
-        if(driveId.getResourceType() == DriveId.RESOURCE_TYPE_FOLDER)
-            return driveId.asDriveFolder();
-        else
-            return null;
+        // Delete from db the file deleted on drive
+        selection = FileListContract.FileList.COLUMN_DRIVEID + " = ?";
+        selectionArgs[0] = driveId;
+        getDatabase().delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
     }
 
     private void addFolderToDatabase(String driveId, String folderPath){

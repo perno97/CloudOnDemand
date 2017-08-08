@@ -159,8 +159,6 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
             if(lastValue != values[0]) {
                 // Call abstract method
                 fileProgress(values[0]);
-                // Show on log the progress
-                Log.i(TAG, "Upload progress : " + values[0] + "%");
                 lastValue = values[0];
             }
         }
@@ -169,7 +167,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         protected void onPostExecute(DriveFolder.DriveFileResult driveFileResult) {
             // Finished to upload file
             if (!driveFileResult.getStatus().isSuccess()) {
-                Log.e(TAG, "Unable to create file on drive folder.");
+                Log.e(TAG, "Unable to create file on drive folder. " + driveFileResult.getStatus().toString());
 
                 onFileUploaded(null);
             } else {
@@ -182,7 +180,6 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
         @Override
         protected void onCancelled(DriveFolder.DriveFileResult driveFileResult) {
-            Toast.makeText(GoogleDriveUploadFile.this, "Task cancelled", Toast.LENGTH_SHORT).show();
             Log.i(TAG, "User stop to upload files");
         }
     }
@@ -228,8 +225,9 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
         cursor.moveToNext();
         String driveId = cursor.getString(cursor.getColumnIndex(FileList.COLUMN_DRIVEID));
-        Log.i(TAG, "Deleting file with drive ID (if exists) : " + driveId);
 
+        // Delete file from drive
+        Log.i(TAG, "Deleting file with drive ID (if exists) : " + driveId);
         DriveFile toDelete = DriveId.decodeFromString(driveId).asDriveFile();
         toDelete.delete(getGoogleApiClient());
         cursor.close();
