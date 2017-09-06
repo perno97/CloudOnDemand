@@ -1,24 +1,18 @@
 package it.unibs.cloudondemand.utils;
 
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Environment;
-import android.support.v4.app.NotificationCompat;
-
-import java.io.File;
-import java.io.FileFilter;
-
-import it.unibs.cloudondemand.R;
-import it.unibs.cloudondemand.google.StopServices;
 
 public class Utils {
     // Check if external storage is readable
     public static boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
+    }
+
+    // Check if external storage is readable and writable
+    public static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 
     // Check extension of files

@@ -5,8 +5,10 @@
     <string name="yes">Sì</string>
     <string name="no">no</string>
     <string name="unable_read_storage">Impossibile leggere la memoria esterna</string>
+    <string name="unable_write_storage">Impossibile scrivere sulla memoria esterna</string>
     <string name="unable_connect_account">Impossibile collegarsi all\'account</string>
     <string name="requested_permission_read_storage">Sono richiesti i permessi\ndi lettura della memoria</string>
+    <string name="requested_permission_write_storage">Sono richiesti i permessi\ndi scrittura in memoria</string>
 
 
     <!-- MainActivity -->

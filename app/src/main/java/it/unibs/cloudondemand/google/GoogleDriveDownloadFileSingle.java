@@ -1,0 +1,30 @@
+package it.unibs.cloudondemand.google;
+
+import android.os.Environment;
+
+import java.io.File;
+
+public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
+    private static final String TAG = "GoogleDriveDwSingleFile";
+
+    @Override
+    public void startDownloading() {
+        // Start downloading the file into device root dir.
+        String driveId = getContent();
+        File  destinationPath = Environment.getExternalStorageDirectory();//TODO cambiare destinazione
+
+        /* TODO mettere notifica
+        // Initialize notification
+        Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FILE);
+        mNotification = new ProgressNotification(this, file.getName(), false, stopIntent);
+        // Show initial notification
+        showNotification(mNotification.getNotification());
+        */
+        downloadFile(destinationPath, driveId);
+    }
+
+    @Override
+    public void onFileDownloaded(File file) {
+        disconnect();
+    }
+}

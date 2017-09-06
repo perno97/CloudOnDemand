@@ -3,20 +3,21 @@ package it.unibs.cloudondemand.google;
 import android.Manifest;
 import android.app.Notification;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
-import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.query.SearchableField;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import it.unibs.cloudondemand.R;
-import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.Utils;
 
@@ -29,25 +30,18 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
 
     private static final String TAG = "GoogleDriveUpFile";
 
-    // Database that contains files and folders already uploaded
-    private SQLiteDatabase database;
-    private FileListDbHelper mDbHelper;
-
     @Override
     public void onConnected() {
-        // Initialize attributes
-        mDbHelper = new FileListDbHelper(getApplicationContext());
-        database = mDbHelper.getReadableDatabase();
 
         // Check if storage is readable and start upload
-        if (Utils.isExternalStorageReadable()) {
+        if (Utils.isExternalStorageWritable()) {
             // Verify permission and after call startUploading when permission is granted
-            Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
+            Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, permissionResultCallback);
             startActivity(intent);
         }
         else {
-            Toast.makeText(GoogleDriveDownloadFile.this, R.string.unable_read_storage, Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Unable to read external storage.");
+            Toast.makeText(GoogleDriveDownloadFile.this, R.string.unable_write_storage, Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Unable to read/write external storage.");
         }
     }
 
@@ -59,8 +53,8 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
                 startDownloading();
             else {
                 // Permission denied, show to user and close activity
-                Toast.makeText(GoogleDriveDownloadFile.this, R.string.requested_permission_read_storage, Toast.LENGTH_SHORT).show();
-                Log.i(TAG, "Permission to read external storage denied");
+                Toast.makeText(GoogleDriveDownloadFile.this, R.string.requested_permission_write_storage, Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "Permission to read/write external storage denied");
                 // Stop service
                 disconnect();
             }
@@ -69,24 +63,61 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
 
     // Called by subclasses when want to upload a file
     public void downloadFile (File destinationPath, String driveIdFileToDownload) {
-        this.destinationPath = destinationPath;
-        DriveFile fileToDownload = DriveId.decodeFromString(driveIdFileToDownload).asDriveFile();
-        this.driveFile = fileToDownload;
+        this.destinationPath = destinationPath;//TODO controllare che sia una cartella
+        this.driveFile = DriveId.decodeFromString(driveIdFileToDownload).asDriveFile();//TODO controllare esista
 
-        // TODO Delete file if already exists (pin file?)
+        // TODO Delete file if already exists
 
         // Start download
-        downloadFileAsyncTask = new GoogleDriveUploadFile.DownloadFileAsyncTask();
+        DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask();
         downloadFileAsyncTask.execute();
     }
 
-    private class DownloadFileAsyncTask extends AsyncTask<Void, Integer, >{
+    private class DownloadFileAsyncTask extends AsyncTask<Void, Void, File>{
 
         @Override
-        protected void doInBackground(Void... voids) {
-            //TODO ottenere file da drive
+        protected File doInBackground(Void... voids) {
+            String contents = null;
+            DriveApi.DriveContentsResult driveContentsResult =
+                    driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).await();
+            if (!driveContentsResult.getStatus().isSuccess()) {
+                 return null;
+            }
+            DriveContents driveContents = driveContentsResult.getDriveContents();
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(driveContents.getInputStream()));
+            StringBuilder builder = new StringBuilder();
+            String line;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    builder.append(line);
+                }
+                contents = builder.toString();
+            } catch (IOException e) {
+                Log.e(TAG, "IOException while reading from the stream", e);
+            }
+
+            if(contents == null)
+                return null;
+
+            driveContents.discard(getGoogleApiClient());
+            return new File(destinationPath, contents);
         }
 
+        @Override
+        protected void onPostExecute(File file) {
+            if(file != null) {
+                onFileDownloaded(file);
+                Toast.makeText(GoogleDriveDownloadFile.this, "DOWNLOAD RIUSCITO", Toast.LENGTH_SHORT).show();//TODO usare string res
+            }
+            else {
+                Log.e(TAG, "File not created.");
+                Toast.makeText(GoogleDriveDownloadFile.this, "DOWNLOAD FALLITO", Toast.LENGTH_SHORT).show();//TODO usare string res
+            }
+        }
+
+        /*
+        TODO mostrare progress bar
         private int lastValue = 0;
         @Override
         protected void onProgressUpdate(Integer... values) {
@@ -96,15 +127,16 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
                 lastValue = values[0];
             }
         }
-
-        @Override
-        protected void onPostExecute()
+        */
     }
 
     // Called many times during the file upload.
-    public abstract void fileProgress (int percent);
+    //public abstract void fileProgress (int percent);
+
+    public abstract void onFileDownloaded(File file);
 
     public abstract void startDownloading();
+
     @Override
     public Notification getFinalNotification() {
         return null;
