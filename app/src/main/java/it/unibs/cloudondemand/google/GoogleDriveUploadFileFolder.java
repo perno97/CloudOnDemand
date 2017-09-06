@@ -35,11 +35,13 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     // Folder that is going to be created
     private File folderToCreate;
 
+    // Notification showed while uploading
     private ProgressNotification mNotification;
 
     @Override
     public void startUploading() {
         // Initialize file tree to upload
+        // Retrieve folder to upload
         File mainFolder = new File(getContent());
         foldersTree = new FileTree<>(new GoogleDriveCustomFolder(mainFolder));
 
@@ -48,7 +50,9 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
 
         // Initialize notification
+        // Retrieve intent o launch when stop clicked
         Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FOLDER);
+        // Retrieve progress notification
         mNotification = new ProgressNotification(this, "", false, stopIntent);
         // Show initial notification
         showNotification(mNotification.getNotification());
@@ -128,7 +132,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         DriveFolder currentDriveFolder = foldersTree.getCurrentFolderThis().getDriveFolder();
         File currentFile = foldersTree.nextFile();
 
-        // Edit notification
+        // Update notification
         showNotification(mNotification.editNotification(0, currentFile.getName()));
 
         // Upload current file
@@ -137,6 +141,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
     @Override
     public void fileProgress(int progress) {
+        // Update notification
         showNotification(mNotification.editNotification(progress));
     }
 
@@ -160,8 +165,8 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(ProgressNotification.NOTIFICATION_ICON)
-                        .setContentTitle("Uploading files to Drive...") //TODO mettere dentro res/values
-                        .setContentText("Finito");
+                        .setContentTitle(getString(R.string.googledrive_uploaded))
+                        .setContentText(foldersTree.getFolder().getName());
 
         return mBuilder.build();
     }
@@ -197,14 +202,14 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         cursor.close();
 
         // Delete folder from drive
-        Log.i(TAG, "Deleting folder with drive ID (if exists) : " + driveId);   //TODO CARTELLE NON VENGONO ELIMINATE
+        Log.i(TAG, "Deleting folder with drive ID (if exists) : " + driveId);
         DriveFolder toDelete = DriveId.decodeFromString(driveId).asDriveFolder();
         toDelete.delete(getGoogleApiClient());
 
         // Delete from db the file deleted on drive
-        selection = FileListContract.FileList.COLUMN_DRIVEID + " = ?";
+        selection = FolderList.COLUMN_DRIVEID + " = ?";
         selectionArgs[0] = driveId;
-        getDatabase().delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
+        getDatabase().delete(FolderList.TABLE_NAME, selection, selectionArgs);
     }
 
     private void addFolderToDatabase(String driveId, String folderPath){

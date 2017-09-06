@@ -18,26 +18,35 @@ import it.unibs.cloudondemand.utils.ProgressNotification;
 public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
 
+    // Notification showed while uploading
     private ProgressNotification mNotification;
+
+    // Name of file to upload
+    private String filename;
 
     @Override
     public void startUploading() {
-        // Start uploading the file into drive root dir.
+        // Retrieve file to upload
         File file = new File(getContent());
+        filename = file.getName();
+        // Retrieve folder on witch upload the file
         DriveFolder folder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
 
         // Initialize notification
+        // Retrieve intent o launch when stop clicked
         Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FILE);
+        // Retrieve progress notification
         mNotification = new ProgressNotification(this, file.getName(), false, stopIntent);
         // Show initial notification
         showNotification(mNotification.getNotification());
 
+        // Start uploading the file into drive root dir
         uploadFile(file, folder);
     }
 
-
     @Override
     public void fileProgress(int progress) {
+        // Update notification
         showNotification(mNotification.editNotification(progress));
     }
 
@@ -58,8 +67,8 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(ProgressNotification.NOTIFICATION_ICON)
-                        .setContentTitle("Uploading file to Drive...") //TODO mettere dentro res/values
-                        .setContentText("Finito");
+                        .setContentTitle(getString(R.string.googledrive_uploaded))
+                        .setContentText(filename);
 
         return mBuilder.build();
     }
