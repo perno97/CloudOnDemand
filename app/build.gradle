@@ -34,9 +34,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-drive:11.0.1'
     apply plugin: 'com.google.gms.google-services'
 
-    //Oauth2
-    //compile 'net.openid:appauth:0.7.0'
-
     //Facebook
     //compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     testCompile 'junit:junit:4.12'

@@ -21,4 +21,27 @@
         android:layout_below="@+id/google_signed_in_button"
         />
 
+
+    <LinearLayout
+        android:id="@+id/fitbit_sing_in_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:clickable="true"
+        android:onClick="onClick"
+        android:layout_below="@+id/google_sign_in_new_account_button">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_fitbit"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="15dp"
+            android:text="Fitbit"/>
+    </LinearLayout>
+
+
 </RelativeLayout>
