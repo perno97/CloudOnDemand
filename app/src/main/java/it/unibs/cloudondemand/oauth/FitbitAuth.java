@@ -9,12 +9,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Iterator;
 
 import it.unibs.cloudondemand.R;
 
@@ -49,6 +52,9 @@ public class FitbitAuth extends AppCompatActivity {
     // Initialize attributes and when finish call onIntentRead
     private void handleIntent(String intentData) {
         int lastIndex = intentData.indexOf('&');
+        if(lastIndex == -1)
+            lastIndex = intentData.length();
+
         if(intentData.startsWith("access_token=")) {
             accessToken = intentData.substring(13, lastIndex);
             handleIntent(intentData.substring(lastIndex+1));
@@ -66,7 +72,7 @@ public class FitbitAuth extends AppCompatActivity {
             handleIntent(intentData.substring(lastIndex+1));
         }
         else if(intentData.startsWith("expires_in=")) {
-            expiresIn = Long.parseLong(intentData.substring(11));
+            expiresIn = Long.parseLong(intentData.substring(11), lastIndex);
             onIntentRead();
         }
     }
@@ -75,28 +81,37 @@ public class FitbitAuth extends AppCompatActivity {
     private void onIntentRead() {
         handledIntent = true;
 
-        makeAPIRequest.execute();
+        URL url = null;
+        try {
+            url = new URL("https://api.fitbit.com/1/user/" + userId + "/profile.json");
+        } catch (MalformedURLException e) {
+            // Should never get here
+            Log.e(TAG, "Error while creating URL object." + e+toString());
+        }
+        makeAPIRequest.execute(url);
     }
 
 
-    private AsyncTask<Void, Void, JSONObject> makeAPIRequest = new AsyncTask<Void, Void, JSONObject>() {
+    private AsyncTask<URL, Void, JSONObject> makeAPIRequest = new AsyncTask<URL, Void, JSONObject>() {
         @Override
-        protected JSONObject doInBackground(Void... params) {
+        protected JSONObject doInBackground(URL... params) {
 
             HttpURLConnection urlConnection = null;
             JSONObject read = null;
             try {
-                URL url = new URL("https://api.fitbit.com/1/user/" + userId + "/profile.json");
-                urlConnection = (HttpURLConnection) url.openConnection();
+                // Create HTTP connection
+                urlConnection = (HttpURLConnection) params[0].openConnection();
+                // Set HTTP header
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("Authorization", tokenType + " " + accessToken);
 
-
+                // Read string from response
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                // Create JSONObject from read string
                 read = new JSONObject(in.readLine());
             }
             catch (Exception e) {
-                Log.e(TAG, e.toString());
+                Log.e(TAG, "Exception while connecting to Fitbit server." + e.toString());
             }
             finally {
                 if(urlConnection != null)
@@ -110,10 +125,27 @@ public class FitbitAuth extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
-            TextView mTextView = (TextView) findViewById(R.id.fitbit_response_text);
-            mTextView.setText(jsonObject.toString());
+            handleJsonResponse(jsonObject);
         }
     };
+
+    // Show user json object into text view
+    private void handleJsonResponse(JSONObject jsonObject) {
+        TextView mTextView = (TextView) findViewById(R.id.fitbit_response_text);
+        mTextView.setText("");
+        try {
+            JSONObject user = jsonObject.getJSONObject("user");
+            Iterator<String> keys = user.keys();
+            String key = keys.next();
+            while (keys.hasNext()) {
+                mTextView.append(key + " : " + user.getString(key) + "\n");
+                key = keys.next();
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Error occurred while reading user json object. " + e.toString());
+            mTextView.setText("Error occurred while reading Fitbit response");
+        }
+    }
 
 
     /**
