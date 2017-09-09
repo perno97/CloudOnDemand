@@ -11,7 +11,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.SignInButton;
 
 import it.unibs.cloudondemand.google.GoogleDriveUtil;
-import it.unibs.cloudondemand.oauth.FitbitAuth;
+import it.unibs.cloudondemand.fitbit.FitbitAuth;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 

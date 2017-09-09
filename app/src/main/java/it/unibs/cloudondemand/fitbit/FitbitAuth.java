@@ -1,4 +1,4 @@
-package it.unibs.cloudondemand.oauth;
+package it.unibs.cloudondemand.fitbit;
 
 import android.content.Context;
 import android.content.Intent;
