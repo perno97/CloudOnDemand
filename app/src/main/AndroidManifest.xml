@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <!-- Main activities -->
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,27 +26,40 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+        <activity android:name=".IntentActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
 
+                <category android:name="android.intent.category.DEFAULT" />
 
-        <service android:name=".google.GoogleDriveUploadString" />
-        <service android:name=".google.GoogleDriveUploadFileSingle" />
-        <service android:name=".google.GoogleDriveUploadFileFolder" />
+                <data
+                    android:mimeType="*/*"
+                    android:scheme="file" />
+            </intent-filter>
+        </activity>
 
-        <service android:name=".google.StopServices" />
-
+        <!-- Utils activities -->
         <activity
             android:name=".utils.PermissionRequest"
             android:theme="@style/Theme.TransparentTheme" />
+
+        <!-- Google activities and services -->
         <activity
             android:name=".google.GoogleSignIn"
             android:theme="@style/Theme.TransparentTheme" />
 
+        <service android:name=".google.GoogleDriveUploadString" />
+        <service android:name=".google.GoogleDriveUploadFileSingle" />
+        <service android:name=".google.GoogleDriveUploadFileFolder" />
+        <service android:name=".google.StopServices" />
 
-        <activity android:name=".IntentActivity">
+        <!-- Oauth activities -->
+        <activity android:name=".fitbit.FitbitAuth">
             <intent-filter>
-                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="file" android:mimeType="*/*" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="it.unibs.cloudondemand" android:host="fitbitoauth2callback"/>
             </intent-filter>
         </activity>
 

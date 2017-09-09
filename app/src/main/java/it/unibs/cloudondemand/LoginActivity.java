@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.SignInButton;
 
 import it.unibs.cloudondemand.google.GoogleDriveUtil;
+import it.unibs.cloudondemand.fitbit.FitbitAuth;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -92,6 +93,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Toast.makeText(this, "Wait", Toast.LENGTH_SHORT).show();    //TODO res/strings
                 else
                     startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));
+                break;
+            case R.id.fitbit_sing_in_button :
+                startActivity(FitbitAuth.getIntent(this));
                 break;
             // ...
         }

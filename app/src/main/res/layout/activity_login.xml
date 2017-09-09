@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:layout_marginTop="30dp">
@@ -20,5 +21,28 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/google_signed_in_button"
         />
+
+    <!-- Horizontal Line -->
+    <View
+        android:id="@+id/line_below_google"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@+id/google_sign_in_new_account_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#C1C1C1" />
+
+    <ImageButton
+        android:id="@+id/fitbit_sing_in_button"
+        android:onClick="onClick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/shape_button"
+        android:padding="8dp"
+        app:srcCompat="@drawable/ic_fitbit"
+        android:layout_below="@+id/line_below_google" />
+
 
 </RelativeLayout>
