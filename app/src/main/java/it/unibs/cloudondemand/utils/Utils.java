@@ -20,6 +20,20 @@ public class Utils {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
+    
+    // Check if internet connection is available. True if connected, False otherwise.
+    public static boolean checkInternetConnections(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return connectivityManager.getActiveNetworkInfo() != null;
+    }
+
+    // Check if internet connection is over mobile data. True if is connected whit mobile, False otherwise.
+    public static boolean isConnectedWithMobile(Context context) {
+        if(!checkInternetConnections(context))
+            return false;
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return connectivityManager.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE;
+    }
 
     // Check extension of files
     private static String[] imageExtensions = {"png", "jpg", "jpeg", "gif", "tif", "svg"};
