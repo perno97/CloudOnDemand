@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <!-- Main activities -->
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -54,15 +55,19 @@
         <service android:name=".google.StopServices" />
 
         <!-- Oauth activities -->
-        <activity android:name=".fitbit.FitbitAuth">
+        <activity android:name=".fitbit.FitbitAuth" />
+        <activity android:name=".fitbit.FitbitTokenGetter">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="it.unibs.cloudondemand" android:host="fitbitoauth2callback"/>
+
+                <data
+                    android:host="fitbitoauth2callback"
+                    android:scheme="it.unibs.cloudondemand" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

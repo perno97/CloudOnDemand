@@ -3,7 +3,7 @@
 
     <!-- Common -->
     <string name="yes">Sì</string>
-    <string name="no">no</string>
+    <string name="no">No</string>
     <string name="unable_read_storage">Impossibile leggere la memoria esterna</string>
     <string name="unable_connect_account">Impossibile collegarsi all\'account</string>
     <string name="requested_permission_read_storage">Sono richiesti i permessi\ndi lettura della memoria</string>
@@ -26,6 +26,13 @@
     <string name="googledrive_uploaded">Upload su Drive Completato</string>
 
     <!-- Shared preferences (google) -->
-    <string name="shared_pref_account">accountSignedIn</string>
-    <string name="saved_account_google">googleAccount</string>
+    <string name="shared_pref_google_account">googleAccountSignedIn</string>
+    <string name="google_saved_account">googleAccount</string>
+    <!-- Shared preferences (fitbit) -->
+    <string name="shared_pref_fitbit_account">fitbitAccountSignedIn</string>
+    <string name="fitbit_access_token">token</string>
+    <string name="fitbit_user_id">userId</string>
+    <string name="fitbit_scope">scope</string>
+    <string name="fitbit_token_type">tokenType</string>
+    <string name="fitbit_expiration_date">expirationDate</string>
 </resources>
