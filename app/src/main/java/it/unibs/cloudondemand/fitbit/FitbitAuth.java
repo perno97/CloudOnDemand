@@ -25,9 +25,6 @@ import it.unibs.cloudondemand.R;
 public class FitbitAuth extends AppCompatActivity {
     private static final String TAG = "FitbitAuth";
 
-    private static final String AUTHORIZATION_URI = "https://www.fitbit.com/oauth2/authorize";
-    private static final String CLIENT_ID = "228L7S";
-    private static final String REDIRECT_URI = "it.unibs.cloudondemand://fitbitoauth2callback";
     private static final String SCOPE = "profile";
 
     private FitbitToken token;
@@ -43,6 +40,11 @@ public class FitbitAuth extends AppCompatActivity {
 
         if(token != null)
             onIntentRead();
+        else {
+            // Make token request
+            startActivity(FitbitTokenGetter.getIntent(this, "it.unibs.cloudondemand.fitbit.FitbitAuth",SCOPE));
+        }
+
     }
 
     // Make API request
@@ -115,21 +117,5 @@ public class FitbitAuth extends AppCompatActivity {
             Log.e(TAG, "Error occurred while reading user json object. " + e.toString());
             mTextView.setText("Error occurred while reading Fitbit response");
         }
-    }
-
-
-    /**
-     * Util method to retrieve intent to launch for authentication.
-     * @param context Context of activity that launch the intent.
-     * @return Intent to launch with startActivity(intent).
-     */
-    public static Intent getIntent(Context context) {
-        //TODO Before check if token is valid
-
-        // Open browser for request permission
-        String url = AUTHORIZATION_URI + "?response_type=token" + "&client_id="+CLIENT_ID + "&redirect_uri="+REDIRECT_URI + "&scope="+SCOPE + "&state=it.unibs.cloudondemand.fitbit.FitbitAuth";
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(url));
-        return intent;
     }
 }
