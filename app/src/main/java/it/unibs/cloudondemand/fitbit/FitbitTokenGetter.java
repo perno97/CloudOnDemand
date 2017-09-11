@@ -90,6 +90,7 @@ public class FitbitTokenGetter extends AppCompatActivity {
     private void sendBackToken(FitbitToken token) {
         try {
             Intent intent = new Intent(this, Class.forName(requesterClass));
+            intent.putExtra(TOKEN_EXTRA, token);
             startActivity(intent);
             // Destroy this activity
             finish();
