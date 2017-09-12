@@ -95,7 +95,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));
                 break;
             case R.id.fitbit_sing_in_button :
-                startActivity(FitbitAuth.getIntent(this));
+                startActivity(new Intent(this, FitbitAuth.class));
                 break;
             // ...
         }
