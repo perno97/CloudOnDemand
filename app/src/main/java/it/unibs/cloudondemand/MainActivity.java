@@ -3,6 +3,7 @@ package it.unibs.cloudondemand;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Environment;
+import android.support.annotation.BoolRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -188,9 +189,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if(selected.isDirectory())
-                            sendIntent(LoginActivity.CONTENT_FOLDER, selected.getPath());
+                            sendIntent(LoginActivity.CONTENT_FOLDER, selected.getPath(), LoginActivity.UPLOAD);
                         else
-                            sendIntent(LoginActivity.CONTENT_FILE, selected.getPath());
+                            sendIntent(LoginActivity.CONTENT_FILE, selected.getPath(), LoginActivity.UPLOAD);
                     }
                 })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -205,8 +206,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Start another activity
-    private void sendIntent (int contentType, String content) {
-        startActivity(LoginActivity.getIntent(this, contentType, content));
+    private void sendIntent (int contentType, String content, boolean action) {
+        startActivity(LoginActivity.getIntent(this, contentType, content, action));
     }
 
     // Custom File class to use into listview adapter
@@ -221,9 +222,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //TEST DOWNLOAD
-    /*public void startDownloadDefaultFile(){
-        sendIntent();
-    }*/
+    public void startDownloadDefaultFile(){
+        sendIntent(LoginActivity.CONTENT_FOLDER, initialPath, LoginActivity.DOWNLOAD);
+    }
 }
 
 
