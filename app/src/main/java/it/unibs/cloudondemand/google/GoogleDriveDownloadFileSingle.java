@@ -1,6 +1,8 @@
 package it.unibs.cloudondemand.google;
 
 import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -25,6 +27,13 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
 
     @Override
     public void onFileDownloaded(File file) {
+        if(file != null) {
+            Toast.makeText(this, "DOWNLOAD RIUSCITO", Toast.LENGTH_SHORT).show();//TODO usare string res
+        }
+        else {
+            Log.e(TAG, "File not created.");
+            Toast.makeText(this, "DOWNLOAD FALLITO", Toast.LENGTH_SHORT).show();//TODO usare string res
+        }
         disconnect();
     }
 }

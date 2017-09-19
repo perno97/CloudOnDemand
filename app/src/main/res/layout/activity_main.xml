@@ -37,6 +37,13 @@
         app:layout_constraintLeft_toRightOf="@+id/editText"
         app:layout_constraintRight_toRightOf="parent" />
 
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="startDownloadDefaultFile()"
+        android:text="@string/text_download_button" />
+
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"

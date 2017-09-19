@@ -53,7 +53,7 @@ public class GoogleDriveUtil {
      * Check if an upload service is running.
      * @return True if an upload service is running, False otherwise.
      */
-    public static boolean isUploadServiceRunning() {
+    public static boolean isUploadServiceRunning() {//TODO funziona anche per download?
         return GoogleDriveConnection.isRunning;
     }
 

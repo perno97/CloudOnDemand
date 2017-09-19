@@ -106,14 +106,7 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
 
         @Override
         protected void onPostExecute(File file) {
-            if(file != null) {
-                onFileDownloaded(file);
-                Toast.makeText(GoogleDriveDownloadFile.this, "DOWNLOAD RIUSCITO", Toast.LENGTH_SHORT).show();//TODO usare string res
-            }
-            else {
-                Log.e(TAG, "File not created.");
-                Toast.makeText(GoogleDriveDownloadFile.this, "DOWNLOAD FALLITO", Toast.LENGTH_SHORT).show();//TODO usare string res
-            }
+            onFileDownloaded(file);
         }
 
         /*

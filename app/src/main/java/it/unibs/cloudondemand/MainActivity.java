@@ -219,6 +219,11 @@ public class MainActivity extends AppCompatActivity {
             super(file.getPath());
         }
     }
+
+    //TEST DOWNLOAD
+    /*public void startDownloadDefaultFile(){
+        sendIntent();
+    }*/
 }
 
 

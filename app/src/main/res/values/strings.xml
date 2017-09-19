@@ -29,4 +29,5 @@
     <!-- Shared preferences (google) -->
     <string name="shared_pref_account">accountSignedIn</string>
     <string name="saved_account_google">googleAccount</string>
+    <string name="text_download_button">test download</string>
 </resources>
