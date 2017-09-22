@@ -6,13 +6,14 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;
 
-
+//Represents the account details request
 public class UserAccountTask extends AsyncTask<Void, Void, FullAccount>
 {
     private DbxClientV2 dbxClient;
-    private TaskDelegate  delegate;
+    private TaskDelegate delegate;
     private Exception error;
 
+    //It returns the accounts info back to the activity in which the task was executed
     public interface TaskDelegate {
         void onAccountReceived(FullAccount account);
         void onError(Exception error);

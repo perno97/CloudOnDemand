@@ -51,12 +51,12 @@
             android:name=".utils.PermissionRequest"
             android:theme="@style/Theme.TransparentTheme" />
         <activity
-            android:name=".dropbox.AuthActivity"
+            android:name="com.dropbox.core.android.AuthActivity"
             android:configChanges="orientation|keyboard"
             android:launchMode="singleTask">
             <intent-filter>
-                //Insert your app key after "db- ..."
-                <data android:scheme="db-APP_KEY" />
+
+                <data android:scheme="db-k4r9giw251cnll0" />
 
                 <action android:name="android.intent.action.VIEW" />
 
@@ -64,8 +64,17 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".dropbox.DropboxMainActivity" />
-        <activity android:name=".dropbox.DropboxLoginActivity"></activity>
+        <activity android:name="it.unibs.cloudondemand.dropbox.DropboxMainActivity">
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="it.unibs.cloudondemand.dropbox.DropboxLoginActivity">
+        </activity>
     </application>
 
 </manifest>
