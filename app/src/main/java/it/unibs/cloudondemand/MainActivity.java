@@ -32,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
     private FileAdaptable currentPath = new FileAdaptable(initialPath);
     private final ArrayList<FileListable> currentFileList = new ArrayList<>();
 
+    private static final int IMAGE_REQUEST_CODE = 101;
+    private String ACCESS_TOKEN;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
