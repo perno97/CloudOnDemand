@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 
 public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
     private static final String TAG = "GoogleDriveDwSingleFile";

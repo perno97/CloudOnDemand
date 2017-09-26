@@ -61,9 +61,9 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
         }
     };
 
-    // Called by subclasses when want to upload a file
+    // Called by subclasses when want to download a file
     public void downloadFile (File destinationPath, String driveIdFileToDownload) {
-        this.destinationPath = destinationPath;//TODO controllare che sia una cartella
+        this.destinationPath = destinationPath;
         this.driveFile = DriveId.decodeFromString(driveIdFileToDownload).asDriveFile();//TODO controllare esista
 
         // TODO Delete file if already exists
@@ -78,30 +78,34 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
         @Override
         protected File doInBackground(Void... voids) {
             String contents = null;
-            DriveApi.DriveContentsResult driveContentsResult =
-                    driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).await();
-            if (!driveContentsResult.getStatus().isSuccess()) {
-                 return null;
-            }
-            DriveContents driveContents = driveContentsResult.getDriveContents();
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(driveContents.getInputStream()));
-            StringBuilder builder = new StringBuilder();
-            String line;
-            try {
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line);
+            if(destinationPath.isDirectory())
+                return destinationPath;
+            else {
+                DriveApi.DriveContentsResult driveContentsResult =
+                        driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).await();
+                if (!driveContentsResult.getStatus().isSuccess()) {
+                    return null;
                 }
-                contents = builder.toString();
-            } catch (IOException e) {
-                Log.e(TAG, "IOException while reading from the stream", e);
+                DriveContents driveContents = driveContentsResult.getDriveContents();
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(driveContents.getInputStream()));
+                StringBuilder builder = new StringBuilder();
+                String line;
+                try {
+                    while ((line = reader.readLine()) != null) {
+                        builder.append(line);
+                    }
+                    contents = builder.toString();
+                } catch (IOException e) {
+                    Log.e(TAG, "IOException while reading from the stream", e);
+                }
+
+                if (contents == null)
+                    return null;
+
+                driveContents.discard(getGoogleApiClient());
+                return new File(destinationPath, contents);
             }
-
-            if(contents == null)
-                return null;
-
-            driveContents.discard(getGoogleApiClient());
-            return new File(destinationPath, contents);
         }
 
         @Override

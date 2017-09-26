@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.DriveFile;
+import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 
 import java.io.File;
@@ -143,6 +144,65 @@ public class GoogleDriveUtil {
         database.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
 
         mDbHelper.close();
+    }
+
+    public static void addFolderToDatabase(Context context, String driveId, String folderPath){
+        FileListDbHelper mDbHelper = new FileListDbHelper(context);
+
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(FileListContract.FolderList.COLUMN_DRIVEID, driveId);
+        values.put(FileListContract.FolderList.COLUMN_FOLDERPATH, folderPath);
+
+        // Insert the new row, returning the primary key value of the new row
+        db.insert(FileListContract.FolderList.TABLE_NAME, null, values);
+
+        mDbHelper.close();
+    }
+
+    /**
+     * Delete corresponding drive folder of folder path.
+     * @param folder Offline foler to get path.
+     */
+    public static void deleteFolderIfExists(Context context, File folder, GoogleApiClient mGoogleApiClient) {
+        FileListDbHelper mDbHelper = new FileListDbHelper(context);
+        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+
+        String[] projection = {FileListContract.FolderList.COLUMN_DRIVEID};
+
+        String selection = FileListContract.FolderList.COLUMN_FOLDERPATH + " = ?";
+        String[] selectionArgs = {folder.getPath()};
+
+        Cursor cursor = database.query(
+                FileListContract.FolderList.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if(cursor == null)
+            return;
+
+        if(cursor.getCount() == 0)
+            return;
+
+        cursor.moveToNext();
+        String driveId = cursor.getString(cursor.getColumnIndex(FileListContract.FolderList.COLUMN_DRIVEID));
+        cursor.close();
+
+        // Delete folder from drive
+        DriveFolder toDelete = DriveId.decodeFromString(driveId).asDriveFolder();
+        toDelete.delete(mGoogleApiClient);
+
+        // Delete from db the file deleted on drive
+        selection = FileListContract.FileList.COLUMN_DRIVEID + " = ?";
+        selectionArgs[0] = driveId;
+        database.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
     }
 
     public static void databaseToString(Context context){

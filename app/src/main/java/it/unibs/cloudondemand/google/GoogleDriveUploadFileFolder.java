@@ -62,7 +62,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
      */
     private void createDriveFolder (DriveFolder parentFolder, File folder) {
         // Delete folder on drive if already exists
-        deleteFolderIfExists(folder);
+        GoogleDriveUtil.deleteFolderIfExists(getApplicationContext(), folder, getGoogleApiClient());
 
         // Folder doesn't exist on Drive, so create it
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
@@ -95,7 +95,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             Log.i(TAG, "Folder on drive created. " +  createdDriveFolder.getDriveId());
 
             // Save folder into database
-            addFolderToDatabase(createdDriveFolder.getDriveId().encodeToString(), folderToCreate.getPath());
+            GoogleDriveUtil.addFolderToDatabase(getApplicationContext(), createdDriveFolder.getDriveId().encodeToString(), folderToCreate.getPath());
 
             // Retrieve created folder and save it in data structure
             foldersTree.getCurrentFolderThis().setDriveFolder(createdDriveFolder);
@@ -164,62 +164,5 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
                         .setContentText("Finito");
 
         return mBuilder.build();
-    }
-
-    /**
-     * Delete corresponding drive folder of folder path.
-     * @param folder Offline foler to get path.
-     */
-    private void deleteFolderIfExists(File folder) {
-        String[] projection = {FolderList.COLUMN_DRIVEID};
-
-        String selection = FolderList.COLUMN_FOLDERPATH + " = ?";
-        String[] selectionArgs = {folder.getPath()};
-
-        Cursor cursor = getDatabase().query(
-                FolderList.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
-
-        if(cursor == null)
-            return;
-
-        if(cursor.getCount() == 0)
-            return;
-
-        cursor.moveToNext();
-        String driveId = cursor.getString(cursor.getColumnIndex(FolderList.COLUMN_DRIVEID));
-        cursor.close();
-
-        // Delete folder from drive
-        Log.i(TAG, "Deleting folder with drive ID (if exists) : " + driveId);   //TODO CARTELLE NON VENGONO ELIMINATE
-        DriveFolder toDelete = DriveId.decodeFromString(driveId).asDriveFolder();
-        toDelete.delete(getGoogleApiClient());
-
-        // Delete from db the file deleted on drive
-        selection = FileListContract.FileList.COLUMN_DRIVEID + " = ?";
-        selectionArgs[0] = driveId;
-        getDatabase().delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
-    }
-
-    private void addFolderToDatabase(String driveId, String folderPath){
-        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());
-
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(FolderList.COLUMN_DRIVEID, driveId);
-        values.put(FolderList.COLUMN_FOLDERPATH, folderPath);
-
-        // Insert the new row, returning the primary key value of the new row
-        db.insert(FolderList.TABLE_NAME, null, values);
-
-        mDbHelper.close();
     }
 }
