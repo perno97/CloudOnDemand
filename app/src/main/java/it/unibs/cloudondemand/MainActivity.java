@@ -189,9 +189,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if(selected.isDirectory())
-                            sendIntent(LoginActivity.CONTENT_FOLDER, selected.getPath(), LoginActivity.UPLOAD);
+                            sendIntent(LoginActivity.CONTENT_FOLDER, selected.getPath());
                         else
-                            sendIntent(LoginActivity.CONTENT_FILE, selected.getPath(), LoginActivity.UPLOAD);
+                            sendIntent(LoginActivity.CONTENT_FILE, selected.getPath());
                     }
                 })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -206,8 +206,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Start another activity
-    private void sendIntent (int contentType, String content, boolean action) {
-        startActivity(LoginActivity.getIntent(this, contentType, content, action));
+    private void sendIntent (int contentType, String content) {
+        startActivity(LoginActivity.getIntent(this, contentType, content));
     }
 
     // Custom File class to use into listview adapter
@@ -219,11 +219,6 @@ public class MainActivity extends AppCompatActivity {
         private FileAdaptable(File file) {
             super(file.getPath());
         }
-    }
-
-    //TEST DOWNLOAD
-    public void startDownloadDefaultFile(){
-        sendIntent(LoginActivity.CONTENT_FOLDER, initialPath, LoginActivity.DOWNLOAD);
     }
 }
 

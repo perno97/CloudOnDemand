@@ -2,6 +2,7 @@ package it.unibs.cloudondemand.google;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -40,15 +41,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
     private UploadFileAsyncTask uploadFileAsyncTask;
 
-    // Database that contains files and folders already uploaded
-    private SQLiteDatabase database;
-    private FileListDbHelper mDbHelper;
-
     @Override
     public void onConnected() {
-        // Initialize attributes
-        mDbHelper = new FileListDbHelper(getApplicationContext());
-        database = mDbHelper.getReadableDatabase();
 
         // Check if storage is readable and start upload
         if (Utils.isExternalStorageReadable()) {
@@ -87,7 +81,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         this.driveFolder = folder;
 
         // Delete file on drive if already exists
-        deleteFileIfExists(fileToUpload);
+        GoogleDriveUtil.deleteFileIfExists(getApplicationContext(),fileToUpload, getGoogleApiClient());
 
         // Start to upload
         uploadFileAsyncTask = new UploadFileAsyncTask();
@@ -173,7 +167,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
             } else {
                 Log.i(TAG, "File on drive created. " + driveFileResult.getDriveFile().getDriveId());
 
-                addFileToDatabase(driveFileResult.getDriveFile().getDriveId().encodeToString(), fileToUpload.getPath());
+                GoogleDriveUtil.addFileToDatabase(getApplicationContext(), driveFileResult.getDriveFile().getDriveId().encodeToString(), fileToUpload.getPath());
                 onFileUploaded(driveFileResult.getDriveFile());
             }
         }
@@ -190,8 +184,6 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         if(uploadFileAsyncTask.getStatus() == AsyncTask.Status.RUNNING)
             uploadFileAsyncTask.cancel(true);
 
-        // Close connection to DB
-        mDbHelper.close();
         super.onDestroy();
     }
 
@@ -200,61 +192,4 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
     // Called when a file has been uploaded. driveFile = null when file on drive wasn't created.
     public abstract void onFileUploaded (DriveFile driveFile);
-
-    private void deleteFileIfExists(File file) {
-        String[] projection = {FileList.COLUMN_DRIVEID};
-
-        String selection = FileList.COLUMN_FILEPATH + " = ?";
-        String[] selectionArgs = {file.getPath()};
-
-        Cursor cursor = database.query(
-                FileList.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
-
-        if(cursor == null)
-            return;
-
-        if(cursor.getCount() == 0)
-            return;
-
-        cursor.moveToNext();
-        String driveId = cursor.getString(cursor.getColumnIndex(FileList.COLUMN_DRIVEID));
-
-        // Delete file from drive
-        Log.i(TAG, "Deleting file with drive ID (if exists) : " + driveId);
-        DriveFile toDelete = DriveId.decodeFromString(driveId).asDriveFile();
-        toDelete.delete(getGoogleApiClient());
-        cursor.close();
-
-        // Delete from db the file deleted on drive
-        selection = FileList.COLUMN_DRIVEID + " = ?";
-        selectionArgs[0] = driveId;
-        database.delete(FileList.TABLE_NAME, selection, selectionArgs);
-    }
-
-    private void addFileToDatabase(String driveId, String filePath){
-        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());
-
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(FileList.COLUMN_DRIVEID, driveId);
-        values.put(FileList.COLUMN_FILEPATH, filePath);
-
-        // Insert the new row, returning the primary key value of the new row
-        db.insert(FileList.TABLE_NAME, null, values);
-
-        mDbHelper.close();
-    }
-
-    public SQLiteDatabase getDatabase() {
-        return database;
-    }
 }

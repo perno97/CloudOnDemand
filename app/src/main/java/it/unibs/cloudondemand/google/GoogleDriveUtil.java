@@ -1,11 +1,23 @@
 package it.unibs.cloudondemand.google;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.DriveFile;
+import com.google.android.gms.drive.DriveId;
+
+import java.io.File;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.databaseManager.FileListContract;
+import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 
 public class GoogleDriveUtil {
 
@@ -74,6 +86,70 @@ public class GoogleDriveUtil {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(context.getString(R.string.saved_account_google), accountName);
         editor.apply();
+    }
+
+    public static void addFileToDatabase(Context context, String driveId, String filePath){
+        FileListDbHelper mDbHelper = new FileListDbHelper(context);
+
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(FileListContract.FileList.COLUMN_DRIVEID, driveId);
+        values.put(FileListContract.FileList.COLUMN_FILEPATH, filePath);
+
+        // Insert the new row, returning the primary key value of the new row
+        db.insert(FileListContract.FileList.TABLE_NAME, null, values);
+
+        mDbHelper.close();
+    }
+
+    public static void deleteFileIfExists(Context context, File file, GoogleApiClient mGoogleApiClient) {
+        FileListDbHelper mDbHelper = new FileListDbHelper(context);
+        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+
+        String[] projection = {FileListContract.FileList.COLUMN_DRIVEID};
+
+        String selection = FileListContract.FileList.COLUMN_FILEPATH + " = ?";
+        String[] selectionArgs = {file.getPath()};
+
+        Cursor cursor = database.query(
+                FileListContract.FileList.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if(cursor == null)
+            return;
+
+        if(cursor.getCount() == 0)
+            return;
+
+        cursor.moveToNext();
+        String driveId = cursor.getString(cursor.getColumnIndex(FileListContract.FileList.COLUMN_DRIVEID));
+
+        // Delete file from drive
+        DriveFile toDelete = DriveId.decodeFromString(driveId).asDriveFile();
+        toDelete.delete(mGoogleApiClient);
+        cursor.close();
+
+        // Delete from db the file deleted on drive
+        selection = FileListContract.FileList.COLUMN_DRIVEID + " = ?";
+        selectionArgs[0] = driveId;
+        database.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
+
+        mDbHelper.close();
+    }
+
+    public static void databaseToString(Context context){
+        FileListDbHelper mDbHelper = new FileListDbHelper(context);
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
     }
 
 

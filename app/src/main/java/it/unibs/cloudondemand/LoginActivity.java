@@ -18,8 +18,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public static final int CONTENT_STRING = 0;
     public static final int CONTENT_FILE = 1;
     public static final int CONTENT_FOLDER = 2;
-    public static final boolean UPLOAD = true;
-    public static final boolean DOWNLOAD = false;
 
     public static final String CONTENT_EXTRA = "content";
 
@@ -47,10 +45,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         handleSignedInButtonGoogle();
     }
 
-    public static Intent getIntent (Context context, int contentType, String content, boolean action) {
+    public static Intent getIntent (Context context, int contentType, String content) {
         Intent intent = new Intent(context, LoginActivity.class);
         intent.putExtra(CONTENT_TYPE_EXTRA, contentType);
-        intent.putExtra(CONTENT_EXTRA, content);//TODO aggiungere cartella destinazione negli extra
+        intent.putExtra(CONTENT_EXTRA, content);
         return intent;
     }
 
