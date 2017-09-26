@@ -26,11 +26,9 @@
                 android:value=".MainActivity" />
         </activity>
 
-
         <service android:name=".google.GoogleDriveUploadString" />
         <service android:name=".google.GoogleDriveUploadFileSingle" />
         <service android:name=".google.GoogleDriveUploadFileFolder" />
-
         <service android:name=".google.StopServices" />
 
         <activity
@@ -39,16 +37,18 @@
         <activity
             android:name=".google.GoogleSignIn"
             android:theme="@style/Theme.TransparentTheme" />
-
-
         <activity android:name=".IntentActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="file" android:mimeType="*/*" />
+
+                <data
+                    android:mimeType="*/*"
+                    android:scheme="file" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".google.GoogleDriveDownloadActivity"></activity>
     </application>
 
 </manifest>
