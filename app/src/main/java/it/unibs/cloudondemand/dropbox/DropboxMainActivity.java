@@ -4,9 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -41,13 +42,30 @@ public class DropboxMainActivity extends AppCompatActivity {
         ACCESS_TOKEN = retrieveAccessToken();
         getUserAccount();
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
                 upload();
             }
-        });*/
+        });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode != RESULT_OK || data==null) return;
+        //Check the request
+        if(requestCode==IMAGE_REQUEST_CODE){
+            if(resultCode==RESULT_OK) {
+                File file =new File(URI_to_Path.getPath(getApplication(),data.getData()));
+                if(file!=null) {
+                    new DropboxUploadFile(DropboxClient.getClient(ACCESS_TOKEN), file, getApplicationContext()).execute();
+                }
+            }
+        }
     }
 
     protected void getUserAccount() {
@@ -69,19 +87,6 @@ public class DropboxMainActivity extends AppCompatActivity {
         }).execute();
     }
 
-    private void updateUI(FullAccount account) {
-        ImageView profile = (ImageView) findViewById(R.id.imageView);
-        TextView name = (TextView) findViewById(R.id.name_textView);
-        TextView email = (TextView) findViewById(R.id.email_textView);
-
-        name.setText(account.getName().getDisplayName());
-        email.setText(account.getEmail());
-        Picasso.with(this)
-                .load(account.getProfilePhotoUrl())
-                .resize(200, 200)
-                .into(profile);
-    }
-
     private void upload() {
         if(ACCESS_TOKEN==null) return;
         Intent intent=new Intent();
@@ -91,22 +96,6 @@ public class DropboxMainActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Upload to Dropbox"), IMAGE_REQUEST_CODE);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(resultCode != RESULT_OK || data==null) return;
-        //Check the request
-        if(requestCode==IMAGE_REQUEST_CODE){
-            if(resultCode==RESULT_OK) {
-                File file =new File(URI_to_Path.getPath(getApplication(),data.getData()));
-                if(file!=null) {
-                    new DropboxUploadFile(DropboxClient.getClient(ACCESS_TOKEN), file, getApplicationContext()).execute();
-                }
-            }
-        }
-    }
     private boolean tokenExists() {
         SharedPreferences prefs = getSharedPreferences("it.unibs.cloudondemand", Context.MODE_PRIVATE);
         String accessToken = prefs.getString("access-token", null);
@@ -125,5 +114,18 @@ public class DropboxMainActivity extends AppCompatActivity {
             Log.d("AccessToken Status", "Token exists");
             return accessToken;
         }
+    }
+
+    private void updateUI(FullAccount account) {
+        ImageView profile = (ImageView) findViewById(R.id.imageView);
+        TextView name = (TextView) findViewById(R.id.name_textView);
+        TextView email = (TextView) findViewById(R.id.email_textView);
+
+        name.setText(account.getName().getDisplayName());
+        email.setText(account.getEmail());
+        Picasso.with(this)
+                .load(account.getProfilePhotoUrl())
+                .resize(200, 200)
+                .into(profile);
     }
 }
