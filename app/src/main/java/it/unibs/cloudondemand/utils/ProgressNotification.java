@@ -16,17 +16,30 @@ public class ProgressNotification {
     private Context context;
     private NotificationCompat.Builder mNotificationBuilder;
 
+    /**
+     * Create a new progress notification with stop intent.
+     * @param context A context.
+     * @param contentText Content of notifcation.
+     * @param indeterminateProgress True if there isn't a progress value.
+     * @param stopIntent Intent to launch when click the stop button.
+     */
     public ProgressNotification(Context context, String contentText, boolean indeterminateProgress, Intent stopIntent) {
         this.context = context;
         createNewNotification(contentText, indeterminateProgress, stopIntent);
     }
 
-    // Without stop action
+    /**
+     * Create a new progress notification without stop intent.
+     * @param context A context.
+     * @param contentText Content of notifcation.
+     * @param indeterminateProgress True if there isn't a progress value.
+     */
     public ProgressNotification(Context context, String contentText, boolean indeterminateProgress) {
         this.context = context;
         createNewNotification(contentText, indeterminateProgress, null);
     }
 
+    // Initialize first time the notification builder
     private NotificationCompat.Builder createNewNotification(String contentText, boolean indeterminateProgress, Intent stopIntent) {
         mNotificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(NOTIFICATION_ICON)
@@ -51,6 +64,12 @@ public class ProgressNotification {
         return mNotificationBuilder;
     }
 
+    /**
+     * Edit already created notification with new text/progress value.
+     * @param progress New progress value for bar.
+     * @param contentText New content text of notification.
+     * @return New created notification.
+     */
     public Notification editNotification (int progress, String contentText) {
         if(contentText == null)
             mNotificationBuilder.setProgress(100, progress, false);
@@ -61,12 +80,21 @@ public class ProgressNotification {
         return mNotificationBuilder.build();
     }
 
+    /**
+     * Edit already created notification with new progress value.
+     * @param progress New progress value for bar.
+     * @return New created notification.
+     */
     public Notification editNotification (int progress) {
         mNotificationBuilder.setProgress(100, progress, false);
 
         return mNotificationBuilder.build();
     }
 
+    /**
+     * Getter current notification.
+     * @return Current notification.
+     */
     public Notification getNotification() {
         return mNotificationBuilder.build();
     }

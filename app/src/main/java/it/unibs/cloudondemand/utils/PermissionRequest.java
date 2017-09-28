@@ -10,11 +10,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 public class PermissionRequest extends AppCompatActivity {
-    public static final String PERMISSION_EXTRA = "permission";
+    // Values for the intent that launch  this activity
+    private static final String PERMISSION_EXTRA = "permission";
     public static final int PERMISSION_GRANTED = PackageManager.PERMISSION_GRANTED;
     public static final int PERMISSION_DENIED = PackageManager.PERMISSION_DENIED;
 
+    // Request code to retrieve system response.
     private static final int RC_PERMISSION = 1;
+    // Callback to send back data to calling activity.
     private static PermissionRequestCallback permissionCallback;
     
     @Override
@@ -28,6 +31,7 @@ public class PermissionRequest extends AppCompatActivity {
         verifyPermission(permission);
     }
 
+    // Request for permission if isn't already granted
     private void verifyPermission(String permission) {
         // Check if permission is already granted
         if (ContextCompat.checkSelfPermission(this,
@@ -39,7 +43,7 @@ public class PermissionRequest extends AppCompatActivity {
                     RC_PERMISSION);
         }
         else {
-            // Permission is already granted
+            // Permission is already granted, return that
             permissionCallback.onPermissionResult(PERMISSION_GRANTED);
             finish();
         }
@@ -51,7 +55,7 @@ public class PermissionRequest extends AppCompatActivity {
             case RC_PERMISSION :
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0) {
-                    //Return permission
+                    // Return permission response
                     permissionCallback.onPermissionResult(grantResults[0]);
                 }
                 else {
@@ -62,15 +66,28 @@ public class PermissionRequest extends AppCompatActivity {
         finish();
     }
 
-    // Constuctor of intent
-    public static Intent getRequestPermissionIntent(Context context, String permission, PermissionRequestCallback permissionResultCallback) {
+    /**
+     * Util method to retrieve intent to launch to request for a permission.
+     * @param context Context of activity that launch the intent.
+     * @param permission Permission requested.
+     * @param permissionResultCallback Callback launched when the request is done.
+     * @return Intent to launch with startActivity(intent).
+     */
+    public static Intent getIntent(Context context, String permission, PermissionRequestCallback permissionResultCallback) {
         permissionCallback = permissionResultCallback;
         Intent intent = new Intent(context, PermissionRequest.class);
         intent.putExtra(PERMISSION_EXTRA, permission);
         return intent;
     }
 
+    /**
+     * Callback interface to handle permission request response.
+     */
     public interface PermissionRequestCallback {
+        /**
+         * Called when request is done.
+         * @param isGranted PermissionRequest.PERMISSION_GRANTED if permission is granted, PermissionRequest.PERMISSION_DENIED otherwise.
+         */
         void onPermissionResult(int isGranted);
     }
 }

@@ -2,6 +2,10 @@ package it.unibs.cloudondemand.utils;
 
 import java.io.File;
 
+/**
+ * File tree of a folder.
+ * @param <T> Custom object for specific service.
+ */
 public class FileTree <T extends GenericFileTree<T>> {
     // Parent folder of thisFolder
     private FileTree<T> parentFolder;
@@ -77,10 +81,10 @@ public class FileTree <T extends GenericFileTree<T>> {
     }
 
     /**
-     * Invoke this on main folder node object.
+     * WARNING : Invoke this on main folder node object.
      * @return Working folder node of tree.
      */
-    public T getCurrentFolderThis() {
+    public T getCurrentThisFolder() {
         FileTree<T> currentFileTree = getCurrentFolder();
         return currentFileTree.thisFolder;
     }
