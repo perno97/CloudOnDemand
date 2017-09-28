@@ -202,8 +202,11 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     public abstract void onFileUploaded (DriveFile driveFile);
 
     private void deleteFileIfExists(File file) {
-        String[] projection = {FileList.COLUMN_DRIVEID};
+        // Define a projection that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projection = {FileList.COLUMN_DRIVEID, FileList.COLUMN_FILEPATH};
 
+        // Filter results WHERE "title" = 'My Title'
         String selection = FileList.COLUMN_FILEPATH + " = ?";
         String[] selectionArgs = {file.getPath()};
 
