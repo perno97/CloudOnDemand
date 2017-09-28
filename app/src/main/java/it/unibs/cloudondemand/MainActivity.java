@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(LoginActivity.getIntent(this, contentType, content));
     }
 
-    public void startDownloadActivity(){
+    public void startDownloadActivity(View view){
         Intent intent = new Intent(this, GoogleDriveDownloadActivity.class);
         startActivity(intent);
     }

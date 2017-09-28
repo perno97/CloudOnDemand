@@ -23,7 +23,10 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_google_drive_download);
 
         HashMap<String, String> itemsList = GoogleDriveUtil.getDatabase(getApplicationContext());
-        showList(itemsList);
+        if(itemsList == null)
+            Toast.makeText(this, "Nessun file caricato", Toast.LENGTH_SHORT).show();
+        else
+            showList(itemsList);
     }
 
     private void showList(HashMap<String,String> list){
