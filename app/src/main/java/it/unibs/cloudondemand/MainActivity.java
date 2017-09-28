@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import it.unibs.cloudondemand.google.GoogleDriveDownloadActivity;
 import it.unibs.cloudondemand.utils.FileListable;
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.RowAdapter;
@@ -207,6 +208,11 @@ public class MainActivity extends AppCompatActivity {
     // Start another activity
     private void sendIntent (int contentType, String content) {
         startActivity(LoginActivity.getIntent(this, contentType, content));
+    }
+
+    public void startDownloadActivity(){
+        Intent intent = new Intent(this, GoogleDriveDownloadActivity.class);
+        startActivity(intent);
     }
 
     // Custom File class to use into listview adapter
