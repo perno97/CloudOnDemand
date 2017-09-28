@@ -17,6 +17,7 @@ import it.unibs.cloudondemand.utils.ProgressNotification;
 
 public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
     private static final String TAG = "GoogleDriveUpSingleFile";
+    private static final int ROOT_ID = 0;
 
     private ProgressNotification mNotification;
 
@@ -32,7 +33,7 @@ public class GoogleDriveUploadFileSingle extends GoogleDriveUploadFile {
         // Show initial notification
         showNotification(mNotification.getNotification());
 
-        uploadFile(file, folder);
+        uploadFile(file, folder, ROOT_ID);
     }
 
 

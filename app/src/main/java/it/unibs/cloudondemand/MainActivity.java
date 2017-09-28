@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Called when user click send button
     public void sendMessage(View view) {
-        Intent intent = new Intent(this, LoginActivity.class);
         EditText editText = (EditText) findViewById(R.id.editText);
         String message = editText.getText().toString();
         if(message.isEmpty())

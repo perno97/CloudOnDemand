@@ -13,8 +13,13 @@ import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveId;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import it.unibs.cloudondemand.R;
@@ -28,14 +33,14 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
     // Drive folder in witch file need to be uploaded
     private DriveFile driveFile;
 
-    private static final String TAG = "GoogleDriveUpFile";
+    private static final String TAG = "GoogleDriveDownFile";
 
     @Override
     public void onConnected() {
 
-        // Check if storage is readable and start upload
+        // Check if storage is readable and start download
         if (Utils.isExternalStorageWritable()) {
-            // Verify permission and after call startUploading when permission is granted
+            // Verify permission and after call startDownloading when permission is granted
             Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, permissionResultCallback);
             startActivity(intent);
         }
@@ -64,7 +69,7 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
     // Called by subclasses when want to download a file
     public void downloadFile (File destinationPath, String driveIdFileToDownload) {
         this.destinationPath = destinationPath;
-        this.driveFile = DriveId.decodeFromString(driveIdFileToDownload).asDriveFile();//TODO controllare esista
+        this.driveFile = DriveId.decodeFromString(driveIdFileToDownload).asDriveFile();
 
         // TODO Delete file if already exists
 
@@ -73,64 +78,58 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
         downloadFileAsyncTask.execute();
     }
 
-    private class DownloadFileAsyncTask extends AsyncTask<Void, Void, File>{
+    private class DownloadFileAsyncTask extends AsyncTask<Void, Void, Void>{
 
         @Override
-        protected File doInBackground(Void... voids) {
-            String contents = null;
+        protected Void doInBackground(Void... voids) {
             if(destinationPath.isDirectory())
-                return destinationPath;
+                return null;
             else {
                 DriveApi.DriveContentsResult driveContentsResult =
                         driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).await();
                 if (!driveContentsResult.getStatus().isSuccess()) {
                     return null;
                 }
+
+                FileOutputStream outputStream = null;
                 DriveContents driveContents = driveContentsResult.getDriveContents();
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(driveContents.getInputStream()));
-                StringBuilder builder = new StringBuilder();
-                String line;
+
                 try {
-                    while ((line = reader.readLine()) != null) {
-                        builder.append(line);
+                    InputStream reader = driveContents.getInputStream();
+                    outputStream = new FileOutputStream(destinationPath);
+
+                    byte[] buffer = new byte[8];
+                    // Write on file stream with buffer of 8 bytes
+                    while (reader.read(buffer) != -1) {
+                        outputStream.write(buffer);
                     }
-                    contents = builder.toString();
-                } catch (IOException e) {
-                    Log.e(TAG, "IOException while reading from the stream", e);
+                } catch (FileNotFoundException e){
+                    Log.e(TAG, "File not found." + e.toString(), e.getCause());
+                } catch (IOException e){
+                    Log.e(TAG, "Exception while writing on driveConetents output stream." + e.toString(), e.getCause());
+                } finally {
+                    // Close output stream
+                    try {
+                        if (outputStream != null)
+                            outputStream.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Exception while closing streams." + e.toString(), e.getCause());
+                    }
+                    //Discard changes in drive contents and close
+                    driveContents.discard(getGoogleApiClient());
                 }
 
-                if (contents == null)
-                    return null;
-
-                driveContents.discard(getGoogleApiClient());
-                return new File(destinationPath, contents);
+                return null;
             }
         }
 
         @Override
-        protected void onPostExecute(File file) {
-            onFileDownloaded(file);
+        protected void onPostExecute(Void aVoid) {
+            onFileDownloaded();
         }
-
-        /*
-        TODO mostrare progress bar
-        private int lastValue = 0;
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            if(lastValue != values[0]) {
-                // Call abstract method
-                fileProgress(values[0]);
-                lastValue = values[0];
-            }
-        }
-        */
     }
 
-    // Called many times during the file upload.
-    //public abstract void fileProgress (int percent);
-
-    public abstract void onFileDownloaded(File file);
+    public abstract void onFileDownloaded();
 
     public abstract void startDownloading();
 

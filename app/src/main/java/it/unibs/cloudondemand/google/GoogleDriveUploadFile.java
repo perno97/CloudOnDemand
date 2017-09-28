@@ -35,8 +35,10 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
 
     // File to upload
     private File fileToUpload;
-    // Drive folder in witch file need to be uploaded
+    // Drive folder where file must be uploaded
     private DriveFolder driveFolder;
+    // File's parent identificator
+    private int parentId;
 
 
     private UploadFileAsyncTask uploadFileAsyncTask;
@@ -76,9 +78,10 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     public abstract void startUploading();
 
     // Called by subclasses when want to upload a file
-    public void uploadFile (File file, DriveFolder folder) {
+    public void uploadFile (File file, DriveFolder folder, int parentId) {
         this.fileToUpload = file;
         this.driveFolder = folder;
+        this.parentId = parentId;
 
         // Delete file on drive if already exists
         GoogleDriveUtil.deleteFileIfExists(getApplicationContext(),fileToUpload, getGoogleApiClient());
@@ -167,7 +170,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
             } else {
                 Log.i(TAG, "File on drive created. " + driveFileResult.getDriveFile().getDriveId());
 
-                GoogleDriveUtil.addFileToDatabase(getApplicationContext(), driveFileResult.getDriveFile().getDriveId().encodeToString(), fileToUpload.getPath());
+                GoogleDriveUtil.addFileToDatabase(getApplicationContext(), driveFileResult.getDriveFile().getDriveId().encodeToString(), fileToUpload.getPath(), parentId);
                 onFileUploaded(driveFileResult.getDriveFile());
             }
         }

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.ArrayMap;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -14,6 +15,8 @@ import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
@@ -89,7 +92,7 @@ public class GoogleDriveUtil {
         editor.apply();
     }
 
-    public static void addFileToDatabase(Context context, String driveId, String filePath){
+    public static void addFileToDatabase(Context context, String driveId, String filePath, int parentId){
         FileListDbHelper mDbHelper = new FileListDbHelper(context);
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -98,6 +101,7 @@ public class GoogleDriveUtil {
         ContentValues values = new ContentValues();
         values.put(FileListContract.FileList.COLUMN_DRIVEID, driveId);
         values.put(FileListContract.FileList.COLUMN_FILEPATH, filePath);
+        values.put(FileListContract.FileList.COLUMN_PARENTID, parentId);
 
         // Insert the new row, returning the primary key value of the new row
         db.insert(FileListContract.FileList.TABLE_NAME, null, values);
@@ -185,10 +189,7 @@ public class GoogleDriveUtil {
                 null
         );
 
-        if(cursor == null)
-            return;
-
-        if(cursor.getCount() == 0)
+        if(cursor == null || cursor.getCount() == 0)
             return;
 
         cursor.moveToNext();
@@ -205,11 +206,65 @@ public class GoogleDriveUtil {
         database.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
     }
 
-    public static void databaseToString(Context context){
+    public static HashMap<String, String> getDatabase(Context context){
         FileListDbHelper mDbHelper = new FileListDbHelper(context);
 
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
+        String[] projectionFile = {
+                FileListContract.FileList.COLUMN_DRIVEID,
+                FileListContract.FileList.COLUMN_FILEPATH,
+        };
+
+        Cursor cursorFiles = db.query(
+                FileListContract.FileList.TABLE_NAME,                     // The table to query
+                projectionFile,                                           // The columns to return
+                null,                                                     // The columns for the WHERE clause
+                null,                                                     // The values for the WHERE clause
+                null,                                                     // don't group the rows
+                null,                                                     // don't filter by row groups
+                null                                                      // The sort order
+        );
+
+        String[] projectionFolder = {
+                FileListContract.FolderList.COLUMN_DRIVEID,
+                FileListContract.FolderList.COLUMN_FOLDERPATH
+        };
+
+        Cursor cursorFolders = db.query(
+                FileListContract.FolderList.TABLE_NAME,
+                projectionFolder,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        if(cursorFolders == null ||
+                cursorFiles == null ||
+                cursorFiles.getCount() == 0 ||
+                cursorFolders.getCount() == 0)
+            return null;
+
+        HashMap<String,String> toReturn = new HashMap<>();
+
+        //Add folders to hashmap
+        while (cursorFolders.moveToNext()) {
+            toReturn.put(
+                    cursorFolders.getString(cursorFolders.getColumnIndex(FileListContract.FolderList.COLUMN_DRIVEID)),
+                    cursorFolders.getString(cursorFolders.getColumnIndex(FileListContract.FolderList.COLUMN_FOLDERPATH))
+            );
+        }
+
+        while (cursorFiles.moveToNext()) {
+            toReturn.put(
+                    cursorFiles.getString(cursorFiles.getColumnIndex(FileListContract.FileList.COLUMN_DRIVEID)),
+                    cursorFiles.getString(cursorFiles.getColumnIndex(FileListContract.FileList.COLUMN_FILEPATH))
+            );
+        }
+
+        return toReturn;
     }
 
 
