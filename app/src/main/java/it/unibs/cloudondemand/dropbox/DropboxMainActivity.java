@@ -39,7 +39,7 @@ public class DropboxMainActivity extends AppCompatActivity {
         if (!tokenExists()) {
             //No token
             //Back to LoginActivity
-            Intent intent = new Intent(DropboxMainActivity.this, DropboxLoginActivity.class);
+            Intent intent = new Intent(this, DropboxLoginActivity.class);
             startActivity(intent);
         }
 
@@ -101,15 +101,15 @@ public class DropboxMainActivity extends AppCompatActivity {
     }
 
     private boolean tokenExists() {
-        SharedPreferences prefs = getSharedPreferences("it.unibs.cloudondemand", Context.MODE_PRIVATE);
-        String accessToken = prefs.getString("access-token", null);
+        SharedPreferences prefs = getSharedPreferences(getString(R.string.shared_pref_dropbox_account), Context.MODE_PRIVATE);
+        String accessToken = prefs.getString(getString(R.string.dropbox_access_token), null);
         return accessToken != null;
     }
 
     private String retrieveAccessToken() {
         //check if ACCESS_TOKEN is stored on previous app launches
-        SharedPreferences prefs = getSharedPreferences("it.unibs.cloudondemand", Context.MODE_PRIVATE);
-        String accessToken = prefs.getString("access-token", null);
+        SharedPreferences prefs = getSharedPreferences(getString(R.string.shared_pref_dropbox_account), Context.MODE_PRIVATE);
+        String accessToken = prefs.getString(getString(R.string.dropbox_access_token), null);
         if (accessToken == null) {
             Log.d("AccessToken Status", "No token found");
             return null;
