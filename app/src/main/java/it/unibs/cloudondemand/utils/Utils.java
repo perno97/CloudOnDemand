@@ -1,5 +1,7 @@
 package it.unibs.cloudondemand.utils;
 
+
+import android.os.Environment;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.Environment;
@@ -16,6 +18,13 @@ public class Utils {
         return Environment.MEDIA_MOUNTED.equals(state) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
 
+    // Check if external storage is readable and writable
+    public static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    // Check extension of files
     /**
      * Check if internet connection is available.
      * @param context A context.

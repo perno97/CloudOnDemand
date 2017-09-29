@@ -5,9 +5,13 @@
     <string name="yes">Sì</string>
     <string name="no">No</string>
     <string name="unable_read_storage">Impossibile leggere la memoria esterna</string>
+    <string name="unable_write_storage">Impossibile scrivere sulla memoria esterna</string>
     <string name="unable_connect_account">Impossibile collegarsi all\'account</string>
     <string name="requested_permission_read_storage">Sono richiesti i permessi\ndi lettura della memoria</string>
+    <string name="requested_permission_write_storage">Sono richiesti i permessi\ndi scrittura in memoria</string>
+
     <string name="action_settings">Settings</string>
+  
 
     <!-- MainActivity -->
     <string name="edit_message">Inserisci una stringa</string>
@@ -15,6 +19,7 @@
     <string name="dialog_upload_title">Caricare&#8230;</string>
     <string name="dialog_upload_content">Vuoi caricare il file/cartella selezionato/a?</string>
     <string name="insert_not_empty_string">Inserisci una stringa non vuota</string>
+    <string name="text_download_button">download</string>
 
     <!-- LoginActivity -->
     <string name="button_google_another_account">Accedi con un altro account</string>

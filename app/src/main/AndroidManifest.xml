@@ -31,7 +31,6 @@
         <activity android:name=".IntentActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
@@ -39,6 +38,7 @@
                     android:scheme="file" />
             </intent-filter>
         </activity>
+
 
         <!-- Utils activities -->
         <activity
@@ -49,7 +49,12 @@
         <activity
             android:name=".google.GoogleSignIn"
             android:theme="@style/Theme.TransparentTheme" />
-
+        <activity android:name=".google.GoogleDriveDownloadActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
+      
         <service android:name=".google.GoogleDriveUploadString" />
         <service android:name=".google.GoogleDriveUploadFileSingle" />
         <service android:name=".google.GoogleDriveUploadFileFolder" />
