@@ -47,5 +47,5 @@
 
     <!--Shared preferences (dropbox) -->
     <string name="shared_pref_dropbox_account">dropboxAccountSignedIn</string>
-    <string name="dropbox_access_token"></string>
+    <string name="dropbox_access_token">token_dropbox</string>
 </resources>
