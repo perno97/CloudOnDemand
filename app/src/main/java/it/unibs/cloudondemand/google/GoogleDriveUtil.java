@@ -243,10 +243,8 @@ public class GoogleDriveUtil {
         );
 
         if((cursorFolders == null && cursorFiles == null) ||
-                (cursorFiles.getCount() == 0 && cursorFolders.getCount() == 0)) {
-            Toast.makeText(context, "DATABASE VUOTOOOOOOOOOOOOO", Toast.LENGTH_SHORT).show();
+                (cursorFiles.getCount() == 0 && cursorFolders.getCount() == 0))
             return null;
-        }
 
         HashMap<String,String> toReturn = new HashMap<>();
 
