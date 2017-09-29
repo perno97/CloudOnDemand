@@ -50,15 +50,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // Called when user click send button
+    // Called when user click a button button
     public void onClick(View view) {
-        EditText editText = (EditText) findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        if(message.isEmpty())
-            Toast.makeText(this, R.string.insert_not_empty_string, Toast.LENGTH_LONG ).show();
-        else
-        {
-            sendIntent(LoginActivity.CONTENT_STRING, message);
+        switch (view.getId()) {
+            // Send string button
+            case R.id.button :
+                EditText editText = (EditText) findViewById(R.id.editText);
+                String message = editText.getText().toString();
+                if(message.isEmpty())
+                    Toast.makeText(this, R.string.insert_not_empty_string, Toast.LENGTH_LONG ).show();
+                else
+                {
+                    sendIntent(LoginActivity.CONTENT_STRING, message);
+                }
+                break;
+            // Download button
+            case R.id.button2 :
+                Intent intent = new Intent(this, GoogleDriveDownloadActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 
@@ -208,11 +218,6 @@ public class MainActivity extends AppCompatActivity {
     // Start another activity
     private void sendIntent (int contentType, String content) {
         startActivity(LoginActivity.getIntent(this, contentType, content));
-    }
-
-    public void startDownloadActivity(View view){
-        Intent intent = new Intent(this, GoogleDriveDownloadActivity.class);
-        startActivity(intent);
     }
 
     // Custom File class to use into listview adapter

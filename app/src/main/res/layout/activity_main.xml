@@ -20,6 +20,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="16dp"
+        android:focusableInTouchMode="false"
         />
 
     <Button
@@ -45,7 +46,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:onClick="startDownloadActivity"
+        android:onClick="onClick"
         android:text="@string/text_download_button"/>
 
     <ListView
