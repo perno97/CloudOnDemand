@@ -20,7 +20,6 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import java.io.File;
 
 import it.unibs.cloudondemand.R;
-import it.unibs.cloudondemand.databaseManager.FileListContract;
 import it.unibs.cloudondemand.databaseManager.FileListContract.FolderList;
 import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.FileTree;
@@ -102,7 +101,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             addFolderToDatabase(createdDriveFolder.getDriveId().encodeToString(), folderToCreate.getPath());
 
             // Retrieve created folder and save it in data structure
-            foldersTree.getCurrentFolderThis().setDriveFolder(createdDriveFolder);
+            foldersTree.getCurrentThisFolder().setDriveFolder(createdDriveFolder);
             // Upload the next file
             uploadNext();
         }
@@ -129,7 +128,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         }
 
         // Retrieve file to upload into this drive folder
-        DriveFolder currentDriveFolder = foldersTree.getCurrentFolderThis().getDriveFolder();
+        DriveFolder currentDriveFolder = foldersTree.getCurrentThisFolder().getDriveFolder();
         File currentFile = foldersTree.nextFile();
 
         // Update notification
@@ -155,7 +154,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         }
 
         // Retrieve created file and save it in data structure
-        foldersTree.getCurrentFolderThis().setFileId(driveFile.getDriveId());
+        foldersTree.getCurrentThisFolder().setFileId(driveFile.getDriveId());
 
         uploadNext();
     }

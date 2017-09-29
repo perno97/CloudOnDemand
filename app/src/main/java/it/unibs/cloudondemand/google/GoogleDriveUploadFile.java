@@ -53,7 +53,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         // Check if storage is readable and start upload
         if (Utils.isExternalStorageReadable()) {
             // Verify permission and after call startUploading when permission is granted
-            Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
+            Intent intent = PermissionRequest.getIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
             startActivity(intent);
         }
         else {
@@ -202,8 +202,11 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     public abstract void onFileUploaded (DriveFile driveFile);
 
     private void deleteFileIfExists(File file) {
-        String[] projection = {FileList.COLUMN_DRIVEID};
+        // Define a projection that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projection = {FileList.COLUMN_DRIVEID, FileList.COLUMN_FILEPATH};
 
+        // Filter results WHERE "title" = 'My Title'
         String selection = FileList.COLUMN_FILEPATH + " = ?";
         String[] selectionArgs = {file.getPath()};
 

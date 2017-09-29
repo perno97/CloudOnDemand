@@ -16,9 +16,13 @@ import java.util.ArrayList;
 import it.unibs.cloudondemand.MainActivity;
 import it.unibs.cloudondemand.R;
 
+/**
+ * Adapter for a file explorer listview.
+ */
 public class RowAdapter extends BaseAdapter{
-
+    // Array of file/folder into current directory.
     private ArrayList<FileListable> toRead;
+    
     private Context context;
 
     public RowAdapter(Context context, ArrayList<FileListable> toRead) {
@@ -26,14 +30,13 @@ public class RowAdapter extends BaseAdapter{
         this.toRead=toRead;
     }
 
-
     @Override
     public int getCount() {
         return toRead.size();
     }
 
     @Override
-    public Object getItem(int position) {
+    public FileListable getItem(int position) {
         return toRead.get(position);
     }
 
@@ -44,8 +47,7 @@ public class RowAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null)
-        {
+        if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.row, null);
         }
 
@@ -60,54 +62,18 @@ public class RowAdapter extends BaseAdapter{
         }
 
         // Retrieve file
-        File file=(File) getItem(position);
+        FileListable file = getItem(position);
 
         // Assign icon
-        if(file.isDirectory())
+        if (file.isDirectory())
             imageView.setImageResource(R.drawable.ic_file_folder);
         else {
-            int drawableResource = getFileIcon(file.getName().substring(file.getName().lastIndexOf('.')+1, file.getName().length()));
+            int drawableResource = Utils.getFileIcon(file.getName().substring(file.getName().lastIndexOf('.') + 1, file.getName().length()));
             imageView.setImageResource(drawableResource);
         }
         // Assign text
         textView.setText(file.getName());
 
         return convertView;
-    }
-
-    private int getFileIcon (String extension) {
-        int drawableResource;
-
-        if (Utils.isImageFile(extension))
-            drawableResource = R.drawable.ic_file_image;
-
-        else if (Utils.isAudioFile(extension))
-            drawableResource = R.drawable.ic_file_music;
-
-        else if (Utils.isVideoFile(extension))
-            drawableResource = R.drawable.ic_file_video;
-
-        else if (Utils.isTextFile(extension))
-            drawableResource = R.drawable.ic_file_document;
-
-        else if (Utils.isWordFile(extension))
-            drawableResource = R.drawable.ic_file_word;
-
-        else if (Utils.isSpreadsheetFile(extension))
-            drawableResource = R.drawable.ic_file_excel;
-
-        else if (Utils.isTextFile(extension))
-            drawableResource = R.drawable.ic_file_document;
-
-        else if (Utils.isCompressedArchiveFile(extension))
-            drawableResource = R.drawable.ic_file_compressed_archive;
-
-        else if (Utils.isPdfFile(extension))
-            drawableResource = R.drawable.ic_file_pdf;
-
-        else
-            drawableResource = R.drawable.ic_file_empty;
-
-        return drawableResource;
     }
 }
