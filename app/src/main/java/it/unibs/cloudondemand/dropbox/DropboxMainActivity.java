@@ -20,6 +20,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.utils.URI_to_Path;
 
 public class DropboxMainActivity extends AppCompatActivity {
     private static final int IMAGE_REQUEST_CODE = 101;

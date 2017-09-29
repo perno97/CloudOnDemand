@@ -1,4 +1,4 @@
-package it.unibs.cloudondemand.dropbox;
+package it.unibs.cloudondemand.utils;
 
 import android.content.ContentUris;
 import android.content.Context;

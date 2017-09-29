@@ -38,6 +38,6 @@
 
     <!-- Dropbox -->
     <string name="APP_KEY">k4r9giw251cnll0</string> //app key dropbox
-    <string name="sign_in">Sign in with Dropbox</string>
     <string name="title_activity_login">Sign in with Dropbox</string>
+
 </resources>

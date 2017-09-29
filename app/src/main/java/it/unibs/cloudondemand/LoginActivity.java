@@ -2,16 +2,17 @@ package it.unibs.cloudondemand;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.SignInButton;
 
-import it.unibs.cloudondemand.google.GoogleDriveUtil;
+import it.unibs.cloudondemand.dropbox.DropboxLoginActivity;
 import it.unibs.cloudondemand.fitbit.FitbitAuth;
+import it.unibs.cloudondemand.google.GoogleDriveUtil;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -94,10 +95,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 else
                     startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));
                 break;
-            case R.id.fitbit_sing_in_button :
+            case R.id.fitbit_sign_in_button:
                 startActivity(new Intent(this, FitbitAuth.class));
                 break;
-            // ...
+            case R.id.dropbox_sign_in_button:
+                startActivity(new Intent(this, DropboxLoginActivity.class));
         }
         finish();
     }
