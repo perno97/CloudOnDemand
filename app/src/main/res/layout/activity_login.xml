@@ -34,6 +34,29 @@
         android:background="#C1C1C1" />
 
     <ImageButton
+        android:id="@+id/dropbox_sign_in_button"
+        android:onClick="onClick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/shape_button"
+        android:padding="8dp"
+        app:srcCompat="@drawable/ic_dropbox"
+        android:layout_below="@+id/line_below_google" />
+
+
+    <!-- Horizontal Line -->
+    <View
+        android:id="@+id/line_below_dropbox"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@+id/dropbox_sign_in_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#C1C1C1" />
+
+    <ImageButton
         android:id="@+id/fitbit_sing_in_button"
         android:onClick="onClick"
         android:layout_width="wrap_content"
@@ -42,7 +65,9 @@
         android:background="@drawable/shape_button"
         android:padding="8dp"
         app:srcCompat="@drawable/ic_fitbit"
-        android:layout_below="@+id/line_below_google" />
+        android:layout_below="@+id/line_below_dropbox" />
+
+
 
 
 </RelativeLayout>
