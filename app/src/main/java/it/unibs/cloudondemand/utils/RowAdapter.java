@@ -33,7 +33,7 @@ public class RowAdapter extends BaseAdapter{
     }
 
     @Override
-    public Object getItem(int position) {
+    public FileListable getItem(int position) {
         return toRead.get(position);
     }
 
@@ -60,7 +60,7 @@ public class RowAdapter extends BaseAdapter{
         }
 
         // Retrieve file
-        File file=(File) getItem(position);
+        FileListable file = getItem(position);
 
         // Assign icon
         if(file.isDirectory())
