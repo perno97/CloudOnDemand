@@ -49,7 +49,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         // Check if storage is readable and start upload
         if (Utils.isExternalStorageReadable()) {
             // Verify permission and after call startUploading when permission is granted
-            Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
+            Intent intent = PermissionRequest.getIntent(this, Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
             startActivity(intent);
         }
         else {

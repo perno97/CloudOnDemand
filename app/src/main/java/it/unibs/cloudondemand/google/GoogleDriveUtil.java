@@ -81,15 +81,15 @@ public class GoogleDriveUtil {
 
     // Read account name from shared preferences
     public static String getAccountName(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.shared_pref_account), Context.MODE_PRIVATE);
-        return sharedPreferences.getString(context.getString(R.string.saved_account_google), "");
+        SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.shared_pref_google_account), Context.MODE_PRIVATE);
+        return sharedPreferences.getString(context.getString(R.string.google_saved_account), "");
     }
 
     // Save account name to shared preferences (Already signed in for future operations)
     static void saveAccountSignedIn(Context context, String accountName) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.shared_pref_account), Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.shared_pref_google_account), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(context.getString(R.string.saved_account_google), accountName);
+        editor.putString(context.getString(R.string.google_saved_account), accountName);
         editor.apply();
     }
 

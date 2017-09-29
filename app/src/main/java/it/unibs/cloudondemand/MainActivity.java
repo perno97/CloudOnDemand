@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         // Check if external storage is readable before filling listview
         if (Utils.isExternalStorageReadable()) {
             // Verify permission and after fill file manager listview
-            Intent intent = PermissionRequest.getRequestPermissionIntent(this, android.Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
+            Intent intent = PermissionRequest.getIntent(this, android.Manifest.permission.READ_EXTERNAL_STORAGE, permissionResultCallback);
             startActivity(intent);
         }
         else {
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Called when user click send button
-    public void sendMessage(View view) {
+    public void onClick(View view) {
         EditText editText = (EditText) findViewById(R.id.editText);
         String message = editText.getText().toString();
         if(message.isEmpty())

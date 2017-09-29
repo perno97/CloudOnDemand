@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="it.unibs.cloudondemand">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -12,6 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!-- Main activities -->
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,22 +28,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-
-        <service android:name=".google.GoogleDriveUploadString" />
-        <service android:name=".google.GoogleDriveUploadFileSingle" />
-        <service android:name=".google.GoogleDriveUploadFileFolder" />
-        <service android:name=".google.StopServices" />
-
-        <activity
-            android:name=".utils.PermissionRequest"
-            android:theme="@style/Theme.TransparentTheme" />
-        <activity
-            android:name=".google.GoogleSignIn"
-            android:theme="@style/Theme.TransparentTheme" />
         <activity android:name=".IntentActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
@@ -48,11 +38,73 @@
                     android:scheme="file" />
             </intent-filter>
         </activity>
+
+
+        <!-- Utils activities -->
+        <activity
+            android:name=".utils.PermissionRequest"
+            android:theme="@style/Theme.TransparentTheme" />
+
+        <!-- Google activities and services -->
+        <activity
+            android:name=".google.GoogleSignIn"
+            android:theme="@style/Theme.TransparentTheme" />
         <activity android:name=".google.GoogleDriveDownloadActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
         </activity>
+      
+        <service android:name=".google.GoogleDriveUploadString" />
+        <service android:name=".google.GoogleDriveUploadFileSingle" />
+        <service android:name=".google.GoogleDriveUploadFileFolder" />
+        <service android:name=".google.StopServices" />
+
+        <!-- Oauth activities -->
+        <activity android:name=".fitbit.FitbitAuth" />
+        <activity android:name=".fitbit.FitbitTokenGetter">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="fitbitoauth2callback"
+                    android:scheme="it.unibs.cloudondemand" />
+            </intent-filter>
+        </activity>
+
+        <!-- Dropbox activities -->
+        <activity
+            android:name="com.dropbox.core.android.AuthActivity"
+            android:configChanges="orientation|keyboard"
+            android:launchMode="singleTask">
+            <intent-filter>
+
+                <data android:scheme="db-k4r9giw251cnll0" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".dropbox.DropboxMainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="it.unibs.cloudondemand.dropbox.DropboxLoginActivity"
+            android:label="@string/title_activity_login">
+        </activity>
+
     </application>
 
 </manifest>

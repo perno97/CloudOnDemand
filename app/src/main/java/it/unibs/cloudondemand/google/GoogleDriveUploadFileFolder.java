@@ -20,7 +20,6 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import java.io.File;
 
 import it.unibs.cloudondemand.R;
-import it.unibs.cloudondemand.databaseManager.FileListContract;
 import it.unibs.cloudondemand.databaseManager.FileListContract.FolderList;
 import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.FileTree;
@@ -35,11 +34,13 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     // Folder that is going to be created
     private File folderToCreate;
 
+    // Notification showed while uploading
     private ProgressNotification mNotification;
 
     @Override
     public void startUploading() {
         // Initialize file tree to upload
+        // Retrieve folder to upload
         File mainFolder = new File(getContent());
         foldersTree = new FileTree<>(new GoogleDriveCustomFolder(mainFolder));
 
@@ -48,7 +49,9 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
 
         // Initialize notification
+        // Retrieve intent o launch when stop clicked
         Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FOLDER);
+        // Retrieve progress notification
         mNotification = new ProgressNotification(this, "", false, stopIntent);
         // Show initial notification
         showNotification(mNotification.getNotification());
@@ -98,7 +101,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             GoogleDriveUtil.addFolderToDatabase(getApplicationContext(), createdDriveFolder.getDriveId().encodeToString(), folderToCreate.getPath());
 
             // Retrieve created folder and save it in data structure
-            foldersTree.getCurrentFolderThis().setDriveFolder(createdDriveFolder);
+            foldersTree.getCurrentThisFolder().setDriveFolder(createdDriveFolder);
             // Upload the next file
             uploadNext();
         }
@@ -125,10 +128,10 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         }
 
         // Retrieve file to upload into this drive folder
-        DriveFolder currentDriveFolder = foldersTree.getCurrentFolderThis().getDriveFolder();
+        DriveFolder currentDriveFolder = foldersTree.getCurrentThisFolder().getDriveFolder();
         File currentFile = foldersTree.nextFile();
 
-        // Edit notification
+        // Update notification
         showNotification(mNotification.editNotification(0, currentFile.getName()));
 
         // Upload current file
@@ -137,6 +140,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
     @Override
     public void fileProgress(int progress) {
+        // Update notification
         showNotification(mNotification.editNotification(progress));
     }
 
@@ -150,7 +154,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         }
 
         // Retrieve created file and save it in data structure
-        foldersTree.getCurrentFolderThis().setFileId(driveFile.getDriveId());
+        foldersTree.getCurrentThisFolder().setFileId(driveFile.getDriveId());
 
         uploadNext();
     }
@@ -160,8 +164,8 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(ProgressNotification.NOTIFICATION_ICON)
-                        .setContentTitle("Uploading files to Drive...") //TODO mettere dentro res/values
-                        .setContentText("Finito");
+                        .setContentTitle(getString(R.string.googledrive_uploaded))
+                        .setContentText(foldersTree.getFolder().getName());
 
         return mBuilder.build();
     }

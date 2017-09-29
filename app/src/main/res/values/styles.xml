@@ -9,13 +9,21 @@
     </style>
 
     <!-- Theme for transparent activities. -->
-    <style name="Theme.TransparentTheme" parent="AppTheme">
-        <!--<item name="android:background">#FF000000</item> ripristinare se serve --> <!-- Or any transparency or color you need -->
+    <style name="Theme.TransparentTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:background">#33000000</item> <!-- Or any transparency or color you need -->
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="AppTheme.PopupOverlay" parent="AlertDialog.AppCompat.Light"/>
 
 </resources>

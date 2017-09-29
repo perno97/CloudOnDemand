@@ -37,8 +37,11 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     // Used to control running status of service    //TODO NON FUNZIONA
     static boolean isRunning;
 
-    // Extra of calling intent
+    /**
+     * Extra for calling intent (want to sign out by current account?)
+     */
     public static final String SIGN_OUT_EXTRA = "signOut";
+    // Used to check if user want to sign out
     private boolean signOut = false;
 
     // Google client
@@ -51,7 +54,6 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     // Foreground notification
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
-    //private NotificationCompat.Builder mNotificationBuilder;  //TODO Delete
 
     @Override
     public void onCreate() {
@@ -139,7 +141,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
                 mGoogleApiClient.connect(clientConnectionType);
             else {
                 Log.i(TAG, "Unable to sign in into google account.");
-                Toast.makeText(GoogleDriveConnection.this, R.string.unable_connect_account, Toast.LENGTH_SHORT).show();  //TODO cambiare
+                Toast.makeText(GoogleDriveConnection.this, R.string.unable_connect_account, Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -211,8 +213,22 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         if(mGoogleApiClient.isConnected())
             disconnect();
 
-        // Show last notification
+        // Show last (cancelable) notification
         mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
+    }
+
+    /**
+     * Should implement this to keep last notification with onGoing=false (need to be cancelable).
+     * @return Last notification to show.
+     */
+    public abstract Notification getFinalNotification();
+
+    /**
+     * Show or update foreground notification.
+     * @param notification New or updated notification.
+     */
+    public void showNotification(Notification notification) {
+        mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     /**
@@ -230,24 +246,4 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     public String getContent() {
         return content;
     }
-
-    // ------------
-    // NOTIFICATION
-    // ------------
-
-    /**
-     * Should implement this to keep last notification with onGoing=false (cancelable).
-     * @return Last notification to show.
-     */
-    public abstract Notification getFinalNotification();
-
-    /**
-     * Show or update foreground notification.
-     * @param notification New or updated notification.
-     */
-    public void showNotification(Notification notification) {
-        mNotificationManager.notify(NOTIFICATION_ID, notification);
-    }
-
-
 }
