@@ -7,7 +7,7 @@
     <string name="unable_read_storage">Impossibile leggere la memoria esterna</string>
     <string name="unable_connect_account">Impossibile collegarsi all\'account</string>
     <string name="requested_permission_read_storage">Sono richiesti i permessi\ndi lettura della memoria</string>
-
+    <string name="action_settings">Settings</string>
 
     <!-- MainActivity -->
     <string name="edit_message">Inserisci una stringa</string>
@@ -35,4 +35,9 @@
     <string name="fitbit_scope">scope</string>
     <string name="fitbit_token_type">tokenType</string>
     <string name="fitbit_expiration_date">expirationDate</string>
+
+    <!-- Dropbox -->
+    <string name="APP_KEY">k4r9giw251cnll0</string> //app key dropbox
+    <string name="sign_in">Sign in with Dropbox</string>
+    <string name="title_activity_login">Sign in with Dropbox</string>
 </resources>
