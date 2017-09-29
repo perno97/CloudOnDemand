@@ -24,6 +24,7 @@ public class DropboxLoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        getAccessToken();
     }
 
     public void getAccessToken() {
