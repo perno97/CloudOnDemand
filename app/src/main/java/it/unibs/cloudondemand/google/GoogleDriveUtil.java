@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.DriveFile;
@@ -241,11 +242,11 @@ public class GoogleDriveUtil {
                 null
         );
 
-        if(cursorFolders == null ||
-                cursorFiles == null ||
-                cursorFiles.getCount() == 0 ||
-                cursorFolders.getCount() == 0)
+        if((cursorFolders == null && cursorFiles == null) ||
+                (cursorFiles.getCount() == 0 && cursorFolders.getCount() == 0)) {
+            Toast.makeText(context, "DATABASE VUOTOOOOOOOOOOOOO", Toast.LENGTH_SHORT).show();
             return null;
+        }
 
         HashMap<String,String> toReturn = new HashMap<>();
 
