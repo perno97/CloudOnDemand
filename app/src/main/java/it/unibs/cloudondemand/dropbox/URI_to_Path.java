@@ -10,6 +10,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 
+//util class that converts file URIs in absolute paths
 public class URI_to_Path {
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
