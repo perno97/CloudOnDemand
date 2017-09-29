@@ -45,4 +45,7 @@
     <string name="APP_KEY">k4r9giw251cnll0</string> //app key dropbox
     <string name="title_activity_login">Sign in with Dropbox</string>
 
+    <!--Shared preferences (dropbox) -->
+    <string name="shared_pref_dropbox_account">dropboxAccountSignedIn</string>
+    <string name="dropbox_access_token"></string>
 </resources>

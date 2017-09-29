@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dropbox.core.v2.users.FullAccount;
 import com.squareup.picasso.Picasso;
@@ -28,6 +29,8 @@ public class DropboxMainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Toast.makeText(this,"CAAAZZZZOOOO", Toast.LENGTH_LONG).show();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dropbox_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

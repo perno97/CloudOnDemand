@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.SignInButton;
 
-import it.unibs.cloudondemand.dropbox.DropboxLoginActivity;
+import it.unibs.cloudondemand.dropbox.DropboxMainActivity;
 import it.unibs.cloudondemand.fitbit.FitbitAuth;
 import it.unibs.cloudondemand.google.GoogleDriveUtil;
 
@@ -99,7 +99,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(new Intent(this, FitbitAuth.class));
                 break;
             case R.id.dropbox_sign_in_button:
-                startActivity(new Intent(this, DropboxLoginActivity.class));
+                startActivity(new Intent(this, DropboxMainActivity.class));
         }
         finish();
     }
