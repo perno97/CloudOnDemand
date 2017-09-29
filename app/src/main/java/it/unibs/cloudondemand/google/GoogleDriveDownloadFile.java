@@ -41,7 +41,7 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
         // Check if storage is readable and start download
         if (Utils.isExternalStorageWritable()) {
             // Verify permission and after call startDownloading when permission is granted
-            Intent intent = PermissionRequest.getRequestPermissionIntent(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, permissionResultCallback);
+            Intent intent = PermissionRequest.getIntent(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, permissionResultCallback);
             startActivity(intent);
         }
         else {
