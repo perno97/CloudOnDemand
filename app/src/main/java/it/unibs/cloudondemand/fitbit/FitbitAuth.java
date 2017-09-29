@@ -43,6 +43,7 @@ public class FitbitAuth extends AppCompatActivity {
         else {
             // Make token request
             startActivity(FitbitTokenGetter.getIntent(this, "it.unibs.cloudondemand.fitbit.FitbitAuth",SCOPE));
+            finish();
         }
 
     }
