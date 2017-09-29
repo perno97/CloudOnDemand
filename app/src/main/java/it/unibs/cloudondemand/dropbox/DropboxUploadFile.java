@@ -32,7 +32,7 @@ public class DropboxUploadFile extends AsyncTask {
         try{
             //Upload to Dropbox
             InputStream inputStream=new FileInputStream(file);
-            dbxClient.files().uploadBuilder(file.getName()).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
+            dbxClient.files().uploadBuilder(file.getPath()).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
             //Always overwrite existing file
             Log.d("Upload Status", "Login eseguito con successo");
         } catch (DbxException e) {

@@ -24,7 +24,7 @@ import it.unibs.cloudondemand.utils.URI_to_Path;
 
 public class DropboxMainActivity extends AppCompatActivity {
     private static final int IMAGE_REQUEST_CODE = 101;
-    private String ACCESS_TOKEN;
+    private String accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,21 +36,20 @@ public class DropboxMainActivity extends AppCompatActivity {
 
         if (!tokenExists()) {
             //No token
-            //Back to LoginActivity
+            //Back to LoginActivity to request
             Intent intent = new Intent(this, DropboxLoginActivity.class);
             startActivity(intent);
+            finish();
         }
 
-        ACCESS_TOKEN = retrieveAccessToken();
+        // Retrieve access token from shared pref
+        accessToken = retrieveAccessToken();
+        // Retrieve user account info and print on screen
         getUserAccount();
 
+        // Set on click listener on floating action button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                upload();
-            }
-        });
+        fab.setOnClickListener(fabOnClickListener);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -61,18 +60,15 @@ public class DropboxMainActivity extends AppCompatActivity {
         if(resultCode != RESULT_OK || data==null) return;
         //Check the request
         if(requestCode==IMAGE_REQUEST_CODE){
-            if(resultCode==RESULT_OK) {
-                File file =new File(URI_to_Path.getPath(getApplication(),data.getData()));
-                if(file!=null) {
-                    new DropboxUploadFile(DropboxClient.getClient(ACCESS_TOKEN), file, getApplicationContext()).execute();
-                }
+            File file =new File(URI_to_Path.getPath(getApplication(),data.getData()));
+            if(file!=null) {
+                new DropboxUploadFile(DropboxClient.getClient(accessToken), file, getApplicationContext()).execute();
             }
         }
     }
 
-    protected void getUserAccount() {
-        if (ACCESS_TOKEN == null) return;
-        new UserAccountTask(DropboxClient.getClient(ACCESS_TOKEN), new UserAccountTask.TaskDelegate() {
+    private void getUserAccount() {
+        new UserAccountTask(DropboxClient.getClient(accessToken), new UserAccountTask.TaskDelegate() {
             @Override
             public void onAccountReceived(FullAccount account) {
                 //Print account's info
@@ -89,31 +85,31 @@ public class DropboxMainActivity extends AppCompatActivity {
         }).execute();
     }
 
-    private void upload() {
-        if(ACCESS_TOKEN==null) return;
-        Intent intent=new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        startActivityForResult(Intent.createChooser(intent, "Upload to Dropbox"), IMAGE_REQUEST_CODE);
-    }
+    private FloatingActionButton.OnClickListener fabOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent=new Intent();
+            intent.setType("*/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            startActivityForResult(Intent.createChooser(intent, "Upload to Dropbox"), IMAGE_REQUEST_CODE);
+        }
+    };
 
     private boolean tokenExists() {
-        SharedPreferences prefs = getSharedPreferences(getString(R.string.shared_pref_dropbox_account), Context.MODE_PRIVATE);
-        String accessToken = prefs.getString(getString(R.string.dropbox_access_token), null);
-        return accessToken != null;
+        return retrieveAccessToken() != null;
     }
 
     private String retrieveAccessToken() {
-        //check if ACCESS_TOKEN is stored on previous app launches
+        //check if accessToken is stored on previous app launches
         SharedPreferences prefs = getSharedPreferences(getString(R.string.shared_pref_dropbox_account), Context.MODE_PRIVATE);
         String accessToken = prefs.getString(getString(R.string.dropbox_access_token), null);
         if (accessToken == null) {
-            Log.d("AccessToken Status", "No token found");
+            Log.i("AccessToken Status", "No token found");
             return null;
         } else {
             //accessToken already exists
-            Log.d("AccessToken Status", "Token exists");
+            Log.i("AccessToken Status", "Token exists");
             return accessToken;
         }
     }
