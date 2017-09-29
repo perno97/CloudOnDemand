@@ -10,12 +10,14 @@ public class FileListDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_TABLE_FILES =
             "CREATE TABLE " + FileListContract.FileList.TABLE_NAME + " (" +
                     FileListContract.FileList.COLUMN_DRIVEID + " TEXT PRIMARY KEY," +
-                    FileListContract.FileList.COLUMN_FILEPATH + " TEXT)";
+                    FileListContract.FileList.COLUMN_FILEPATH + " TEXT," +
+                    FileListContract.FileList.COLUMN_PARENTID + " INTEGER)";
 
     private static final String SQL_CREATE_TABLE_FOLDERS =
             "CREATE TABLE " + FileListContract.FolderList.TABLE_NAME + " (" +
                     FileListContract.FolderList.COLUMN_DRIVEID + " TEXT PRIMARY KEY," +
-                    FileListContract.FolderList.COLUMN_FOLDERPATH + " TEXT)";
+                    FileListContract.FolderList.COLUMN_FOLDERPATH + " TEXT," +
+                    FileListContract.FolderList.COLUMN_PARENTID + " INTEGER)";
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "FileList.db";
