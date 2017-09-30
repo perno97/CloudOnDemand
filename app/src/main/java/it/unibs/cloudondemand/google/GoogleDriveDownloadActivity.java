@@ -59,6 +59,7 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
                 // Retrieve drive file of item clicked
                 CustomFileDrive fileDrive = (CustomFileDrive) parent.getAdapter().getItem(position);
                 Toast.makeText(GoogleDriveDownloadActivity.this, "Clicked on = path : " + fileDrive.path + " / driveid : " + fileDrive.driveId, Toast.LENGTH_SHORT).show();
+                downloadItem(GoogleDriveDownloadFile.CONTENT_FILE, fileDrive.path, fileDrive.driveId);//TODO controllare se è una cartella
             }
         }
     };
@@ -82,5 +83,9 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
         public String getName() {
             return path.substring(path.lastIndexOf('/'));
         }
+    }
+
+    private void downloadItem(int contentType, String destinationPath, String driveId){
+        startService(GoogleDriveDownloadFile.getIntent(getApplicationContext(), contentType, destinationPath, driveId));
     }
 }

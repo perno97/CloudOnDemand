@@ -2,6 +2,7 @@ package it.unibs.cloudondemand.google;
 
 import android.Manifest;
 import android.app.Notification;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -34,6 +35,11 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
     private DriveFile driveFile;
 
     private static final String TAG = "GoogleDriveDownFile";
+    public static final int CONTENT_FOLDER = 1;
+    public static final int CONTENT_FILE = 0;
+
+    public static final String DESTINATION_PATH_EXTRA = "destination-path";
+    public static final String DRIVEID_EXTRA = "drive-id";
 
     @Override
     public void onConnected() {
@@ -132,6 +138,22 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
     public abstract void onFileDownloaded();
 
     public abstract void startDownloading();
+
+    public static Intent getIntent(Context context, int contentType, String destinationPath, String driveId){
+        Intent intent = null;
+        switch (contentType){
+            case CONTENT_FILE:
+                intent = new Intent(context, GoogleDriveDownloadFileSingle.class);
+                break;
+            case CONTENT_FOLDER:
+                //intent = new Intent(context, GoogleDriveDownloadFileFolder.class) TODO sistemare
+                Toast.makeText(context, "SCARICO CARTELLA", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        intent.putExtra(DESTINATION_PATH_EXTRA, destinationPath);
+        intent.putExtra(DRIVEID_EXTRA, driveId);
+        return intent;
+    }
 
     @Override
     public Notification getFinalNotification() {
