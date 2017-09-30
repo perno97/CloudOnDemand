@@ -191,8 +191,17 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     }
 
     // Called many times during the file upload.
+    /**
+     * Used by subclasses to retrieve the percent value of progress of  the upload.
+     * @param percent Progress value.
+     */
     public abstract void fileProgress (int percent);
 
     // Called when a file has been uploaded. driveFile = null when file on drive wasn't created.
+
+    /**
+     * Used by subclasses to know when a file was uploaded.
+     * @param driveFile Drive file uploaded.
+     */
     public abstract void onFileUploaded (DriveFile driveFile);
 }
