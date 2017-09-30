@@ -117,7 +117,16 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
                     // Write on file stream with buffer of 8 bytes
                     while (reader.read(buffer) != -1) {
                         publishProgress((int) (100*k/fileLength));
-                        outputStream.write(buffer);
+                        //Check if last data is < of 1 byte
+                        if(k+8 > fileLength) {
+                            byte[] buffer2 = new byte[(int) (fileLength - k)];
+                            for (int i = 0; i < buffer2.length; i++) {
+                                buffer2[i] = buffer[i];
+                            }
+                            outputStream.write(buffer2);
+                        }
+                        else
+                            outputStream.write(buffer);
                         k += 8;
                     }
                 } catch (FileNotFoundException e){
