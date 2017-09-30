@@ -35,11 +35,6 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
     private DriveFile driveFile;
 
     private static final String TAG = "GoogleDriveDownFile";
-    public static final int CONTENT_FOLDER = 1;
-    public static final int CONTENT_FILE = 0;
-
-    public static final String DESTINATION_PATH_EXTRA = "destination-path";
-    public static final String DRIVEID_EXTRA = "drive-id";
 
     @Override
     public void onConnected() {
@@ -92,7 +87,7 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
                 return null;
             else {
                 DriveApi.DriveContentsResult driveContentsResult =
-                        driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).await();
+                        driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, downloadProgressListener).await();
                 if (!driveContentsResult.getStatus().isSuccess()) {
                     return null;
                 }
@@ -135,28 +130,25 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
         }
     }
 
+    private DriveFile.DownloadProgressListener downloadProgressListener = new DriveFile.DownloadProgressListener() {
+        @Override
+        public void onProgress(long byteDownloaded, long byteExpeted) {
+            fileProgress((int) ( byteDownloaded/byteExpeted * 100));
+        }
+    };
+
+    /**
+     * Used by subclasses to retrieve the percent value of progress of the download.
+     * @param percent Progress value.
+     */
+    public abstract void fileProgress (int percent);
+
+    /**
+     * Used by subclasses to know when a file was downloaded.
+     * @param file File downloaded. //TODO implement this
+     */
+    public abstract void onFileDownloaded (File file);
     public abstract void onFileDownloaded();
 
     public abstract void startDownloading();
-
-    public static Intent getIntent(Context context, int contentType, String destinationPath, String driveId){
-        Intent intent = null;
-        switch (contentType){
-            case CONTENT_FILE:
-                intent = new Intent(context, GoogleDriveDownloadFileSingle.class);
-                break;
-            case CONTENT_FOLDER:
-                //intent = new Intent(context, GoogleDriveDownloadFileFolder.class) TODO sistemare
-                Toast.makeText(context, "SCARICO CARTELLA", Toast.LENGTH_SHORT).show();
-                break;
-        }
-        intent.putExtra(DESTINATION_PATH_EXTRA, destinationPath);
-        intent.putExtra(DRIVEID_EXTRA, driveId);
-        return intent;
-    }
-
-    @Override
-    public Notification getFinalNotification() {
-        return null;
-    }
 }
