@@ -25,11 +25,12 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
     public void startDownloading() {
         // Start downloading the file into device root dir.
         String driveId = getContent();
-        File destinationPath = Environment.getExternalStorageDirectory();//TODO cambiare destinazione
+        File destinationPath = new File (Environment.getExternalStorageDirectory().toString() + "/prova.txt");//TODO cambiare destinazione
+        filename = destinationPath.getName();
 
         // Initialize notification
         Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FILE);
-        mNotification = new ProgressNotification(this, "Qualcosa", false, stopIntent);  //TODO Metodo in downloadfile per sapere il nome del file
+        mNotification = new ProgressNotification(this, destinationPath.getName(), false, stopIntent);
         // Show initial notification
         showNotification(mNotification.getNotification());
 
@@ -52,8 +53,7 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
 
     @Override
     public void onFileDownloaded() {
-        filename = "Completato";
-
+        // qualcosa
         disconnect();
     }
 

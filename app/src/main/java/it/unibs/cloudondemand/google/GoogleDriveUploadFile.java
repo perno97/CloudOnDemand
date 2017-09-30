@@ -123,7 +123,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 while (fileInputStream.read(buffer) != -1) {
                     publishProgress((int) (100*k/fileLength));
                     outputStream.write(buffer);
-                    k+=8;
+                    k += 8;
                 }
 
             } catch (FileNotFoundException e) {
@@ -155,8 +155,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         protected void onProgressUpdate(Integer... values) {
             if(lastValue != values[0]) {
                 // Call abstract method
-                fileProgress(values[0]);
                 lastValue = values[0];
+                fileProgress(lastValue);
             }
         }
 

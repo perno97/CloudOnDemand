@@ -12,6 +12,8 @@ import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.DriveResource;
+import com.google.android.gms.drive.Metadata;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.PermissionRequest;
 import it.unibs.cloudondemand.utils.Utils;
@@ -84,18 +87,23 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
         downloadFileAsyncTask.execute();
     }
 
-    private class DownloadFileAsyncTask extends AsyncTask<Void, Void, Void>{
+    private class DownloadFileAsyncTask extends AsyncTask<Void, Integer, Void>{
 
         @Override
         protected Void doInBackground(Void... voids) {
             if(destinationPath.isDirectory())
                 return null;
             else {
+                // Open file
                 DriveApi.DriveContentsResult driveContentsResult =
-                        driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, downloadProgressListener).await();
+                        driveFile.open(getGoogleApiClient(), DriveFile.MODE_READ_ONLY, null).await();
                 if (!driveContentsResult.getStatus().isSuccess()) {
                     return null;
                 }
+                // Retrieve file dimension
+                DriveResource.MetadataResult metadataResult = driveFile.getMetadata(getGoogleApiClient()).await();
+                Metadata metadata = metadataResult.getMetadata();
+                long fileLength = metadata.getFileSize();
 
                 FileOutputStream outputStream = null;
                 DriveContents driveContents = driveContentsResult.getDriveContents();
@@ -104,10 +112,13 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
                     InputStream reader = driveContents.getInputStream();
                     outputStream = new FileOutputStream(destinationPath);
 
+                    long k = 0;
                     byte[] buffer = new byte[8];
                     // Write on file stream with buffer of 8 bytes
                     while (reader.read(buffer) != -1) {
+                        publishProgress((int) (100*k/fileLength));
                         outputStream.write(buffer);
+                        k += 8;
                     }
                 } catch (FileNotFoundException e){
                     Log.e(TAG, "File not found." + e.toString(), e.getCause());
@@ -129,18 +140,21 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
             }
         }
 
+        private int lastValue = 0;
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            if(lastValue != values[0]) {
+                // Call abstract method
+                lastValue = values[0];
+                fileProgress(lastValue);
+            }
+        }
+
         @Override
         protected void onPostExecute(Void aVoid) {
             onFileDownloaded();
         }
     }
-
-    private DriveFile.DownloadProgressListener downloadProgressListener = new DriveFile.DownloadProgressListener() {
-        @Override
-        public void onProgress(long byteDownloaded, long byteExpeted) {
-            fileProgress((int) ( byteDownloaded/byteExpeted * 100));
-        }
-    };
 
     /**
      * Used by subclasses to retrieve the percent value of progress of the download.
@@ -169,7 +183,7 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
                 break;
         }
         intent.putExtra(DESTINATION_PATH_EXTRA, destinationPath);
-        intent.putExtra(DRIVEID_EXTRA, driveId);
+        intent.putExtra(LoginActivity.CONTENT_EXTRA, driveId);
         return intent;
     }
 }
