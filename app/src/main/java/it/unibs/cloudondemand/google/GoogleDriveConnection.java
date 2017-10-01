@@ -23,6 +23,9 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.drive.Drive;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.ProgressNotification;
@@ -243,6 +246,14 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
      */
     public String getContent() {
         return intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
+    }
+
+    public ArrayList<String> getDriveIdArrayContent(){
+        return intent.getStringArrayListExtra(GoogleDriveDownloadFile.DRIVEID_EXTRA);
+    }
+
+    public ArrayList<String> getPathArrayContent(){
+        return intent.getStringArrayListExtra(LoginActivity.CONTENT_EXTRA);
     }
 
     /**

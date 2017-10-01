@@ -18,22 +18,25 @@ import it.unibs.cloudondemand.utils.RowAdapter;
 public class GoogleDriveDownloadActivity extends AppCompatActivity {
     private final boolean FILE = false;
     private final boolean DIRECTORY = true;
+    private HashMap<String, String> listFiles;
+    private HashMap<String, String> listFolders;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_drive_download);
 
-        HashMap<String, String> fileList = GoogleDriveUtil.getFiles(getApplicationContext());
-        HashMap<String, String> folderList = GoogleDriveUtil.getFolders(getApplicationContext());
+        listFiles = GoogleDriveUtil.getFiles(getApplicationContext());
+        listFolders = GoogleDriveUtil.getFolders(getApplicationContext());
 
-        if(fileList == null || folderList == null)
+        if(listFiles == null || listFolders == null)
             Toast.makeText(this, "Nessun file caricato", Toast.LENGTH_SHORT).show();
         else
-            showList(fileList, folderList);
+            showList();
     }
 
-    private void showList(HashMap<String,String> listFiles, HashMap<String,String> listFolders){
+    private void showList(){
         // Fill listview
         ListView listView = (ListView) findViewById(R.id.select_download_listview);
 
@@ -71,9 +74,9 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
 
                 //Check wether it's a file or a directory
                 if(fileDrive.isDirectory())
-                    downloadItem(GoogleDriveDownloadFile.CONTENT_FOLDER, fileDrive.path, fileDrive.driveId);
+                    downloadFolder(fileDrive.path, fileDrive.driveId);
                 else
-                    downloadItem(GoogleDriveDownloadFile.CONTENT_FILE, fileDrive.path, fileDrive.driveId);
+                    downloadFile(fileDrive.path, fileDrive.driveId);
             }
         }
     };
@@ -101,7 +104,22 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
         }
     }
 
-    private void downloadItem(int contentType, String destinationPath, String driveId){
-        startService(GoogleDriveDownloadFile.getIntent(getApplicationContext(), contentType, destinationPath, driveId));
+    private void downloadFile(String destinationPath, String driveId){
+        startService(GoogleDriveDownloadFile.getIntentFile(getApplicationContext(),  destinationPath, driveId));
+    }
+
+    private void downloadFolder(String destinationPath, String driveId){
+        HashMap<String, String> toDownload = null;
+
+        for(String key : listFiles.keySet()) {
+            if(listFiles.get(key).startsWith(destinationPath)){
+                toDownload.put(key,listFiles.get(key));
+            }
+        }
+
+        if(toDownload == null)
+            Toast.makeText(this, "Cartella vuota", Toast.LENGTH_SHORT).show();
+        else
+            startService(GoogleDriveDownloadFile.getIntentFolder(getApplicationContext(), toDownload));
     }
 }

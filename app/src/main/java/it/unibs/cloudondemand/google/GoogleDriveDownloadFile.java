@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
@@ -179,18 +180,16 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
 
     public abstract void startDownloading();
 
-    public static Intent getIntent(Context context, int contentType, String destinationPath, String driveId){
-        Intent intent = null;
-        switch (contentType){
-            case CONTENT_FILE:
-                intent = new Intent(context, GoogleDriveDownloadFileSingle.class);
-                break;
-            case CONTENT_FOLDER:
-                intent = new Intent(context, GoogleDriveDownloadFileFolder.class);
-                break;
-        }
+    public static Intent getIntentFile(Context context, String destinationPath, String driveId){
+        Intent intent = new Intent(context, GoogleDriveDownloadFileSingle.class);
         intent.putExtra(DRIVEID_EXTRA, driveId);
         intent.putExtra(LoginActivity.CONTENT_EXTRA, destinationPath);
+        return intent;
+    }
+
+    public static Intent getIntentFolder(Context context, HashMap<String,String> toDownload){
+        Intent intent = new Intent(context, GoogleDriveDownloadFileSingle.class);
+        intent.putExtra(LoginActivity.CONTENT_EXTRA, toDownload);
         return intent;
     }
 }
