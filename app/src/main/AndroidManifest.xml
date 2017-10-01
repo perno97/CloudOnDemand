@@ -61,9 +61,8 @@
         <service android:name=".google.GoogleDriveDownloadFileSingle"/>
         <service android:name=".google.StopServices" />
 
-        <!-- Oauth activities -->
-        <activity android:name=".fitbit.FitbitAuth" />
-        <activity android:name=".fitbit.FitbitTokenGetter">
+        <!-- Fitbit activities (every activity should have its intent-filter-->
+        <activity android:name=".fitbit.FitbitAuth">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
