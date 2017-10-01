@@ -104,7 +104,7 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
 
         @Override
         public String getName() {
-            return path.substring(path.lastIndexOf('/'));
+            return path.substring(path.lastIndexOf('/') + 1);
         }
     }
 
