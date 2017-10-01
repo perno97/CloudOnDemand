@@ -30,7 +30,7 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
         listFiles = GoogleDriveUtil.getFiles(getApplicationContext());
         listFolders = GoogleDriveUtil.getFolders(getApplicationContext());
 
-        if(listFiles == null || listFolders == null)
+        if(listFiles == null && listFolders == null)
             Toast.makeText(this, "Nessun file caricato", Toast.LENGTH_SHORT).show();
         else
             showList();
@@ -42,16 +42,21 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
 
         ArrayList<FileListable> fileList = new ArrayList<>(listFiles.size());
         fileList.add(new CustomFileDrive(null, "null", false));
-        for(String key : listFiles.keySet()) {
-            CustomFileDrive fileDrive = new CustomFileDrive(key, listFiles.get(key), FILE);
-            fileList.add(fileDrive);
+        if(listFiles != null) {
+            for(String key : listFiles.keySet()) {
+                CustomFileDrive fileDrive = new CustomFileDrive(key, listFiles.get(key), FILE);
+                fileList.add(fileDrive);
+            }
         }
 
-        for(String key : listFolders.keySet()) {
-            CustomFileDrive fileDrive = new CustomFileDrive(key, listFolders.get(key), DIRECTORY);
-            fileList.add(fileDrive);
+        if(listFolders != null) {
+            for(String key : listFolders.keySet()) {
+                CustomFileDrive fileDrive = new CustomFileDrive(key, listFolders.get(key), DIRECTORY);
+                fileList.add(fileDrive);
+            }
         }
 
+        // Create adapter and set to listview
         RowAdapter adapter = new RowAdapter(this, fileList);
         listView.setAdapter(adapter);
 
@@ -70,7 +75,6 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
             else {
                 // Retrieve drive file of item clicked
                 CustomFileDrive fileDrive = (CustomFileDrive) parent.getAdapter().getItem(position);
-                Toast.makeText(GoogleDriveDownloadActivity.this, "Clicked on = path : " + fileDrive.path + " / driveid : " + fileDrive.driveId, Toast.LENGTH_SHORT).show();
 
                 //Check wether it's a file or a directory
                 if(fileDrive.isDirectory())

@@ -85,10 +85,10 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
         downloadFileAsyncTask.execute();
     }
 
-    private class DownloadFileAsyncTask extends AsyncTask<Void, Integer, Void>{
+    private class DownloadFileAsyncTask extends AsyncTask<Void, Integer, File>{
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected File doInBackground(Void... voids) {
             if(destinationPath.isDirectory())
                 return null;
             else {
@@ -127,6 +127,8 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
                             outputStream.write(buffer);
                         k += 8;
                     }
+
+                    return destinationPath;
                 } catch (FileNotFoundException e){
                     Log.e(TAG, "File not found." + e.toString(), e.getCause());
                 } catch (IOException e){
@@ -158,8 +160,8 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            onFileDownloaded();
+        protected void onPostExecute(File file) {
+            onFileDownloaded(file);
         }
     }
 
@@ -174,7 +176,6 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
      * @param file File downloaded. //TODO implement this
      */
     public abstract void onFileDownloaded (File file);
-    public abstract void onFileDownloaded();
 
     public abstract void startDownloading();
 

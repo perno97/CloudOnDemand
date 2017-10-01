@@ -47,14 +47,9 @@ public class GoogleDriveDownloadFileFolder extends GoogleDriveDownloadFile {
     }
 
     @Override
-    public void onFileDownloaded() {
+    public void onFileDownloaded(File file) {
         count++;
         downloadFile(new File(pathToDownload.get(count)), driveIdToDownload.get(count));
-    }
-
-    @Override
-    public void onFileDownloaded(File file) {
-
     }
 
     @Override

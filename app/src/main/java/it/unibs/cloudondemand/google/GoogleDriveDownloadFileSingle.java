@@ -23,10 +23,9 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
 
     @Override
     public void startDownloading() {
-        // Start downloading the file into device root dir.
-        String driveId = getContent();
-        //File destinationPath = new File (Environment.getExternalStorageDirectory().toString() + "/prova.txt");//TODO cambiare destinazione
-        File destinationPath = new File(getDownloadContent());
+        // Retrieve extras from intent
+        String driveId = getDownloadContent();
+        File destinationPath = new File(getContent());
         filename = destinationPath.getName();
 
         // Initialize notification
@@ -38,7 +37,6 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
         downloadFile(destinationPath, driveId);
     }
 
-    //TODO utilizzare questo poi
     @Override
     public void onFileDownloaded(File file) {
         if (file == null) {
@@ -49,12 +47,6 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
             filename = file.getName();
         }
 
-        disconnect();
-    }
-
-    @Override
-    public void onFileDownloaded() {
-        // qualcosa
         disconnect();
     }
 

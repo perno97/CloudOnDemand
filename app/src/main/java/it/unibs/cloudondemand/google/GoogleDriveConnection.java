@@ -205,7 +205,11 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         // Stop service
         Log.i(TAG, "Finished service (Google).");
         isRunning = false;
-        stopForeground(false);
+        stopForeground(true);
+
+        // Show last (cancelable) notification
+        mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
+
         stopSelf();
     }
 
@@ -215,9 +219,6 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         super.onDestroy();
         if(mGoogleApiClient.isConnected())
             disconnect();
-
-        // Show last (cancelable) notification
-        mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
     }
 
     /**
