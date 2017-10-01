@@ -1,10 +1,7 @@
 package it.unibs.cloudondemand.google;
 
 import android.app.Notification;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -14,14 +11,11 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.MetadataChangeSet;
 
 import java.io.File;
 
 import it.unibs.cloudondemand.R;
-import it.unibs.cloudondemand.databaseManager.FileListContract.FolderList;
-import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.FileTree;
 import it.unibs.cloudondemand.utils.ProgressNotification;
 
@@ -52,7 +46,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
         // Retrieve intent o launch when stop clicked
         Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FOLDER);
         // Retrieve progress notification
-        mNotification = new ProgressNotification(this, "", false, stopIntent);
+        mNotification = new ProgressNotification(this, getString(R.string.googledrive_uploading_folder),"", false, stopIntent);
         // Show initial notification
         showNotification(mNotification.getNotification());
     }
@@ -147,7 +141,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
     @Override
     public void onFileUploaded(DriveFile driveFile) {
         if (driveFile == null) {
-            Toast.makeText(this, R.string.unable_create_file_googledrive, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.unable_upload_file, Toast.LENGTH_SHORT).show();
 
             uploadNext();
             return;

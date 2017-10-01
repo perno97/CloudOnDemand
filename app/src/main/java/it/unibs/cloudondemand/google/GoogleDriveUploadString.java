@@ -33,7 +33,7 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
 
         // Initialize notification
         Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_STRING);
-        mNotification = new ProgressNotification(this, "", true, stopIntent);
+        mNotification = new ProgressNotification(this, getString(R.string.googledrive_uploading_file),"", true, stopIntent);
         // Show initial notification
         showNotification(mNotification.getNotification());
     }
@@ -88,7 +88,7 @@ public class GoogleDriveUploadString extends GoogleDriveConnection {
         @Override
         public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
             if(!driveFileResult.getStatus().isSuccess()) {
-                Toast.makeText(GoogleDriveUploadString.this, R.string.unable_create_file_googledrive, Toast.LENGTH_SHORT).show();
+                Toast.makeText(GoogleDriveUploadString.this, R.string.unable_upload_file, Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "File not created");
             }
             else {

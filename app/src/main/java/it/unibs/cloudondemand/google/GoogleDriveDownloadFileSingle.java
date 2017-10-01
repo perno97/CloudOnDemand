@@ -10,6 +10,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
+import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.ProgressNotification;
 
 public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
@@ -30,7 +31,7 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
 
         // Initialize notification
         Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FILE);
-        mNotification = new ProgressNotification(this, destinationPath.getName(), false, stopIntent);
+        mNotification = new ProgressNotification(this, getString(R.string.googledrive_downloading_file),destinationPath.getName(), false, stopIntent);
         // Show initial notification
         showNotification(mNotification.getNotification());
 
@@ -60,7 +61,7 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(ProgressNotification.NOTIFICATION_ICON)
-                        .setContentTitle("Download su drive completato")    //TODO res/strings
+                        .setContentTitle(getString(R.string.googledrive_downloaded))
                         .setContentText(filename);
 
         return mBuilder.build();

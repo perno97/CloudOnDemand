@@ -23,9 +23,9 @@ public class ProgressNotification {
      * @param indeterminateProgress True if there isn't a progress value.
      * @param stopIntent Intent to launch when click the stop button.
      */
-    public ProgressNotification(Context context, String contentText, boolean indeterminateProgress, Intent stopIntent) {
+    public ProgressNotification(Context context, String titleText, String contentText, boolean indeterminateProgress, Intent stopIntent) {
         this.context = context;
-        createNewNotification(contentText, indeterminateProgress, stopIntent);
+        createNewNotification(titleText, contentText, indeterminateProgress, stopIntent);
     }
 
     /**
@@ -34,21 +34,21 @@ public class ProgressNotification {
      * @param contentText Content of notifcation.
      * @param indeterminateProgress True if there isn't a progress value.
      */
-    public ProgressNotification(Context context, String contentText, boolean indeterminateProgress) {
+    public ProgressNotification(Context context, String titleText, String contentText, boolean indeterminateProgress) {
         this.context = context;
-        createNewNotification(contentText, indeterminateProgress, null);
+        createNewNotification(titleText, contentText, indeterminateProgress, null);
     }
 
     // Initialize first time the notification builder
-    private NotificationCompat.Builder createNewNotification(String contentText, boolean indeterminateProgress, Intent stopIntent) {
+    private NotificationCompat.Builder createNewNotification(String titleText, String contentText, boolean indeterminateProgress, Intent stopIntent) {
         mNotificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(NOTIFICATION_ICON)
-                .setContentTitle("Uploading files to Drive...") //TODO res/strings
+                .setContentTitle(titleText)
                 .setContentText(contentText)
                 .setProgress(100, 0, indeterminateProgress)
-                //.addAction()
                 .setOngoing(true);
 
+        // Add action to notification
         if(stopIntent != null) {
             // Intent to launch when stop pressed
             PendingIntent pendingIntent = PendingIntent.getService(context, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT);

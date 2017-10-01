@@ -9,6 +9,7 @@ import com.google.android.gms.drive.DriveId;
 import java.io.File;
 import java.util.ArrayList;
 
+import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.FileTree;
 import it.unibs.cloudondemand.utils.ProgressNotification;
 
@@ -33,7 +34,7 @@ public class GoogleDriveDownloadFileFolder extends GoogleDriveDownloadFile {
         // Retrieve intent o launch when stop clicked
         Intent stopIntent = StopServices.getStopIntent(this, StopServices.SERVICE_UPLOAD_FOLDER);
         // Retrieve progress notification
-        mNotification = new ProgressNotification(this, "", false, stopIntent);
+        mNotification = new ProgressNotification(this, getString(R.string.googledrive_downloading_folder),"", false, stopIntent);
         // Show initial notification
         showNotification(mNotification.getNotification());
 
