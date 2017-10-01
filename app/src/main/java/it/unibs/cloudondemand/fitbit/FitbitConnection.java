@@ -36,7 +36,6 @@ public abstract class FitbitConnection extends AppCompatActivity {
         String intentData = intent.getDataString();
 
         if(intentData != null && intentData.startsWith(REDIRECT_URI)) {
-            Log.i(TAG, intentData); //TODO controllare quando viene negato l'aceesso... poi rimuovere
             // Received intent from fitbit server (response)
             handleIntent(intentData.substring(REDIRECT_URI.length()+1));
         }

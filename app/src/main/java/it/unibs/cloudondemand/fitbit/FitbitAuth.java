@@ -37,8 +37,9 @@ public class FitbitAuth extends FitbitConnection {
     @Override
     public void onTokenAcquired(FitbitToken token) {
         if(token == null) {
-            Toast.makeText(this, "Error occured while receiving token.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.unable_connect_account), Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
 
         this.token = token;
@@ -109,7 +110,7 @@ public class FitbitAuth extends FitbitConnection {
             }
         } catch (JSONException e) {
             Log.e(TAG, "Error occurred while reading user json object. " + e.toString());
-            mTextView.setText("Error occurred while reading Fitbit response");
+            mTextView.setText(R.string.unable_connect_account);
         }
     }
 
