@@ -16,27 +16,36 @@ import it.unibs.cloudondemand.utils.FileListable;
 import it.unibs.cloudondemand.utils.RowAdapter;
 
 public class GoogleDriveDownloadActivity extends AppCompatActivity {
+    private final boolean FILE = false;
+    private final boolean DIRECTORY = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_drive_download);
 
-        HashMap<String, String> itemsList = GoogleDriveUtil.getDatabase(getApplicationContext());
-        if(itemsList == null)
+        HashMap<String, String> fileList = GoogleDriveUtil.getFiles(getApplicationContext());
+        HashMap<String, String> folderList = GoogleDriveUtil.getFolders(getApplicationContext());
+
+        if(fileList == null || folderList == null)
             Toast.makeText(this, "Nessun file caricato", Toast.LENGTH_SHORT).show();
         else
-            showList(itemsList);
+            showList(fileList, folderList);
     }
 
-    private void showList(HashMap<String,String> list){
+    private void showList(HashMap<String,String> listFiles, HashMap<String,String> listFolders){
         // Fill listview
         ListView listView = (ListView) findViewById(R.id.select_download_listview);
 
-        ArrayList<FileListable> fileList = new ArrayList<>(list.size());
+        ArrayList<FileListable> fileList = new ArrayList<>(listFiles.size());
         fileList.add(new CustomFileDrive(null, "null"));
-        for(String key : list.keySet()) {
-            CustomFileDrive fileDrive = new CustomFileDrive(key, list.get(key));
+        for(String key : listFiles.keySet()) {
+            CustomFileDrive fileDrive = new CustomFileDrive(key, listFiles.get(key), FILE);
+            fileList.add(fileDrive);
+        }
+
+        for(String key : listFolders.keySet()) {
+            CustomFileDrive fileDrive = new CustomFileDrive(key, listFolders.get(key), DIRECTORY);
             fileList.add(fileDrive);
         }
 
@@ -59,7 +68,12 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
                 // Retrieve drive file of item clicked
                 CustomFileDrive fileDrive = (CustomFileDrive) parent.getAdapter().getItem(position);
                 Toast.makeText(GoogleDriveDownloadActivity.this, "Clicked on = path : " + fileDrive.path + " / driveid : " + fileDrive.driveId, Toast.LENGTH_SHORT).show();
-                downloadItem(GoogleDriveDownloadFile.CONTENT_FILE, fileDrive.path, fileDrive.driveId);//TODO controllare se è una cartella
+
+                //Check wether it's a file or a directory
+                if(fileDrive.isDirectory())
+                    downloadItem(GoogleDriveDownloadFile.CONTENT_FOLDER, fileDrive.path, fileDrive.driveId);
+                else
+                    downloadItem(GoogleDriveDownloadFile.CONTENT_FILE, fileDrive.path, fileDrive.driveId);
             }
         }
     };
@@ -68,15 +82,17 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
     private class CustomFileDrive implements FileListable {
         String driveId;
         String path;
+        boolean type;
 
-        private CustomFileDrive(String driveId, String path) {
+        private CustomFileDrive(String driveId, String path, boolean type) {
             this.driveId = driveId;
             this.path = path;
+            this.type = type;
         }
 
         @Override
         public boolean isDirectory() {
-            return false;
+            return type;
         }
 
         @Override

@@ -187,8 +187,7 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
                 intent = new Intent(context, GoogleDriveDownloadFileSingle.class);
                 break;
             case CONTENT_FOLDER:
-                //intent = new Intent(context, GoogleDriveDownloadFileFolder.class) TODO sistemare
-                        Toast.makeText(context, "SCARICO CARTELLA", Toast.LENGTH_SHORT).show();
+                intent = new Intent(context, GoogleDriveDownloadFileFolder.class);
                 break;
         }
         intent.putExtra(DESTINATION_PATH_EXTRA, destinationPath);
