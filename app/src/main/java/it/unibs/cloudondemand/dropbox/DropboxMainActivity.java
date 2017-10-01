@@ -40,6 +40,7 @@ public class DropboxMainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, DropboxLoginActivity.class);
             startActivity(intent);
             finish();
+            return;
         }
 
         // Retrieve access token from shared pref
