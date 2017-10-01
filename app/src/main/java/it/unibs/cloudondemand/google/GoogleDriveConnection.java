@@ -178,7 +178,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     }
 
     /**
-     * Entry point for class extended
+     * Entry point for subclasses. Google client is connected.
      */
     public abstract void onConnected();
 

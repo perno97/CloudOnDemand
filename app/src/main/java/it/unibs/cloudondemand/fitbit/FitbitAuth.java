@@ -2,7 +2,6 @@ package it.unibs.cloudondemand.fitbit;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,7 +21,7 @@ import java.util.Iterator;
 
 import it.unibs.cloudondemand.R;
 
-public class FitbitAuth extends AppCompatActivity {
+public class FitbitAuth extends FitbitConnection {
     private static final String TAG = "FitbitAuth";
 
     private static final String SCOPE = "profile";
@@ -33,24 +32,18 @@ public class FitbitAuth extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fitbit_auth);
+    }
 
-        Intent intent = getIntent();
-
-        token = intent.getParcelableExtra(FitbitTokenGetter.TOKEN_EXTRA);
-
-        if(token != null)
-            onIntentRead();
-        else {
-            // Make token request
-            startActivity(FitbitTokenGetter.getIntent(this, "it.unibs.cloudondemand.fitbit.FitbitAuth",SCOPE));
+    @Override
+    public void onTokenAcquired(FitbitToken token) {
+        if(token == null) {
+            Toast.makeText(this, "Error occured while receiving token.", Toast.LENGTH_SHORT).show();
             finish();
         }
 
-    }
+        this.token = token;
 
-    // Make API request
-    private void onIntentRead() {
-
+        // Make API request
         URL url = null;
         try {
             url = new URL("https://api.fitbit.com/1/user/" + token.getUserId() + "/profile.json");
@@ -118,5 +111,19 @@ public class FitbitAuth extends AppCompatActivity {
             Log.e(TAG, "Error occurred while reading user json object. " + e.toString());
             mTextView.setText("Error occurred while reading Fitbit response");
         }
+    }
+
+    /**
+     * Util method to retrieve intent to launch for upload.
+     * @param context Context of activity that launch the intent.
+     * @return Intent to launch with startActivity(intent).
+     */
+    public static Intent getIntent(Context context) {
+        return new Intent(context, FitbitAuth.class);
+    }
+
+    @Override
+    public String getScopes() {
+        return SCOPE;
     }
 }

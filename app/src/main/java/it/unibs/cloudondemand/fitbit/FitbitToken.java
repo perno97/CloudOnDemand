@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 
-class FitbitToken implements Parcelable {
+class FitbitToken {
     private String accessToken;
     private String userId;
     private String scope;
@@ -17,39 +17,6 @@ class FitbitToken implements Parcelable {
         this.scope = scope;
         this.tokenType = tokenType;
         this.expiresIn = expiresIn;
-    }
-
-    public static final Parcelable.Creator<FitbitToken> CREATOR
-            = new Parcelable.Creator<FitbitToken>() {
-        public FitbitToken createFromParcel(Parcel in) {
-            return new FitbitToken(in);
-        }
-
-        public FitbitToken[] newArray(int size) {
-            return new FitbitToken[size];
-        }
-    };
-
-    private FitbitToken(Parcel in) {
-        accessToken = in.readString();
-        userId = in.readString();
-        scope = in.readString();
-        tokenType = in.readString();
-        expiresIn = in.readLong();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(accessToken);
-        dest.writeString(userId);
-        dest.writeString(scope);
-        dest.writeString(tokenType);
-        dest.writeLong(expiresIn);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     public String getAccessToken() {

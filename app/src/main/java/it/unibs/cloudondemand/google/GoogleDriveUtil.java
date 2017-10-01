@@ -32,7 +32,7 @@ public class GoogleDriveUtil {
      * @param contentType Type of content to upload.
      * @param content String, File path or Folder path.
      * @param signOut True if want to Sign-out before do something.
-     * @return Intent to launch with startActivity(intent). Return null if content type is not found.
+     * @return Intent to launch with startService(intent). Return null if content type is not found.
      */
     public static Intent getIntent(Context context, int contentType, String content, boolean signOut) {
         Intent intent = null;
@@ -60,7 +60,7 @@ public class GoogleDriveUtil {
      * @param context Context of activity that launch the intent.
      * @param contentType Type of content to upload.
      * @param content String, File path or Folder path.
-     * @return Intent to launch with startActivity(intent). Return null if content type is not found.
+     * @return Intent to launch with startService(intent). Return null if content type is not found.
      */
     public static Intent getIntent(Context context, int contentType, String content) {
         return  getIntent(context, contentType, content, false);

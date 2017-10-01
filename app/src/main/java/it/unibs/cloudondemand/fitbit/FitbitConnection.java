@@ -7,17 +7,11 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import it.unibs.cloudondemand.R;
 
-public class FitbitTokenGetter extends AppCompatActivity {
-    private static final String TAG = "FitbitTokenGetter";
-    // Intent to send
-    public static final String TOKEN_EXTRA = "fitbitToken";
-    // Intent to receive
-    public static final String SCOPE_EXTRA = "scope";
-    public static final String CALLING_CLASS_EXTRA = "callingClass";
+public abstract class FitbitConnection extends AppCompatActivity {
+    private static final String TAG = "FitbitConnection";
 
     private static final String AUTHORIZATION_URI = "https://www.fitbit.com/oauth2/authorize";
     private static final String CLIENT_ID = "228L7S";
@@ -29,8 +23,8 @@ public class FitbitTokenGetter extends AppCompatActivity {
     private String scope;
     private String tokenType;
     private long expiresIn;
+    private String errorDescription;
 
-    private String requesterClass;
     private String requestedScope;
 
     @Override
@@ -47,9 +41,7 @@ public class FitbitTokenGetter extends AppCompatActivity {
             handleIntent(intentData.substring(REDIRECT_URI.length()+1));
         }
         else {
-            // Activity that has requested for a token
-            requesterClass = intent.getStringExtra(CALLING_CLASS_EXTRA);
-            requestedScope = intent.getStringExtra(SCOPE_EXTRA);
+            requestedScope = getScopes();
             onTokenRequest();
         }
     }
@@ -59,7 +51,7 @@ public class FitbitTokenGetter extends AppCompatActivity {
         int lastIndex = intentData.indexOf('&');
         if(lastIndex == -1)
             lastIndex = intentData.length();
-        Log.e(TAG, "intentdata : " + intentData);
+
         if(intentData.startsWith("access_token=")) {
             accessToken = intentData.substring(13, lastIndex);
             handleIntent(intentData.substring(lastIndex+1));
@@ -76,26 +68,15 @@ public class FitbitTokenGetter extends AppCompatActivity {
             tokenType = intentData.substring(11, lastIndex);
             handleIntent(intentData.substring(lastIndex+1));
         }
-        else if(intentData.startsWith("state=")) {
-            requesterClass = intentData.substring(6, lastIndex);
-            handleIntent(intentData.substring(lastIndex+1));
-        }
         // Last parameter of Uri
         else if(intentData.startsWith("expires_in=")) {
             expiresIn = Long.parseLong(intentData.substring(11), lastIndex);
             onIntentReceived();
         }
-    }
-
-    private void sendBackToken(FitbitToken token) {
-        try {
-            Intent intent = new Intent(this, Class.forName(requesterClass));
-            intent.putExtra(TOKEN_EXTRA, token);
-            startActivity(intent);
-            // Destroy this activity
-            finish();
-        } catch (ClassNotFoundException e) {
-            Log.e(TAG, "Caller class not found." + e.toString());
+        // When error occurred
+        else if(intentData.startsWith("error_description=")) {
+            errorDescription = intentData.substring(18, lastIndex);
+            onIntentReceived();
         }
     }
 
@@ -114,7 +95,11 @@ public class FitbitTokenGetter extends AppCompatActivity {
 
             // Send back using intent
             FitbitToken token = new FitbitToken(accessToken, userId, scope, tokenType, expiresIn);
-            sendBackToken(token);
+            onTokenAcquired(token);
+        }
+        else {
+            Log.e(TAG, "Token error description = " + errorDescription);
+            onTokenAcquired(null);
         }
     }
 
@@ -135,14 +120,14 @@ public class FitbitTokenGetter extends AppCompatActivity {
                 }
                 if(hasScope) {
                     // Send back in memory token using intent
-                    sendBackToken(inMemoryToken);
+                    onTokenAcquired(inMemoryToken);
                     return;
                 }
             }
         }
 
         // Make request to fitbit server
-        String url = AUTHORIZATION_URI + "?response_type=token" + "&client_id="+CLIENT_ID + "&redirect_uri="+REDIRECT_URI + "&scope="+requestedScope + "&state="+requesterClass;
+        String url = AUTHORIZATION_URI + "?response_type=token" + "&client_id="+CLIENT_ID + "&redirect_uri="+REDIRECT_URI + "&scope="+requestedScope;
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         startActivity(intent);
@@ -166,10 +151,15 @@ public class FitbitTokenGetter extends AppCompatActivity {
             return null;
     }
 
-    public static Intent getIntent(Context context, String callingClass,String scope) {
-        Intent intent = new Intent(context, FitbitTokenGetter.class);
-        intent.putExtra(SCOPE_EXTRA, scope);
-        intent.putExtra(CALLING_CLASS_EXTRA, callingClass);
-        return intent;
-    }
+    /**
+     * Entry point for subclasses. Successfully requested token.
+     * @param token Token acquired.
+     */
+    public abstract void onTokenAcquired(FitbitToken token);
+
+    /**
+     * Getter requested scope from activity.
+     * @return Requested scopes separated by ' '.
+     */
+    public abstract String getScopes();
 }
