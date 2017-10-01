@@ -23,6 +23,9 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.drive.Drive;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.ProgressNotification;
@@ -34,7 +37,7 @@ import it.unibs.cloudondemand.utils.ProgressNotification;
 public abstract class GoogleDriveConnection extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "GoogleDriveConnection";
 
-    // Used to control running status of service    //TODO NON FUNZIONA
+    // Used to control running status of service
     static boolean isRunning;
 
     /**
@@ -49,7 +52,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     private GoogleApiClient mGoogleApiClient;
 
     // Intent content
-    private String content;
+    private Intent intent;
 
     // Foreground notification
     private static final int NOTIFICATION_ID = 1;
@@ -67,8 +70,8 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         // Start foreground notification
         startForeground(NOTIFICATION_ID, new Notification());
 
-        content = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
-
+        // Initialize attributes
+        this.intent = intent;
         mGoogleApiClient = createGoogleClient();
 
         // Connect to google services
@@ -202,7 +205,11 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         // Stop service
         Log.i(TAG, "Finished service (Google).");
         isRunning = false;
-        stopForeground(false);
+        stopForeground(true);
+
+        // Show last (cancelable) notification
+        mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
+
         stopSelf();
     }
 
@@ -212,9 +219,6 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         super.onDestroy();
         if(mGoogleApiClient.isConnected())
             disconnect();
-
-        // Show last (cancelable) notification
-        mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
     }
 
     /**
@@ -244,6 +248,22 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
      * @return Content extra of intent.
      */
     public String getContent() {
-        return content;
+        return intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
+    }
+
+    public ArrayList<String> getDriveIdArrayContent(){
+        return intent.getStringArrayListExtra(GoogleDriveDownloadFile.DRIVEID_EXTRA);
+    }
+
+    public ArrayList<String> getPathArrayContent(){
+        return intent.getStringArrayListExtra(LoginActivity.CONTENT_EXTRA);
+    }
+
+    /**
+     * Getter intent content only for download.
+     * @return Content extra of intent.
+     */
+    public String getDownloadContent(){
+        return intent.getStringExtra(GoogleDriveDownloadFile.DRIVEID_EXTRA);
     }
 }

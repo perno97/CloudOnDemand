@@ -207,7 +207,43 @@ public class GoogleDriveUtil {
         database.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
     }
 
-    public static HashMap<String, String> getDatabase(Context context){
+    public static HashMap<String, String> getFolders(Context context){
+        FileListDbHelper mDbHelper = new FileListDbHelper(context);
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        String[] projectionFolder = {
+                FileListContract.FolderList.COLUMN_DRIVEID,
+                FileListContract.FolderList.COLUMN_FOLDERPATH
+        };
+
+        Cursor cursorFolders = db.query(
+                FileListContract.FolderList.TABLE_NAME,
+                projectionFolder,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        if(cursorFolders == null || cursorFolders.getCount() == 0)
+            return null;
+
+        HashMap<String,String> toReturn = new HashMap<>();
+
+        //Add folders to hashmap
+        while (cursorFolders.moveToNext()) {
+            toReturn.put(
+                    cursorFolders.getString(cursorFolders.getColumnIndex(FileListContract.FolderList.COLUMN_DRIVEID)),
+                    cursorFolders.getString(cursorFolders.getColumnIndex(FileListContract.FolderList.COLUMN_FOLDERPATH))
+            );
+        }
+
+        return toReturn;
+    }
+
+    public static HashMap<String, String> getFiles(Context context){
         FileListDbHelper mDbHelper = new FileListDbHelper(context);
 
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -227,35 +263,12 @@ public class GoogleDriveUtil {
                 null                                                      // The sort order
         );
 
-        String[] projectionFolder = {
-                FileListContract.FolderList.COLUMN_DRIVEID,
-                FileListContract.FolderList.COLUMN_FOLDERPATH
-        };
-
-        Cursor cursorFolders = db.query(
-                FileListContract.FolderList.TABLE_NAME,
-                projectionFolder,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        if((cursorFolders == null && cursorFiles == null) ||
-                (cursorFiles.getCount() == 0 && cursorFolders.getCount() == 0))
+        if(cursorFiles == null|| cursorFiles.getCount() == 0)
             return null;
 
         HashMap<String,String> toReturn = new HashMap<>();
 
-        //Add folders to hashmap
-        while (cursorFolders.moveToNext()) {
-            toReturn.put(
-                    cursorFolders.getString(cursorFolders.getColumnIndex(FileListContract.FolderList.COLUMN_DRIVEID)),
-                    cursorFolders.getString(cursorFolders.getColumnIndex(FileListContract.FolderList.COLUMN_FOLDERPATH))
-            );
-        }
-
+        //Add files to hashmap
         while (cursorFiles.moveToNext()) {
             toReturn.put(
                     cursorFiles.getString(cursorFiles.getColumnIndex(FileListContract.FileList.COLUMN_DRIVEID)),

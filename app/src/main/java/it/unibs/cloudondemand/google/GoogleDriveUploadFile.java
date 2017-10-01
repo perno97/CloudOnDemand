@@ -123,7 +123,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 while (fileInputStream.read(buffer) != -1) {
                     publishProgress((int) (100*k/fileLength));
                     outputStream.write(buffer);
-                    k+=8;
+                    k += 8;
                 }
 
             } catch (FileNotFoundException e) {
@@ -155,8 +155,8 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         protected void onProgressUpdate(Integer... values) {
             if(lastValue != values[0]) {
                 // Call abstract method
-                fileProgress(values[0]);
                 lastValue = values[0];
+                fileProgress(lastValue);
             }
         }
 
@@ -191,8 +191,17 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
     }
 
     // Called many times during the file upload.
+    /**
+     * Used by subclasses to retrieve the percent value of progress of  the upload.
+     * @param percent Progress value.
+     */
     public abstract void fileProgress (int percent);
 
     // Called when a file has been uploaded. driveFile = null when file on drive wasn't created.
+
+    /**
+     * Used by subclasses to know when a file was uploaded.
+     * @param driveFile Drive file uploaded.
+     */
     public abstract void onFileUploaded (DriveFile driveFile);
 }
