@@ -49,7 +49,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     private GoogleApiClient mGoogleApiClient;
 
     // Intent content
-    private String content;
+    private Intent intent;
 
     // Foreground notification
     private static final int NOTIFICATION_ID = 1;
@@ -66,8 +66,6 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Start foreground notification
         startForeground(NOTIFICATION_ID, new Notification());
-
-        content = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
 
         mGoogleApiClient = createGoogleClient();
 
@@ -244,6 +242,14 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
      * @return Content extra of intent.
      */
     public String getContent() {
-        return content;
+        return intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
+    }
+
+    /**
+     * Getter intent content only for download,
+     * @return Content extra of intent.
+     */
+    public String getDownloadContent(){
+        return intent.getStringExtra(GoogleDriveDownloadFile.DRIVEID_EXTRA);
     }
 }

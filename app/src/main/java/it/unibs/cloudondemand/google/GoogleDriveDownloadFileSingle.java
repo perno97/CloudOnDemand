@@ -25,7 +25,8 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
     public void startDownloading() {
         // Start downloading the file into device root dir.
         String driveId = getContent();
-        File destinationPath = new File (Environment.getExternalStorageDirectory().toString() + "/prova.txt");//TODO cambiare destinazione
+        //File destinationPath = new File (Environment.getExternalStorageDirectory().toString() + "/prova.txt");//TODO cambiare destinazione
+        File destinationPath = new File(getDownloadContent());
         filename = destinationPath.getName();
 
         // Initialize notification

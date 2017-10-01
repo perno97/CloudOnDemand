@@ -41,7 +41,6 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
     public static final int CONTENT_FOLDER = 1;
     public static final int CONTENT_FILE = 0;
 
-    public static final String DESTINATION_PATH_EXTRA = "destination-path";
     public static final String DRIVEID_EXTRA = "drive-id";
 
     @Override
@@ -190,8 +189,8 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
                 intent = new Intent(context, GoogleDriveDownloadFileFolder.class);
                 break;
         }
-        intent.putExtra(DESTINATION_PATH_EXTRA, destinationPath);
-        intent.putExtra(LoginActivity.CONTENT_EXTRA, driveId);
+        intent.putExtra(DRIVEID_EXTRA, driveId);
+        intent.putExtra(LoginActivity.CONTENT_EXTRA, destinationPath);
         return intent;
     }
 }
