@@ -80,8 +80,6 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
         this.destinationPath = destinationPath;
         this.driveFile = DriveId.decodeFromString(driveIdFileToDownload).asDriveFile();
 
-        // TODO Delete file if already exists
-
         // Start download
         DownloadFileAsyncTask downloadFileAsyncTask = new DownloadFileAsyncTask();
         downloadFileAsyncTask.execute();

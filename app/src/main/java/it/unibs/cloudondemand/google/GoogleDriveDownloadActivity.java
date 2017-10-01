@@ -41,7 +41,7 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.select_download_listview);
 
         ArrayList<FileListable> fileList = new ArrayList<>(listFiles.size());
-        fileList.add(new CustomFileDrive(null, "null"));
+        fileList.add(new CustomFileDrive(null, "null", false));
         for(String key : listFiles.keySet()) {
             CustomFileDrive fileDrive = new CustomFileDrive(key, listFiles.get(key), FILE);
             fileList.add(fileDrive);

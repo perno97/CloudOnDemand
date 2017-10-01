@@ -37,7 +37,7 @@ import it.unibs.cloudondemand.utils.ProgressNotification;
 public abstract class GoogleDriveConnection extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "GoogleDriveConnection";
 
-    // Used to control running status of service    //TODO NON FUNZIONA
+    // Used to control running status of service
     static boolean isRunning;
 
     /**
@@ -70,6 +70,8 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         // Start foreground notification
         startForeground(NOTIFICATION_ID, new Notification());
 
+        // Initialize attributes
+        this.intent = intent;
         mGoogleApiClient = createGoogleClient();
 
         // Connect to google services
@@ -257,7 +259,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     }
 
     /**
-     * Getter intent content only for download,
+     * Getter intent content only for download.
      * @return Content extra of intent.
      */
     public String getDownloadContent(){
