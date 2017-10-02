@@ -155,17 +155,17 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     public void onConnected(@Nullable Bundle bundle) {
         // Verify if client want to Sign-out
         if(signOut) {
-            Log.i(TAG, "Sign-out from Google Account");
             Auth.GoogleSignInApi.signOut(mGoogleApiClient)
                     .setResultCallback(new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
+                            Log.i(TAG, "Sign-out from Google Account");
                             // Make it false to prevent infinite loop
                             signOut = false;
                             // Delete account name from shared preferences
                             GoogleDriveUtil.saveAccountSignedIn(GoogleDriveConnection.this, "");
                             // Restart with new Sign-in
-                            createGoogleClient();
+                            mGoogleApiClient = createGoogleClient();
                             doSignIn();
                         }
                     });
