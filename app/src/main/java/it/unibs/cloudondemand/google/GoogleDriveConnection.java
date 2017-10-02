@@ -56,6 +56,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
 
     // Foreground notification
     private static final int NOTIFICATION_ID = 1;
+    private static final int LAST_NOTIFICATION_ID = 2;
     private NotificationManager mNotificationManager;
 
     @Override
@@ -208,7 +209,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         stopForeground(true);
 
         // Show last (cancelable) notification
-        mNotificationManager.notify(NOTIFICATION_ID, getFinalNotification());
+        mNotificationManager.notify(LAST_NOTIFICATION_ID, getFinalNotification());
 
         stopSelf();
     }
