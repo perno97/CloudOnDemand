@@ -78,7 +78,8 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
 
                 //Check wether it's a file or a directory
                 if(fileDrive.isDirectory())
-                    downloadFolder(fileDrive.path, fileDrive.driveId);
+                    //downloadFolder(fileDrive.path, fileDrive.driveId);
+                    Toast.makeText(GoogleDriveDownloadActivity.this, "Funzione disponibile a breve", Toast.LENGTH_SHORT).show();//TODO rimuovere
                 else
                     downloadFile(fileDrive.path, fileDrive.driveId);
             }
