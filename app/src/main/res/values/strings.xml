@@ -21,6 +21,7 @@
     <string name="dialog_upload_content">Vuoi caricare il file/cartella selezionato/a?</string>
     <string name="insert_not_empty_string">Inserisci una stringa non vuota</string>
     <string name="text_download_button">download</string>
+    <string name="upload_file_text">Carica un file/cartella:</string>
 
     <!-- LoginActivity -->
     <string name="button_google_another_account">Accedi con un altro account</string>

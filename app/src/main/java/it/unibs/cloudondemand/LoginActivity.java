@@ -17,7 +17,6 @@ import it.unibs.cloudondemand.google.GoogleDriveUtil;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     public static final String CONTENT_TYPE_EXTRA = "content-type";
-    public static final int CONTENT_STRING = 0;
     public static final int CONTENT_FILE = 1;
     public static final int CONTENT_FOLDER = 2;
 

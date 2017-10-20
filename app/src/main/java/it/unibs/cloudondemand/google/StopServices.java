@@ -18,7 +18,6 @@ public class StopServices extends Service {
 
     // Extra to obtain the service to stop
     public static final String SERVICE_EXTRA = "service";
-    public static final int SERVICE_UPLOAD_STRING = 0;
     public static final int SERVICE_UPLOAD_FILE = 1;
     public static final int SERVICE_UPLOAD_FOLDER = 2;
 
@@ -27,9 +26,6 @@ public class StopServices extends Service {
         Intent toStop = null;
 
         switch (intent.getIntExtra(SERVICE_EXTRA, -1)) {
-            case SERVICE_UPLOAD_STRING :
-                toStop = new Intent(this, GoogleDriveUploadString.class);
-                break;
             case SERVICE_UPLOAD_FILE :
                 toStop = new Intent(this, GoogleDriveUploadFileSingle.class);
                 break;

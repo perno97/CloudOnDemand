@@ -37,9 +37,6 @@ public class GoogleDriveUtil {
     public static Intent getIntent(Context context, int contentType, String content, boolean signOut) {
         Intent intent = null;
         switch (contentType) {
-            case LoginActivity.CONTENT_STRING :
-                intent = new Intent(context, GoogleDriveUploadString.class);
-                break;
             case LoginActivity.CONTENT_FILE :
                 intent = new Intent(context, GoogleDriveUploadFileSingle.class);
                 break;
@@ -239,6 +236,7 @@ public class GoogleDriveUtil {
                     cursorFolders.getString(cursorFolders.getColumnIndex(FileListContract.FolderList.COLUMN_FOLDERPATH))
             );
         }
+        cursorFolders.close();
 
         return toReturn;
     }
@@ -275,6 +273,7 @@ public class GoogleDriveUtil {
                     cursorFiles.getString(cursorFiles.getColumnIndex(FileListContract.FileList.COLUMN_FILEPATH))
             );
         }
+        cursorFiles.close();
 
         return toReturn;
     }

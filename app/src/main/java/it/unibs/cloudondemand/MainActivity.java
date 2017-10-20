@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import it.unibs.cloudondemand.fitbit.FitbitAuth;
 import it.unibs.cloudondemand.google.GoogleDriveDownloadActivity;
 import it.unibs.cloudondemand.utils.FileListable;
 import it.unibs.cloudondemand.utils.PermissionRequest;
@@ -53,16 +54,9 @@ public class MainActivity extends AppCompatActivity {
     // Called when user click a button button
     public void onClick(View view) {
         switch (view.getId()) {
-            // Send string button
-            case R.id.button :
-                EditText editText = (EditText) findViewById(R.id.editText);
-                String message = editText.getText().toString();
-                if(message.isEmpty())
-                    Toast.makeText(this, R.string.insert_not_empty_string, Toast.LENGTH_LONG ).show();
-                else
-                {
-                    sendIntent(LoginActivity.CONTENT_STRING, message);
-                }
+            // Fitbit button
+            case R.id.fitbit_sign_in_button :
+                startActivity(FitbitAuth.getIntent(this));
                 break;
             // Download button
             case R.id.button2 :
