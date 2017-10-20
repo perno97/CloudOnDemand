@@ -35,7 +35,7 @@
             android:layout_below="@+id/imageView"
             android:layout_marginLeft="15dp"
             android:layout_marginTop="50dp"
-            android:text="Name"
+            android:text="Nome"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView

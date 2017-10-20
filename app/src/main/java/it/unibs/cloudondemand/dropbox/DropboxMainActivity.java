@@ -60,26 +60,6 @@ public class DropboxMainActivity extends AppCompatActivity {
             new DropboxUploadFile(DropboxClient.getClient(accessToken), new File(pathFileToUpload), this).execute();
         else
             Log.i("DropboxMain", "No file passed to activity");
-
-
-        // Set on click listener on floating action button
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(fabOnClickListener);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(resultCode != RESULT_OK || data==null) return;
-        //Check the request
-        if(requestCode==IMAGE_REQUEST_CODE){
-            File file =new File(URI_to_Path.getPath(getApplication(),data.getData()));
-            if(file!=null) {
-                new DropboxUploadFile(DropboxClient.getClient(accessToken), file, DropboxMainActivity.this).execute();
-            }
-        }
     }
 
     private void getUserAccount() {
@@ -99,17 +79,6 @@ public class DropboxMainActivity extends AppCompatActivity {
             }
         }).execute();
     }
-
-    private FloatingActionButton.OnClickListener fabOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Intent intent=new Intent();
-            intent.setType("*/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-            startActivityForResult(Intent.createChooser(intent, "Upload to Dropbox"), IMAGE_REQUEST_CODE);
-        }
-    };
 
     private boolean tokenExists() {
         return retrieveAccessToken() != null;
