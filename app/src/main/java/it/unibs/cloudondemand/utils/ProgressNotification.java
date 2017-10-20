@@ -15,7 +15,7 @@ public class ProgressNotification {
 
     private Context context;
     private NotificationCompat.Builder mNotificationBuilder;
-    //TODO IMPLEMENTARE TITOLO NOTIFICA
+
     /**
      * Create a new progress notification with stop intent.
      * @param context A context.

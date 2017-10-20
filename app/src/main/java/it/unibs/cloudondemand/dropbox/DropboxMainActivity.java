@@ -63,7 +63,7 @@ public class DropboxMainActivity extends AppCompatActivity {
         if(requestCode==IMAGE_REQUEST_CODE){
             File file =new File(URI_to_Path.getPath(getApplication(),data.getData()));
             if(file!=null) {
-                new DropboxUploadFile(DropboxClient.getClient(accessToken), file, getApplicationContext()).execute();
+                new DropboxUploadFile(DropboxClient.getClient(accessToken), file, DropboxMainActivity.this).execute();
             }
         }
     }
