@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.ProgressNotification;
 
 public class DropboxUploadFile extends AsyncTask {
@@ -43,14 +44,12 @@ public class DropboxUploadFile extends AsyncTask {
             InputStream inputStream = new FileInputStream(file);
 
             // Show notification
-            ProgressNotification progressNotification = new ProgressNotification(context, "Upload su Dropbox", file.getName(), true);
+            ProgressNotification progressNotification = new ProgressNotification(context, context.getString(R.string.dropbox_uploading_file), file.getName(), true);
             mNotificationManager.notify(NOTIFICATION_ID, progressNotification.getNotification());
 
             // Start upload (Always overwrite existing file)
             dbxClient.files().uploadBuilder(file.getPath()).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
 
-            // Show last notification
-            mNotificationManager.notify(NOTIFICATION_ID, new Notification.Builder(context).setContentTitle("Upload su Dropbox completato").setContentText(file.getName()).setSmallIcon(ProgressNotification.NOTIFICATION_ICON).build());
             Log.d("Upload Status", "Login eseguito con successo");
         } catch (DbxException e) {
             e.printStackTrace();
@@ -63,7 +62,8 @@ public class DropboxUploadFile extends AsyncTask {
     @Override
     protected void onPostExecute(Object o) {
         super.onPostExecute(o);
-        Toast.makeText(context, "File uploaded successfully", Toast.LENGTH_SHORT).show();
+        // Show last notification
+        mNotificationManager.notify(NOTIFICATION_ID, new Notification.Builder(context).setContentTitle(context.getString(R.string.dropbox_uploaded)).setContentText(file.getName()).setSmallIcon(ProgressNotification.NOTIFICATION_ICON).build());
     }
 
 }

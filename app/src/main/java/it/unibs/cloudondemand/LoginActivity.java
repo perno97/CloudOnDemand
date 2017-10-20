@@ -98,7 +98,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(FitbitAuth.getIntent(this));
                 break;
             case R.id.dropbox_sign_in_button:
-                startActivity(new Intent(this, DropboxMainActivity.class));
+                startActivity(DropboxMainActivity.getIntent(this, mContent));
         }
         finish();
     }

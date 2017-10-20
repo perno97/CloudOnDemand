@@ -11,6 +11,9 @@ import com.dropbox.core.android.Auth;
 import it.unibs.cloudondemand.R;
 
 public class DropboxLoginActivity extends AppCompatActivity {
+
+    private Bundle intentExtras;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -18,6 +21,8 @@ public class DropboxLoginActivity extends AppCompatActivity {
         Auth.startOAuth2Authentication(getApplicationContext(), getString(R.string.APP_KEY));
         getAccessToken();
 
+        Intent intent = getIntent();
+        intentExtras = intent.getExtras();
     }
 
 
@@ -37,7 +42,8 @@ public class DropboxLoginActivity extends AppCompatActivity {
             prefs.edit().putString(getString(R.string.dropbox_access_token), accessToken).apply();
 
             //Proceed to MainActivity
-            Intent intent = new Intent(DropboxLoginActivity.this, DropboxMainActivity.class);
+            Intent intent = new Intent(this, DropboxMainActivity.class);
+            intent.putExtras(intentExtras);
             startActivity(intent);
         }
 

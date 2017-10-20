@@ -13,12 +13,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dropbox.core.v2.users.FullAccount;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
+import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.utils.URI_to_Path;
 
@@ -34,11 +36,16 @@ public class DropboxMainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Intent intent = getIntent();
+        String pathFileToUpload = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
+
         if (!tokenExists()) {
             //No token
             //Back to LoginActivity to request
-            Intent intent = new Intent(this, DropboxLoginActivity.class);
-            startActivity(intent);
+            Intent loginIntent = new Intent(this, DropboxLoginActivity.class);
+            loginIntent.putExtra(LoginActivity.CONTENT_EXTRA, pathFileToUpload);
+            startActivity(loginIntent);
+
             finish();
             return;
         }
@@ -47,6 +54,13 @@ public class DropboxMainActivity extends AppCompatActivity {
         accessToken = retrieveAccessToken();
         // Retrieve user account info and print on screen
         getUserAccount();
+
+        // Start uploading
+        if(pathFileToUpload != null)
+            new DropboxUploadFile(DropboxClient.getClient(accessToken), new File(pathFileToUpload), this).execute();
+        else
+            Log.i("DropboxMain", "No file passed to activity");
+
 
         // Set on click listener on floating action button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -126,5 +140,11 @@ public class DropboxMainActivity extends AppCompatActivity {
                 .load(account.getProfilePhotoUrl())
                 .resize(200, 200)
                 .into(profile);
+    }
+
+    public static Intent getIntent(Context context, String path) {
+        Intent intent = new Intent(context, DropboxMainActivity.class);
+        intent.putExtra(LoginActivity.CONTENT_EXTRA, path);
+        return intent;
     }
 }
