@@ -94,11 +94,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 else
                     startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));
                 break;
-            case R.id.fitbit_sign_in_button:
-                startActivity(FitbitAuth.getIntent(this));
-                break;
             case R.id.dropbox_sign_in_button:
                 startActivity(DropboxMainActivity.getIntent(this, mContent));
+                break;
         }
         finish();
     }
