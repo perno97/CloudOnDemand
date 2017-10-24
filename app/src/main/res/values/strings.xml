@@ -10,6 +10,8 @@
     <string name="requested_permission_read_storage">Sono richiesti i permessi\ndi lettura della memoria</string>
     <string name="requested_permission_write_storage">Sono richiesti i permessi\ndi scrittura in memoria</string>
     <string name="unable_upload_file">Impossibile caricare il file</string>
+    <string name="wait">Aspetta</string>
+    <string name="check_internet_connection">Controlla la connessione ad internet</string>
 
     <string name="action_settings">Settings</string>
   
@@ -25,6 +27,8 @@
 
     <!-- LoginActivity -->
     <string name="button_google_another_account">Accedi con un altro account</string>
+    <string name="warning_internet_with_mobile">Attenzione : Stai usando la connessione\ncon i dati mobili</string>
+
 
     <!-- Google -->
     <string name="unable_connect_googleservices">Impossibile collegarsi ai Google Play Services</string>
@@ -37,7 +41,7 @@
     <string name="googledrive_downloaded">Download da Drive Completato</string>
 
     <!-- Dropbox API -->
-    <string name="APP_KEY">k4r9giw251cnll0</string> //app key dropbox
+    <string name="APP_KEY">k4r9giw251cnll0</string>
     <string name="title_activity_login">Sign in with Dropbox</string>
     <!-- Dropbox -->
     <string name="dropbox_uploading_file">Upload file su Dropbox</string>

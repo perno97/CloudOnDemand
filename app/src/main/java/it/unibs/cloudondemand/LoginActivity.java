@@ -13,6 +13,7 @@ import com.google.android.gms.common.SignInButton;
 import it.unibs.cloudondemand.dropbox.DropboxMainActivity;
 import it.unibs.cloudondemand.fitbit.FitbitAuth;
 import it.unibs.cloudondemand.google.GoogleDriveUtil;
+import it.unibs.cloudondemand.utils.Utils;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -80,18 +81,27 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View v) {
+        if(!Utils.checkInternetConnections(this)) {
+            Toast.makeText(this, R.string.check_internet_connection, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(Utils.isConnectedWithMobile(this)) {
+            Toast.makeText(this, R.string.warning_internet_with_mobile, Toast.LENGTH_SHORT).show();
+        }
+
         switch (v.getId()) {
             case R.id.google_sign_in_new_account_button :
                 //Check before if service is running
                 if(GoogleDriveUtil.isUploadServiceRunning())
-                    Toast.makeText(this, "Wait", Toast.LENGTH_SHORT).show();    //TODO res/strings
+                    Toast.makeText(this, R.string.wait, Toast.LENGTH_SHORT).show();
                 else
                     startService(GoogleDriveUtil.getIntent(this, mContentType, mContent, true));
                 break;
             case R.id.google_signed_in_button :
                 if(GoogleDriveUtil.isUploadServiceRunning())
-                    Toast.makeText(this, "Wait", Toast.LENGTH_SHORT).show();    //TODO res/strings
-                else
+                    Toast.makeText(this, R.string.wait, Toast.LENGTH_SHORT).show();
+                else if(Utils.checkInternetConnections(this))
+
                     startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));
                 break;
             case R.id.dropbox_sign_in_button:
