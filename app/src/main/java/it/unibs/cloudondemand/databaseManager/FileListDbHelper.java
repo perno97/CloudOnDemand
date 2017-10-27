@@ -7,17 +7,23 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class FileListDbHelper extends SQLiteOpenHelper {
 
+    private static final String SQL_CREATE_TABLE_USERS =
+            "CREATE TABLE " + FileListContract.UsersList.TABLE_NAME + " (" +
+                    FileListContract.UsersList.COLUMN_ACCOUNTID + " TEXT PRIMARY KEY)";
+
     private static final String SQL_CREATE_TABLE_FILES =
             "CREATE TABLE " + FileListContract.FileList.TABLE_NAME + " (" +
                     FileListContract.FileList.COLUMN_DRIVEID + " TEXT PRIMARY KEY," +
                     FileListContract.FileList.COLUMN_FILEPATH + " TEXT," +
-                    FileListContract.FileList.COLUMN_PARENTID + " INTEGER)";
+                    FileListContract.FileList.COLUMN_PARENTID + " INTEGER," +
+                    FileListContract.FileList.COLUMN_ACCOUNTID + " TEXT)";
 
     private static final String SQL_CREATE_TABLE_FOLDERS =
             "CREATE TABLE " + FileListContract.FolderList.TABLE_NAME + " (" +
                     FileListContract.FolderList.COLUMN_DRIVEID + " TEXT PRIMARY KEY," +
                     FileListContract.FolderList.COLUMN_FOLDERPATH + " TEXT," +
-                    FileListContract.FolderList.COLUMN_PARENTID + " INTEGER)";
+                    FileListContract.FolderList.COLUMN_PARENTID + " INTEGER," +
+                    FileListContract.FolderList.COLUMN_ACCOUNTID + " TEXT)";
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "FileList.db";
@@ -28,6 +34,7 @@ public class FileListDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_TABLE_USERS);
         db.execSQL(SQL_CREATE_TABLE_FILES);
         db.execSQL(SQL_CREATE_TABLE_FOLDERS);
     }

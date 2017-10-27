@@ -72,6 +72,13 @@ public class GoogleDriveUtil {
     }
 
     // Read account name from shared preferences and verify if user is signed in
+    public static boolean isSignedIn(SQLiteDatabase db) {
+        if(getAccountIds(db) == null)
+            return false;
+        return true;
+    }
+
+    // Read account name from shared preferences and verify if user is signed in
     public static boolean isSignedIn(Context context) {
         return !getAccountName(context).equals("");
     }
@@ -90,11 +97,45 @@ public class GoogleDriveUtil {
         editor.apply();
     }
 
-    public static void addFileToDatabase(Context context, String driveId, String filePath, int parentId){
-        FileListDbHelper mDbHelper = new FileListDbHelper(context);
+    // Read account ids from context database
+    public static ArrayList<String> getAccountIds(SQLiteDatabase db) {
+        String[] projection = {FileListContract.UsersList.COLUMN_ACCOUNTID};
 
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        Cursor cursor = db.query(
+                FileListContract.UsersList.TABLE_NAME,                     // The table to query
+                projection,                                                // The columns to return
+                null,                                             // The columns for the WHERE clause
+                null,                                          // The values for the WHERE clause
+                null,                                             // don't group the rows
+                null,                                              // don't filter by row groups
+                null                                              // The sort order
+        );
 
+        if(cursor == null)
+            return null;
+
+        if(cursor.getCount() == 0)
+            return null;
+
+        ArrayList<String> toReturn = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+            toReturn.add(cursor.getString(cursor.getColumnIndex(FileListContract.UsersList.COLUMN_ACCOUNTID)));
+        }
+        cursor.close();
+
+        return toReturn;
+    }
+
+    // Save account id to context database (Already signed in for future operations)
+    static void saveAccountSignedIn(SQLiteDatabase db, String accountId) {
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(FileListContract.UsersList.COLUMN_ACCOUNTID,accountId);
+        db.insert(FileListContract.UsersList.TABLE_NAME,null,values);
+    }
+
+    public static void addFileToDatabase(SQLiteDatabase db, String driveId, String filePath, int parentId){
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(FileListContract.FileList.COLUMN_DRIVEID, driveId);
@@ -103,20 +144,15 @@ public class GoogleDriveUtil {
 
         // Insert the new row, returning the primary key value of the new row
         db.insert(FileListContract.FileList.TABLE_NAME, null, values);
-
-        mDbHelper.close();
     }
 
-    public static void deleteFileIfExists(Context context, File file, GoogleApiClient mGoogleApiClient) {
-        FileListDbHelper mDbHelper = new FileListDbHelper(context);
-        SQLiteDatabase database = mDbHelper.getReadableDatabase();
-
+    public static void deleteFileIfExists(SQLiteDatabase db, File file, GoogleApiClient mGoogleApiClient) {
         String[] projection = {FileListContract.FileList.COLUMN_DRIVEID};
 
         String selection = FileListContract.FileList.COLUMN_FILEPATH + " = ?";
         String[] selectionArgs = {file.getPath()};
 
-        Cursor cursor = database.query(
+        Cursor cursor = db.query(
                 FileListContract.FileList.TABLE_NAME,
                 projection,
                 selection,
@@ -143,16 +179,10 @@ public class GoogleDriveUtil {
         // Delete from db the file deleted on drive
         selection = FileListContract.FileList.COLUMN_DRIVEID + " = ?";
         selectionArgs[0] = driveId;
-        database.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
-
-        mDbHelper.close();
+        db.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
     }
 
-    public static void addFolderToDatabase(Context context, String driveId, String folderPath){
-        FileListDbHelper mDbHelper = new FileListDbHelper(context);
-
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
+    public static void addFolderToDatabase(SQLiteDatabase db, String driveId, String folderPath){
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(FileListContract.FolderList.COLUMN_DRIVEID, driveId);
@@ -160,24 +190,19 @@ public class GoogleDriveUtil {
 
         // Insert the new row, returning the primary key value of the new row
         db.insert(FileListContract.FolderList.TABLE_NAME, null, values);
-
-        mDbHelper.close();
     }
 
     /**
      * Delete corresponding drive folder of folder path.
      * @param folder Offline foler to get path.
      */
-    public static void deleteFolderIfExists(Context context, File folder, GoogleApiClient mGoogleApiClient) {
-        FileListDbHelper mDbHelper = new FileListDbHelper(context);
-        SQLiteDatabase database = mDbHelper.getReadableDatabase();
-
+    public static void deleteFolderIfExists(SQLiteDatabase db, File folder, GoogleApiClient mGoogleApiClient) {
         String[] projection = {FileListContract.FolderList.COLUMN_DRIVEID};
 
         String selection = FileListContract.FolderList.COLUMN_FOLDERPATH + " = ?";
         String[] selectionArgs = {folder.getPath()};
 
-        Cursor cursor = database.query(
+        Cursor cursor = db.query(
                 FileListContract.FolderList.TABLE_NAME,
                 projection,
                 selection,
@@ -201,14 +226,10 @@ public class GoogleDriveUtil {
         // Delete from db the file deleted on drive
         selection = FileListContract.FileList.COLUMN_DRIVEID + " = ?";
         selectionArgs[0] = driveId;
-        database.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
+        db.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
     }
 
-    public static HashMap<String, String> getFolders(Context context){
-        FileListDbHelper mDbHelper = new FileListDbHelper(context);
-
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
+    public static HashMap<String, String> getFolders(SQLiteDatabase db){
         String[] projectionFolder = {
                 FileListContract.FolderList.COLUMN_DRIVEID,
                 FileListContract.FolderList.COLUMN_FOLDERPATH
@@ -241,11 +262,7 @@ public class GoogleDriveUtil {
         return toReturn;
     }
 
-    public static HashMap<String, String> getFiles(Context context){
-        FileListDbHelper mDbHelper = new FileListDbHelper(context);
-
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
+    public static HashMap<String, String> getFiles(SQLiteDatabase db){
         String[] projectionFile = {
                 FileListContract.FileList.COLUMN_DRIVEID,
                 FileListContract.FileList.COLUMN_FILEPATH,

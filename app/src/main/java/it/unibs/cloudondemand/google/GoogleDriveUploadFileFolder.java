@@ -59,7 +59,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
      */
     private void createDriveFolder (DriveFolder parentFolder, File folder) {
         // Delete folder on drive if already exists
-        GoogleDriveUtil.deleteFolderIfExists(getApplicationContext(), folder, getGoogleApiClient());
+        GoogleDriveUtil.deleteFolderIfExists(getDb(), folder, getGoogleApiClient());
 
         // Folder doesn't exist on Drive, so create it
         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
@@ -92,7 +92,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
             Log.i(TAG, "Folder on drive created. " +  createdDriveFolder.getDriveId());
 
             // Save folder into database
-            GoogleDriveUtil.addFolderToDatabase(getApplicationContext(), createdDriveFolder.getDriveId().encodeToString(), folderToCreate.getPath());
+            GoogleDriveUtil.addFolderToDatabase(getDb(), createdDriveFolder.getDriveId().encodeToString(), folderToCreate.getPath());
 
             // Retrieve created folder and save it in data structure
             foldersTree.getCurrentThisFolder().setDriveFolder(createdDriveFolder);

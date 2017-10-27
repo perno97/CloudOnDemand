@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.ProgressNotification;
 
 
@@ -58,6 +60,8 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     private static final int NOTIFICATION_ID = 1;
     private static final int LAST_NOTIFICATION_ID = 2;
     private NotificationManager mNotificationManager;
+    private FileListDbHelper mDbHelper;
+    private SQLiteDatabase db;
 
     @Override
     public void onCreate() {
@@ -74,6 +78,8 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
         // Initialize attributes
         this.intent = intent;
         mGoogleApiClient = createGoogleClient();
+        mDbHelper = new FileListDbHelper(getApplicationContext());
+        db = mDbHelper.getWritableDatabase();
 
         // Connect to google services
         if(!GoogleDriveUtil.isSignedIn(this)) {
@@ -218,6 +224,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mDbHelper.close();
         if(mGoogleApiClient.isConnected())
             disconnect();
     }
@@ -266,5 +273,13 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
      */
     public String getDownloadContent(){
         return intent.getStringExtra(GoogleDriveDownloadFile.DRIVEID_EXTRA);
+    }
+
+    /**
+     * Getter SQLite database
+     * @return Context's database.
+     */
+    public SQLiteDatabase getDb(){
+        return db;
     }
 }

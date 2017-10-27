@@ -84,7 +84,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
         this.parentId = parentId;
 
         // Delete file on drive if already exists
-        GoogleDriveUtil.deleteFileIfExists(getApplicationContext(),fileToUpload, getGoogleApiClient());
+        GoogleDriveUtil.deleteFileIfExists(getDb(),fileToUpload, getGoogleApiClient());
 
         // Start to upload
         uploadFileAsyncTask = new UploadFileAsyncTask();
@@ -170,7 +170,7 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
             } else {
                 Log.i(TAG, "File on drive created. " + driveFileResult.getDriveFile().getDriveId());
 
-                GoogleDriveUtil.addFileToDatabase(getApplicationContext(), driveFileResult.getDriveFile().getDriveId().encodeToString(), fileToUpload.getPath(), parentId);
+                GoogleDriveUtil.addFileToDatabase(getDb(), driveFileResult.getDriveFile().getDriveId().encodeToString(), fileToUpload.getPath(), parentId);
                 onFileUploaded(driveFileResult.getDriveFile());
             }
         }

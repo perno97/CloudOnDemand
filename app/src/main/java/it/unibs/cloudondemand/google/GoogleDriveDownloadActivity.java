@@ -1,5 +1,6 @@
 package it.unibs.cloudondemand.google;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 
 import it.unibs.cloudondemand.MainActivity;
 import it.unibs.cloudondemand.R;
+import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.FileListable;
 import it.unibs.cloudondemand.utils.RowAdapter;
 
@@ -25,10 +27,13 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext()); //TODO modificare
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
         setContentView(R.layout.activity_google_drive_download);
 
-        listFiles = GoogleDriveUtil.getFiles(getApplicationContext());
-        listFolders = GoogleDriveUtil.getFolders(getApplicationContext());
+        listFiles = GoogleDriveUtil.getFiles(db);
+        listFolders = GoogleDriveUtil.getFolders(db);
 
         if(listFiles == null && listFolders == null)
             Toast.makeText(this, "Nessun file caricato", Toast.LENGTH_SHORT).show();
