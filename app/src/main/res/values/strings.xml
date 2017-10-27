@@ -4,6 +4,7 @@
     <!-- Common -->
     <string name="yes">Sì</string>
     <string name="no">No</string>
+    <string name="error_occurred">E\' avvenuto un errore</string>
     <string name="unable_read_storage">Impossibile leggere la memoria esterna</string>
     <string name="unable_write_storage">Impossibile scrivere sulla memoria esterna</string>
     <string name="unable_connect_account">Impossibile collegarsi all\'account</string>

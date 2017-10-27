@@ -45,74 +45,37 @@ public class FitbitAuth extends FitbitConnection {
         this.token = token;
 
         // Make API request
-        URL url = null;
-        try {
-            url = new URL("https://api.fitbit.com/1/user/" + token.getUserId() + "/profile.json");
-        } catch (MalformedURLException e) {
-            // Should never get here
-            Log.e(TAG, "Error while creating URL object." + e+toString());
-        }
-        makeAPIRequest.execute(url);
+        makeAPIRequestGet(token, "https://api.fitbit.com/1/user/" + token.getUserId() + "/profile.json", profileResponse);
     }
 
-
-    private AsyncTask<URL, Void, JSONObject> makeAPIRequest = new AsyncTask<URL, Void, JSONObject>() {
+    /**
+     * Handle response of profile data request.
+     */
+    private OnAPIResponse profileResponse = new OnAPIResponse() {
         @Override
-        protected JSONObject doInBackground(URL... params) {
+        public void onResponse(JSONObject response, URL urlRequest) {
+            // Check if is a valid response
+            if (response == null) {
+                Toast.makeText(FitbitAuth.this, "Error occurred while calling fitbit server.", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            HttpURLConnection urlConnection = null;
-            JSONObject read = null;
+            TextView mTextView = (TextView) findViewById(R.id.fitbit_response_text);
+            mTextView.setText("");
             try {
-                // Create HTTP connection
-                urlConnection = (HttpURLConnection) params[0].openConnection();
-                // Set HTTP header
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setRequestProperty("Authorization", token.getTokenType() + " " + token.getAccessToken());
-
-                // Read string from response
-                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                // Create JSONObject from read string
-                read = new JSONObject(in.readLine());
-            }
-            catch (Exception e) {
-                Log.e(TAG, "Exception while connecting to Fitbit server." + e.toString());
-            }
-            finally {
-                if(urlConnection != null)
-                    urlConnection.disconnect();
-            }
-
-            return read;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            if(jsonObject != null)
-                handleJsonResponse(jsonObject);
-            else {
-                Log.e(TAG, "Empty response from fitbit server.");
-                Toast.makeText(FitbitAuth.this, "An error occurred while trying to connect to fitbit server.", Toast.LENGTH_SHORT).show();
+                JSONObject user = response.getJSONObject("user");
+                Iterator<String> keys = user.keys();
+                String key = keys.next();
+                while (keys.hasNext()) {
+                    mTextView.append(key + " : " + user.getString(key) + "\n");
+                    key = keys.next();
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, "Error occurred while reading user json object. " + e.toString());
+                mTextView.setText(R.string.unable_connect_account);
             }
         }
     };
-
-    // Show user json object into text view
-    private void handleJsonResponse(JSONObject jsonObject) {
-        TextView mTextView = (TextView) findViewById(R.id.fitbit_response_text);
-        mTextView.setText("");
-        try {
-            JSONObject user = jsonObject.getJSONObject("user");
-            Iterator<String> keys = user.keys();
-            String key = keys.next();
-            while (keys.hasNext()) {
-                mTextView.append(key + " : " + user.getString(key) + "\n");
-                key = keys.next();
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "Error occurred while reading user json object. " + e.toString());
-            mTextView.setText(R.string.unable_connect_account);
-        }
-    }
 
     /**
      * Util method to retrieve intent to launch for upload.
