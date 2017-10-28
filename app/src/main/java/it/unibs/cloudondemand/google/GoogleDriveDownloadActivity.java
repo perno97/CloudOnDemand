@@ -27,7 +27,7 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext()); //TODO modificare
+        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());//TODO scegliere utente
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         setContentView(R.layout.activity_google_drive_download);

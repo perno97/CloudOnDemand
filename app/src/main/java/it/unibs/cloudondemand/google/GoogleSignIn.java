@@ -2,6 +2,7 @@ package it.unibs.cloudondemand.google;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.Drive;
+
+import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 
 /**
  * Sign in to google account activity
@@ -82,7 +85,7 @@ public class GoogleSignIn extends AppCompatActivity {
             GoogleSignInAccount account = result.getSignInAccount();
             // Save account name to shared preferences (Already signed in for future operations)
             if(account != null)
-                GoogleDriveUtil.saveAccountSignedIn(this, account.getDisplayName());
+                saveAccountSignedIn(account);
 
             // Return result of sign in
             signInCallback.onSignInResult(true);
@@ -95,6 +98,12 @@ public class GoogleSignIn extends AppCompatActivity {
         }
 
         finish();
+    }
+
+    private void saveAccountSignedIn(GoogleSignInAccount account) {
+        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        GoogleDriveUtil.saveAccountSignedIn(db,account.getId(),account.getDisplayName());
     }
 
 

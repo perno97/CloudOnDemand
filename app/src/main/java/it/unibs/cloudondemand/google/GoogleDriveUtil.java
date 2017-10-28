@@ -70,68 +70,86 @@ public class GoogleDriveUtil {
     public static boolean isUploadServiceRunning() {//TODO funziona anche per download?
         return GoogleDriveConnection.isRunning;
     }
-
-    // Read account name from shared preferences and verify if user is signed in
-    public static boolean isSignedIn(SQLiteDatabase db) {
-        if(getAccountIds(db) == null)
-            return false;
-        return true;
-    }
-
     // Read account name from shared preferences and verify if user is signed in
     public static boolean isSignedIn(Context context) {
-        return !getAccountName(context).equals("");
+        return !getAccountIdSignedIn(context).equals("");
     }
 
     // Read account name from shared preferences
-    public static String getAccountName(Context context) {
+    public static String getAccountIdSignedIn(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.shared_pref_google_account), Context.MODE_PRIVATE);
         return sharedPreferences.getString(context.getString(R.string.google_saved_account), "");
     }
 
     // Save account name to shared preferences (Already signed in for future operations)
-    static void saveAccountSignedIn(Context context, String accountName) {
+    public static void saveAccountSignedIn(Context context, String accountId) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(context.getString(R.string.shared_pref_google_account), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(context.getString(R.string.google_saved_account), accountName);
+        editor.putString(context.getString(R.string.google_saved_account), accountId);
         editor.apply();
     }
 
-    // Read account ids from context database
-    public static ArrayList<String> getAccountIds(SQLiteDatabase db) {
-        String[] projection = {FileListContract.UsersList.COLUMN_ACCOUNTID};
+    public static String getAccountName(SQLiteDatabase db, String accountId) {
+        String[] projection = {FileListContract.UsersList.COLUMN_ACCOUNT_NAME};
+
+        String selection = FileListContract.UsersList.COLUMN_ACCOUNTID + " = ?";
+        String[] selectionArgs = { accountId };
 
         Cursor cursor = db.query(
                 FileListContract.UsersList.TABLE_NAME,                     // The table to query
                 projection,                                                // The columns to return
-                null,                                             // The columns for the WHERE clause
-                null,                                          // The values for the WHERE clause
+                selection,                                                 // The columns for the WHERE clause
+                selectionArgs,                                             // The values for the WHERE clause
                 null,                                             // don't group the rows
                 null,                                              // don't filter by row groups
                 null                                              // The sort order
         );
 
-        if(cursor == null)
+        if(cursor == null || cursor.getCount() == 0)
             return null;
 
-        if(cursor.getCount() == 0)
+        cursor.moveToNext();
+        String toReturn = cursor.getString(cursor.getColumnIndex(FileListContract.UsersList.COLUMN_ACCOUNT_NAME));
+        cursor.close();
+        return toReturn;
+    }
+
+    public static ArrayList<String> getAccountIds(SQLiteDatabase db){
+        String[] projection = {FileListContract.UsersList.COLUMN_ACCOUNTID};
+
+        Cursor cursor = db.query(
+                FileListContract.UsersList.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        if(cursor == null || cursor.getCount() == 0)
             return null;
 
         ArrayList<String> toReturn = new ArrayList<>();
 
-        while (cursor.moveToNext()) {
+        while (cursor.moveToNext()){
             toReturn.add(cursor.getString(cursor.getColumnIndex(FileListContract.UsersList.COLUMN_ACCOUNTID)));
         }
         cursor.close();
-
         return toReturn;
     }
 
     // Save account id to context database (Already signed in for future operations)
-    static void saveAccountSignedIn(SQLiteDatabase db, String accountId) {
-        // Create a new map of values, where column names are the keys
+    public static void saveAccountSignedIn(SQLiteDatabase db, String accountId, String accountName) {
+        ArrayList<String> accountIds = getAccountIds(db);
+        if(accountIds != null)
+            for(String id : accountIds){
+                if(accountId.equals(id)) return;
+            }
+
         ContentValues values = new ContentValues();
         values.put(FileListContract.UsersList.COLUMN_ACCOUNTID,accountId);
+        values.put(FileListContract.UsersList.COLUMN_ACCOUNT_NAME,accountName);
         db.insert(FileListContract.UsersList.TABLE_NAME,null,values);
     }
 

@@ -9,6 +9,7 @@ public class FileListContract {
     public static class UsersList implements BaseColumns {
         public static final String TABLE_NAME = "usersList";
         public static final String COLUMN_ACCOUNTID = "accountId";
+        public static final String COLUMN_ACCOUNT_NAME = "accountName";
     }
 
     public static class FileList implements BaseColumns {

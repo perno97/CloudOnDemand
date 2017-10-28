@@ -2,6 +2,7 @@ package it.unibs.cloudondemand;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.SignInButton;
 
+import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.dropbox.DropboxMainActivity;
 import it.unibs.cloudondemand.fitbit.FitbitAuth;
 import it.unibs.cloudondemand.google.GoogleDriveUtil;
@@ -61,7 +63,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if(GoogleDriveUtil.isSignedIn(this)) {
             //Edit and show Signed in Button
             SignInButton buttonSigned = (SignInButton) findViewById(R.id.google_signed_in_button);
-            editGoogleButton(buttonSigned, GoogleDriveUtil.getAccountName(this));
+            editGoogleButton(buttonSigned, getAccountName());
             buttonSigned.setVisibility(View.VISIBLE);
             buttonSigned.setOnClickListener(this);
 
@@ -69,6 +71,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             editGoogleButton((SignInButton) findViewById(R.id.google_sign_in_new_account_button), getString(R.string.button_google_another_account));
         }
     }
+
+    private String getAccountName() {
+        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        return GoogleDriveUtil.getAccountName(db,GoogleDriveUtil.getAccountIdSignedIn(this));
+    }
+
     // Util method to edit google sign in button text
     private void editGoogleButton(SignInButton button, String text) {
         for(int i=0; i < button.getChildCount(); i++) {

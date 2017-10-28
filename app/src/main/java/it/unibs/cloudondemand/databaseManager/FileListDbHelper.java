@@ -9,7 +9,8 @@ public class FileListDbHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_TABLE_USERS =
             "CREATE TABLE " + FileListContract.UsersList.TABLE_NAME + " (" +
-                    FileListContract.UsersList.COLUMN_ACCOUNTID + " TEXT PRIMARY KEY)";
+                    FileListContract.UsersList.COLUMN_ACCOUNTID + " TEXT PRIMARY KEY," +
+                    FileListContract.UsersList.COLUMN_ACCOUNT_NAME + " TEXT)";
 
     private static final String SQL_CREATE_TABLE_FILES =
             "CREATE TABLE " + FileListContract.FileList.TABLE_NAME + " (" +
