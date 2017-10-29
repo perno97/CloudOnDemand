@@ -8,13 +8,18 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -177,31 +182,34 @@ public abstract class FitbitConnection extends AppCompatActivity {
             return null;
     }
 
+
     /**
      * Called by subclasses that want to make an API request with GET protocol.
      * @param token Alive token.
      * @param url Request URL.
+     * @param apiResponse Callback when response is ready.
      */
     public void makeAPIRequestGet(FitbitToken token, String url, OnAPIResponse apiResponse) {
-        makeGetRequestAsync.execute(token, url, apiResponse);
+        new MakeGetRequestAsync().execute(token, url, apiResponse);
     }
 
     /**
      * Make a GET API request in async task
      */
-    private AsyncTask<Object, Void, JSONObject> makeGetRequestAsync = new AsyncTask<Object, Void, JSONObject>() {
+    private static class MakeGetRequestAsync extends AsyncTask<Object, Void, Pair<String, JSONObject>> {
         private URL urlRequest;
         private OnAPIResponse apiResponse;
 
-        // params[0] = FitbitToken, params[1] = String, params[2] = OnAPIResponse
+        // params[0] = FitbitToken, params[1] = String(URL), params[2] = OnAPIResponse(Callback)
         @Override
-        protected JSONObject doInBackground(Object... params) {
+        protected Pair<String, JSONObject> doInBackground(Object... params) {
             FitbitToken token = (FitbitToken) params[0];
             String url = (String) params[1];
             apiResponse = (OnAPIResponse) params[2];
 
             HttpsURLConnection urlConnection = null;
             JSONObject read = null;
+            String headerResponse = null;
             try {
                 urlRequest = new URL(url);
                 // Create HTTP connection
@@ -209,6 +217,8 @@ public abstract class FitbitConnection extends AppCompatActivity {
                 // Set HTTP header
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("Authorization", token.getTokenType() + " " + token.getAccessToken());
+
+                    headerResponse = urlConnection.getHeaderField(null);
 
                 // Read string from response
                 BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -223,17 +233,110 @@ public abstract class FitbitConnection extends AppCompatActivity {
                     urlConnection.disconnect();
             }
 
-            return read;
+            return new Pair<>(headerResponse, read);
         }
 
         @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            apiResponse.onResponse(jsonObject, urlRequest);
+        protected void onPostExecute(Pair<String, JSONObject> response) {
+            // Log error
+            if(response.first != null)
+                Log.e(TAG, "Response(GET) HTTP header : " + response.first);
+            else
+                Log.e(TAG, "Response(GET) null (also header).");
+
+            // Make callback
+            apiResponse.onResponse(response.first, response.second, urlRequest);
         }
-    };
+    }
 
 
-    // Before calling this method in this class, assign token attribute.
+    /**
+     * Called by subclasses that want to make an API request with POST protocol.
+     * @param token Alive token.
+     * @param url Request URL.
+     * @param postContent Parameters to put in post.
+     * @param apiResponse Callback when response is ready.
+     */
+    public void makeAPIRequestPost(FitbitToken token, String url, Map<String, String> postContent,OnAPIResponse apiResponse) {
+        new MakePostRequestAsync().execute(token, url, postContent, apiResponse);
+    }
+
+    /**
+     * Make a GET API request in async task
+     */
+    private static class MakePostRequestAsync extends AsyncTask<Object, Void, Pair<String, JSONObject>> {
+        private URL urlRequest;
+        private OnAPIResponse apiResponse;
+
+        // params[0] = FitbitToken, params[1] = String(URL), params[2] = Map<String,String>(postContent), params[3] = OnAPIResponse(Callback)
+        @Override
+        protected Pair<String, JSONObject> doInBackground(Object... params) {
+            FitbitToken token = (FitbitToken) params[0];
+            String url = (String) params[1];
+            Map<String,String> postContent = (Map<String, String>) params[2];
+            apiResponse = (OnAPIResponse) params[3];
+
+            HttpsURLConnection urlConnection = null;
+            JSONObject read = null;
+            String headerResponse = null;
+            try {
+                urlRequest = new URL(url);
+                // Create HTTP connection
+                urlConnection = (HttpsURLConnection) urlRequest.openConnection();
+                // Set HTTP header
+                urlConnection.setRequestProperty("Authorization", token.getTokenType() + " " + token.getAccessToken());
+                // Method POST without known body length
+                urlConnection.setDoOutput(true);
+                urlConnection.setChunkedStreamingMode(0);
+
+                // Post content
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream()));
+                // Build string to send
+                boolean first = true;
+                StringBuilder stringBuilder = new StringBuilder();
+                for(String key : postContent.keySet()) {
+                    if(first)
+                        first = false;
+                    else
+                        stringBuilder.append("&");
+                    stringBuilder.append(key);
+                    stringBuilder.append("=");
+                    stringBuilder.append(postContent.get(key));
+                }
+                out.write(stringBuilder.toString());
+
+                headerResponse = urlConnection.getHeaderField(null);
+
+                // Read string from response
+                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                // Create JSONObject from read string
+                read = new JSONObject(in.readLine());
+            }
+            catch (Exception e) {
+                Log.e(TAG, "Exception while connecting to Fitbit server." + e.toString());
+            }
+            finally {
+                if(urlConnection != null)
+                    urlConnection.disconnect();
+            }
+
+            return new Pair<>(headerResponse, read);
+        }
+
+        @Override
+        protected void onPostExecute(Pair<String, JSONObject> response) {
+            // Log error
+            if(response.first != null)
+                Log.e(TAG, "Response(GET) HTTP header : " + response.first);
+            else
+                Log.e(TAG, "Response(GET) null (also header).");
+
+            // Make callback
+            apiResponse.onResponse(response.first, response.second, urlRequest);
+        }
+    }
+
+
     /**
      * Entry point for subclasses. Successfully requested token.
      * @param token Token acquired.
@@ -256,6 +359,6 @@ public abstract class FitbitConnection extends AppCompatActivity {
          * @param response Response.
          * @param urlRequest Url used for the request.
          */
-        void onResponse(JSONObject response, URL urlRequest);
+        void onResponse(String headerResponse, JSONObject response, URL urlRequest);
     }
 }

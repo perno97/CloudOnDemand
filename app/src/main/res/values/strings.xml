@@ -15,7 +15,7 @@
     <string name="check_internet_connection">Controlla la connessione ad internet</string>
 
     <string name="action_settings">Settings</string>
-  
+
 
     <!-- MainActivity -->
     <string name="edit_message">Inserisci una stringa</string>
