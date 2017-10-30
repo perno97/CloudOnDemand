@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.ArrayMap;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.DriveFile;
@@ -22,7 +19,6 @@ import java.util.HashMap;
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.databaseManager.FileListContract;
-import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 
 public class GoogleDriveUtil {
 

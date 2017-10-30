@@ -104,6 +104,7 @@ public class GoogleSignIn extends AppCompatActivity {
         FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         GoogleDriveUtil.saveAccountSignedIn(db,account.getId(),account.getDisplayName());
+        GoogleDriveUtil.saveAccountSignedIn(this,account.getId());
     }
 
 

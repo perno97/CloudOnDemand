@@ -2,17 +2,14 @@ package it.unibs.cloudondemand.google;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,12 +22,10 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.drive.Drive;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
-import it.unibs.cloudondemand.utils.ProgressNotification;
 
 
 /**
