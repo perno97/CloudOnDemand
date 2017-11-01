@@ -240,7 +240,7 @@ public abstract class FitbitConnection extends AppCompatActivity {
         protected void onPostExecute(Pair<String, JSONObject> response) {
             // Log error
             if(response.first != null)
-                Log.e(TAG, "Response(GET) HTTP header : " + response.first);
+                Log.e(TAG, "Requested URL : " + urlRequest + " // Response(GET) HTTP header : " + response.first);
             else
                 Log.e(TAG, "Response(GET) null (also header).");
 

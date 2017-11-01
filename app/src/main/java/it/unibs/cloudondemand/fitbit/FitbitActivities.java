@@ -47,7 +47,7 @@ public class FitbitActivities extends FitbitConnection {
                 return;
             }
 
-            TextView mTextView = (TextView) findViewById(R.id.fitbit_response_text);
+            TextView mTextView = (TextView) findViewById(R.id.fitbit_activities_text);
             /*
             try {
                 JSONObject user = response.getJSONObject("user");

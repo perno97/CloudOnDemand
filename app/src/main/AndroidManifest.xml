@@ -55,7 +55,6 @@
                 android:value=".MainActivity" />
         </activity>
 
-        <service android:name=".google.GoogleDriveUploadString" />
         <service android:name=".google.GoogleDriveUploadFileSingle" />
         <service android:name=".google.GoogleDriveUploadFileFolder" />
         <service android:name=".google.GoogleDriveDownloadFileSingle" />
