@@ -35,7 +35,7 @@ public class FitbitActivities extends FitbitConnection {
             return;
         }
 
-        String url = "https://api.fitbit.com/1/user/" + token.getUserId() + "/activities/list.json?sort=desc&offset=0&limit=20";
+        String url = "https://api.fitbit.com/1/user/" + token.getUserId() + "/activities/list.json?beforeDate=2017-11-02&sort=desc&offset=0&limit=20";
         makeAPIRequestGet(token, url, activitiesResponse);
     }
 
@@ -77,5 +77,10 @@ public class FitbitActivities extends FitbitConnection {
     @Override
     public String getScopes() {
         return SCOPE;
+    }
+
+    @Override
+    public String getClassName() {
+        return this.getClass().getName();
     }
 }

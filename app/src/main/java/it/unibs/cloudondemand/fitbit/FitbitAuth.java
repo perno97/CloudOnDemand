@@ -53,6 +53,7 @@ public class FitbitAuth extends FitbitConnection {
             }
 
             TextView mTextView = (TextView) findViewById(R.id.fitbit_response_text);
+            mTextView.setText("");
             try {
                 JSONObject user = response.getJSONObject("user");
                 Iterator<String> keys = user.keys();
@@ -88,5 +89,10 @@ public class FitbitAuth extends FitbitConnection {
     @Override
     public String getScopes() {
         return SCOPE;
+    }
+
+    @Override
+    public String getClassName() {
+        return this.getClass().getName();
     }
 }

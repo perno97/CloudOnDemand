@@ -61,7 +61,9 @@
         <service android:name=".google.StopServices" />
 
         <!-- Fitbit activities (every activity should have its intent-filter -->
-        <activity android:name=".fitbit.FitbitAuth">
+        <activity android:name=".fitbit.FitbitAuth" />
+        <activity android:name=".fitbit.FitbitActivities" />
+        <activity android:name=".fitbit.FitbitCallback">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -93,8 +95,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".dropbox.DropboxLoginActivity"
-            android:label="@string/title_activity_login"></activity>
-        <activity android:name=".fitbit.FitbitActivities"></activity>
+            android:label="@string/title_activity_login" />
     </application>
 
 </manifest>

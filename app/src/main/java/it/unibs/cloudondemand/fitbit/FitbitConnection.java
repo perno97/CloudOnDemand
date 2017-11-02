@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -16,9 +17,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -39,91 +38,16 @@ public abstract class FitbitConnection extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = getIntent();
-
-        String intentData = intent.getDataString();
-
-        if(intentData != null && intentData.startsWith(REDIRECT_URI)) {
-            // Received intent from fitbit server (response)
-            handleIntent(intentData.substring(REDIRECT_URI.length()+1));
-        }
-        else {
-            requestedScope = getScopes();
-            onTokenRequest();
-        }
+        // Retrieve requested scopes
+        requestedScope = getScopes();
     }
 
-    private String accessToken;
-    private String userId;
-    private String scope;
-    private String tokenType;
-    private long expiresIn;
-    private String errorDescription;
-    private String error;
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-    /**
-     * Initialize attributes and when finish call onTokenReceived.
-     * @param intentData URL with auth response.
-     */
-    private void handleIntent(String intentData) {
-        int lastIndex = intentData.indexOf('&');
-        if(lastIndex == -1)
-            lastIndex = intentData.length();
-
-        if(intentData.startsWith("access_token=")) {
-            accessToken = intentData.substring(13, lastIndex);
-        }
-        else if(intentData.startsWith("user_id=")) {
-            userId = intentData.substring(8, lastIndex);
-        }
-        else if(intentData.startsWith("scope=")) {
-            scope = intentData.substring(6, lastIndex);
-        }
-        else if(intentData.startsWith("token_type=")) {
-            tokenType = intentData.substring(11, lastIndex);
-        }
-        else if(intentData.startsWith("expires_in=")) {
-            expiresIn = Long.parseLong(intentData.substring(11), lastIndex);
-        }
-        // When error occurs
-        else if(intentData.startsWith("error_description=")) {
-            errorDescription = intentData.substring(18, lastIndex);
-        }
-        else if(intentData.startsWith("error=")) {
-            error = intentData.substring(6, lastIndex);
-        }
-
-        // Call onTokenReceived when finished to analyze URl otherwise call recursively this method
-        if (intentData.length() == lastIndex)
-            onTokenReceived();
-        else
-            handleIntent(intentData.substring(lastIndex+1));
-    }
-
-    /**
-     * Called when a token is received.
-     */
-    private void onTokenReceived() {
-        long expirationDate = System.currentTimeMillis() + expiresIn;
-        // Save token to shared preferences
-        if(accessToken != null) {
-            SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_pref_fitbit_account), Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(getString(R.string.fitbit_access_token), accessToken);
-            editor.putString(getString(R.string.fitbit_user_id), userId);
-            editor.putString(getString(R.string.fitbit_scope), scope);
-            editor.putString(getString(R.string.fitbit_token_type), tokenType);
-            editor.putLong(getString(R.string.fitbit_expiration_date), expirationDate);
-            editor.apply();
-
-            // Send back token to requesting activity
-            FitbitToken token = new FitbitToken(accessToken, userId, scope, tokenType, expiresIn);
-            onTokenAcquired(token);
-        }
-        else {
-            Log.e(TAG, "Token error = " + error + ", description = " + errorDescription);
-            onTokenAcquired(null);
-        }
+        // Search for a token
+        onTokenRequest();
     }
 
     /**
@@ -154,12 +78,12 @@ public abstract class FitbitConnection extends AppCompatActivity {
         // There isn't a token in shared preferences
 
         // Make request to fitbit server
-        String url = AUTHORIZATION_URI + "?response_type=token" + "&client_id="+CLIENT_ID + "&redirect_uri="+REDIRECT_URI + "&scope="+requestedScope;
+        String url = AUTHORIZATION_URI + "?response_type=token" + "&client_id="+CLIENT_ID + "&redirect_uri="+REDIRECT_URI + "&scope="+requestedScope + "&state="+ getClassIdentifier(getClassName()) ;
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         startActivity(intent);
         // Destroy this activity
-        finish();
+        //finish(); TODO resume?
     }
 
 
@@ -169,12 +93,12 @@ public abstract class FitbitConnection extends AppCompatActivity {
      */
     private FitbitToken getTokenFromSharedPref() {
         SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.shared_pref_fitbit_account), Context.MODE_PRIVATE);
-        accessToken = sharedPreferences.getString(getString(R.string.fitbit_access_token), null);
-        userId = sharedPreferences.getString(getString(R.string.fitbit_user_id), null);
-        scope = sharedPreferences.getString(getString(R.string.fitbit_scope), null);
-        tokenType = sharedPreferences.getString(getString(R.string.fitbit_token_type), null);
+        String accessToken = sharedPreferences.getString(getString(R.string.fitbit_access_token), null);
+        String userId = sharedPreferences.getString(getString(R.string.fitbit_user_id), null);
+        String scope = sharedPreferences.getString(getString(R.string.fitbit_scope), null);
+        String tokenType = sharedPreferences.getString(getString(R.string.fitbit_token_type), null);
         long expirationDate = sharedPreferences.getLong(getString(R.string.fitbit_expiration_date), 0);
-        expiresIn = expirationDate - System.currentTimeMillis();
+        long expiresIn = expirationDate - System.currentTimeMillis();
 
         if(accessToken != null)
             return new FitbitToken(accessToken, userId, scope, tokenType, expiresIn);
@@ -238,9 +162,9 @@ public abstract class FitbitConnection extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Pair<String, JSONObject> response) {
-            // Log error
+            // Log HTTP response
             if(response.first != null)
-                Log.e(TAG, "Requested URL : " + urlRequest + " // Response(GET) HTTP header : " + response.first);
+                Log.i(TAG, "Requested URL : " + urlRequest + " // Response(GET) HTTP header : " + response.first);
             else
                 Log.e(TAG, "Response(GET) null (also header).");
 
@@ -325,9 +249,9 @@ public abstract class FitbitConnection extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Pair<String, JSONObject> response) {
-            // Log error
+            // Log HTTP response
             if(response.first != null)
-                Log.e(TAG, "Response(GET) HTTP header : " + response.first);
+                Log.i(TAG, "Requested URL : " + urlRequest + " // Response(GET) HTTP header : " + response.first);
             else
                 Log.e(TAG, "Response(GET) null (also header).");
 
@@ -349,6 +273,19 @@ public abstract class FitbitConnection extends AppCompatActivity {
      */
     public abstract String getScopes();
 
+    /**
+     * Getter class identifier.
+     * @return Class identifier to set in state parameter of request.
+     */
+    private int getClassIdentifier(String className) {
+        return FitbitCallback.getClassIdentifier(className);
+    }
+
+    /**
+     * Getter class name (should use this.getClass().getName();).
+     * @return Class name of the activity.
+     */
+    public abstract String getClassName();
 
     /**
      * Callback for API response.
