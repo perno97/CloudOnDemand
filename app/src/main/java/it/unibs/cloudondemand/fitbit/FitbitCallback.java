@@ -95,8 +95,7 @@ public class FitbitCallback extends AppCompatActivity {
             editor.putLong(getString(R.string.fitbit_expiration_date), expirationDate);
             editor.apply();
 
-            // Send back token to requesting activity
-            FitbitToken token = new FitbitToken(accessToken, userId, scope, tokenType, expiresIn);
+            // Call requesting activity
             onTokenAcquired(state);
         }
         else {
@@ -135,7 +134,7 @@ public class FitbitCallback extends AppCompatActivity {
     /**
      * Used to get the identifier of requesting activity for resuming later when the token is received.
      * @param className Class name (should call this.getClass().getName()).
-     * @return
+     * @return Class identifier.
      */
     public static int getClassIdentifier(String className) {
         for(int i = 0; i < FITBIT_CLASSES.length; i++) {

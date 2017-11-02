@@ -82,8 +82,6 @@ public abstract class FitbitConnection extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         startActivity(intent);
-        // Destroy this activity
-        //finish(); TODO resume?
     }
 
 
