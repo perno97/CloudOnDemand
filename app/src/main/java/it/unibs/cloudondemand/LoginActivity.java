@@ -23,9 +23,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public static final int CONTENT_FOLDER = 2;
 
     public static final String CONTENT_EXTRA = "content";
+    public static final int TYPE_DOWNLOAD = 3;
 
     private int mContentType;
     private String mContent;
+    private boolean download;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +36,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
-        mContent = intent.getStringExtra(CONTENT_EXTRA);
+
         mContentType = intent.getIntExtra(CONTENT_TYPE_EXTRA, -1);
+        if(mContentType != TYPE_DOWNLOAD)
+            mContent = intent.getStringExtra(CONTENT_EXTRA);
+        else {
+            findViewById(R.id.dropbox_sign_in_button).setVisibility(View.INVISIBLE);
+            download = true;
+        }
 
         //Set onClick listner for google sign in button
         findViewById(R.id.google_sign_in_new_account_button).setOnClickListener(this);
@@ -50,8 +58,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     public static Intent getIntent (Context context, int contentType, String content) {
         Intent intent = new Intent(context, LoginActivity.class);
-        intent.putExtra(CONTENT_TYPE_EXTRA, contentType);
-        intent.putExtra(CONTENT_EXTRA, content);
+        if(contentType != TYPE_DOWNLOAD) {
+            intent.putExtra(CONTENT_TYPE_EXTRA, contentType);
+            intent.putExtra(CONTENT_EXTRA, content);
+        }
+        else
+            intent.putExtra(CONTENT_TYPE_EXTRA, contentType);
         return intent;
     }
 
@@ -102,15 +114,25 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 //Check before if service is running
                 if(GoogleDriveUtil.isUploadServiceRunning())
                     Toast.makeText(this, R.string.wait, Toast.LENGTH_SHORT).show();
-                else
-                    startService(GoogleDriveUtil.getIntent(this, mContentType, mContent, true));
+                else {
+                    if(download) {
+                        Toast.makeText(this, "SIGN OUT TRUE", Toast.LENGTH_SHORT).show();//TODO rimuovere
+                        startActivity(GoogleDriveUtil.getIntent(this,TYPE_DOWNLOAD,null,true));
+                    } else
+                        startService(GoogleDriveUtil.getIntent(this, mContentType, mContent, true));
+                }
                 break;
             case R.id.google_signed_in_button :
                 if(GoogleDriveUtil.isUploadServiceRunning())
                     Toast.makeText(this, R.string.wait, Toast.LENGTH_SHORT).show();
-                else if(Utils.checkInternetConnections(this))
-
-                    startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));
+                else if(Utils.checkInternetConnections(this)) {
+                    if(download) {
+                        Toast.makeText(this, "SIGN OUT FALSE", Toast.LENGTH_SHORT).show();//TODO rimuovere
+                        startActivity(GoogleDriveUtil.getIntent(this,TYPE_DOWNLOAD,null));
+                    }
+                    else
+                        startService(GoogleDriveUtil.getIntent(this, mContentType, mContent));
+                }
                 break;
             case R.id.dropbox_sign_in_button:
                 startActivity(DropboxMainActivity.getIntent(this, mContent));

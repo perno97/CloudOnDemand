@@ -179,10 +179,11 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
 
     public abstract void startDownloading();
 
-    public static Intent getIntentFile(Context context, String destinationPath, String driveId){
+    public static Intent getIntentFile(Context context, String destinationPath, String driveId, boolean signOut){
         Intent intent = new Intent(context, GoogleDriveDownloadFileSingle.class);
         intent.putExtra(DRIVEID_EXTRA, driveId);
         intent.putExtra(LoginActivity.CONTENT_EXTRA, destinationPath);
+        intent.putExtra(GoogleDriveConnection.SIGN_OUT_EXTRA, signOut);
         return intent;
     }
 

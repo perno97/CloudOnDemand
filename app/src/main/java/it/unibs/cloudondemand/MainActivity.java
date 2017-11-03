@@ -60,8 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             // Download button
             case R.id.button2 :
-                Intent intent = new Intent(this, GoogleDriveDownloadActivity.class);
-                startActivity(intent);
+                sendIntent(LoginActivity.TYPE_DOWNLOAD,null);
                 break;
         }
     }

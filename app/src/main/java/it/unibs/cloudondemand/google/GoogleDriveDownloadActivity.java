@@ -1,8 +1,9 @@
 package it.unibs.cloudondemand.google;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -11,7 +12,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import it.unibs.cloudondemand.MainActivity;
 import it.unibs.cloudondemand.R;
 import it.unibs.cloudondemand.databaseManager.FileListDbHelper;
 import it.unibs.cloudondemand.utils.FileListable;
@@ -22,20 +22,25 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
     private final boolean DIRECTORY = true;
     private HashMap<String, String> listFiles;
     private HashMap<String, String> listFolders;
+    private boolean signOut;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());//TODO scegliere utente
+        FileListDbHelper mDbHelper = new FileListDbHelper(getApplicationContext());
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        Intent intent = getIntent();
+        signOut = intent.getBooleanExtra(GoogleDriveConnection.SIGN_OUT_EXTRA, false);
 
         setContentView(R.layout.activity_google_drive_download);
 
-        listFiles = GoogleDriveUtil.getFiles(db);
-        listFolders = GoogleDriveUtil.getFolders(db);
+        String accountId = GoogleDriveUtil.getAccountIdSignedIn(this);
 
-        if(listFiles == null && listFolders == null)
+        listFiles = GoogleDriveUtil.getFiles(db, accountId);
+        listFolders = GoogleDriveUtil.getFolders(db, accountId);
+        if (listFiles == null && listFolders == null)
             Toast.makeText(this, "Nessun file caricato", Toast.LENGTH_SHORT).show();
         else
             showList();
@@ -115,7 +120,7 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
     }
 
     private void downloadFile(String destinationPath, String driveId){
-        startService(GoogleDriveDownloadFile.getIntentFile(getApplicationContext(),  destinationPath, driveId));
+        startService(GoogleDriveDownloadFile.getIntentFile(getApplicationContext(),  destinationPath, driveId, signOut));
     }
 
     private void downloadFolder(String destinationPath, String driveId){

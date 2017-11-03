@@ -39,8 +39,12 @@ public class GoogleDriveUtil {
             case LoginActivity.CONTENT_FOLDER :
                 intent = new Intent(context, GoogleDriveUploadFileFolder.class);
                 break;
+            case LoginActivity.TYPE_DOWNLOAD :
+                intent = new Intent(context, GoogleDriveDownloadActivity.class);
+                break;
         }
-        intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
+        if(content != null)
+            intent.putExtra(LoginActivity.CONTENT_EXTRA, content);
 
         if(signOut)
             intent.putExtra(GoogleDriveConnection.SIGN_OUT_EXTRA, true);
@@ -130,6 +134,31 @@ public class GoogleDriveUtil {
 
         while (cursor.moveToNext()){
             toReturn.add(cursor.getString(cursor.getColumnIndex(FileListContract.UsersList.COLUMN_ACCOUNTID)));
+        }
+        cursor.close();
+        return toReturn;
+    }
+
+    public static ArrayList<String> getAccountNames(SQLiteDatabase db){
+        String[] projection = {FileListContract.UsersList.COLUMN_ACCOUNT_NAME};
+
+        Cursor cursor = db.query(
+                FileListContract.UsersList.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        if(cursor == null || cursor.getCount() == 0)
+            return null;
+
+        ArrayList<String> toReturn = new ArrayList<>();
+
+        while (cursor.moveToNext()){
+            toReturn.add(cursor.getString(cursor.getColumnIndex(FileListContract.UsersList.COLUMN_ACCOUNT_NAME)));
         }
         cursor.close();
         return toReturn;
@@ -243,17 +272,20 @@ public class GoogleDriveUtil {
         db.delete(FileListContract.FileList.TABLE_NAME, selection, selectionArgs);
     }
 
-    public static HashMap<String, String> getFolders(SQLiteDatabase db){
+    public static HashMap<String, String> getFolders(SQLiteDatabase db, String accountId){
         String[] projectionFolder = {
                 FileListContract.FolderList.COLUMN_DRIVEID,
                 FileListContract.FolderList.COLUMN_FOLDERPATH
         };
 
+        String selection = FileListContract.FolderList.COLUMN_ACCOUNTID + " = ?";
+        String[] selectionArgs = {accountId};
+
         Cursor cursorFolders = db.query(
                 FileListContract.FolderList.TABLE_NAME,
                 projectionFolder,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 null
@@ -276,17 +308,20 @@ public class GoogleDriveUtil {
         return toReturn;
     }
 
-    public static HashMap<String, String> getFiles(SQLiteDatabase db){
+    public static HashMap<String, String> getFiles(SQLiteDatabase db, String accountId){
         String[] projectionFile = {
                 FileListContract.FileList.COLUMN_DRIVEID,
                 FileListContract.FileList.COLUMN_FILEPATH,
         };
 
+        String selection = FileListContract.FileList.COLUMN_ACCOUNTID + " = ?";
+        String[] selectionArgs = {accountId};
+
         Cursor cursorFiles = db.query(
                 FileListContract.FileList.TABLE_NAME,                     // The table to query
                 projectionFile,                                           // The columns to return
-                null,                                                     // The columns for the WHERE clause
-                null,                                                     // The values for the WHERE clause
+                selection,                                                     // The columns for the WHERE clause
+                selectionArgs,                                                     // The values for the WHERE clause
                 null,                                                     // don't group the rows
                 null,                                                     // don't filter by row groups
                 null                                                      // The sort order
