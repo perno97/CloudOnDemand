@@ -1,11 +1,14 @@
 package it.unibs.cloudondemand.dropbox;
 
+/**
+ * Classe per il caricamento di file nel cloud Dropbox
+ */
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
@@ -28,26 +31,37 @@ public class DropboxUploadFile extends AsyncTask {
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
 
+    /**
+     * Upload di un file
+     * @param dbxClient client Dropbox
+     * @param file file da caricare
+     * @param context
+     */
     DropboxUploadFile(DbxClientV2 dbxClient, File file, Context context)
     {
         this.dbxClient=dbxClient;
         this.file=file;
         this.context=context;
-        // Initialize attributes
+        // Inzializzazione attributi
         this.mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
+    /**
+     * Operazioni eseguite in Background
+     * @param params
+     * @return
+     */
     @Override
     protected Object doInBackground(Object[] params)
     {
         try{
             InputStream inputStream = new FileInputStream(file);
 
-            // Show notification
+            // Mostra notifica
             ProgressNotification progressNotification = new ProgressNotification(context, context.getString(R.string.dropbox_uploading_file), file.getName(), true);
             mNotificationManager.notify(NOTIFICATION_ID, progressNotification.getNotification());
 
-            // Start upload (Always overwrite existing file)
+            // Inizio upload (Sempre overwrite dei file già caricati)
             dbxClient.files().uploadBuilder(file.getPath()).withMode(WriteMode.OVERWRITE).uploadAndFinish(inputStream);
 
             Log.d("Upload Status", "Login eseguito con successo");
@@ -59,10 +73,13 @@ public class DropboxUploadFile extends AsyncTask {
         return null;
     }
 
+    /**
+     * Notifica di avvenuto caricamento
+     * @param o
+     */
     @Override
     protected void onPostExecute(Object o) {
         super.onPostExecute(o);
-        // Show last notification
         mNotificationManager.notify(NOTIFICATION_ID, new Notification.Builder(context).setContentTitle(context.getString(R.string.dropbox_uploaded)).setContentText(file.getName()).setSmallIcon(ProgressNotification.NOTIFICATION_ICON).build());
     }
 

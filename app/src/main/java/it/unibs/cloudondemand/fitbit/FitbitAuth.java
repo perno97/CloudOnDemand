@@ -1,9 +1,11 @@
 package it.unibs.cloudondemand.fitbit;
 
+/**
+ * Classe per l'autenticazione mediante Fitbit
+ */
+
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -12,10 +14,6 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 
@@ -28,12 +26,20 @@ public class FitbitAuth extends FitbitConnection {
 
     private FitbitToken token;
 
+    /**
+     * Impostazione iniziale del layout
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fitbit_auth);
     }
 
+    /**
+     * Inoltro della richiesta di autenticazione se presente un token
+     * @param token Token acquired.
+     */
     @Override
     public void onTokenAcquired(FitbitToken token) {
         if(token == null) {
@@ -49,7 +55,7 @@ public class FitbitAuth extends FitbitConnection {
     }
 
     /**
-     * Handle response of profile data request.
+     * Gestione della richiesta dei dati del profilo
      */
     private OnAPIResponse profileResponse = new OnAPIResponse() {
         @Override
@@ -78,9 +84,9 @@ public class FitbitAuth extends FitbitConnection {
     };
 
     /**
-     * Util method to retrieve intent to launch for upload.
-     * @param context Context of activity that launch the intent.
-     * @return Intent to launch with startActivity(intent).
+     * Intent per avviare questa activity
+     * @param context contesto richiamante
+     * @return intent del chiamante
      */
     public static Intent getIntent(Context context) {
         return new Intent(context, FitbitAuth.class);

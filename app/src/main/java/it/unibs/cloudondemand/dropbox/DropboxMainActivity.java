@@ -1,19 +1,18 @@
 package it.unibs.cloudondemand.dropbox;
 
+/**
+ * Main Activity di Dropbox, mostra le informazioni dell'account dell'utente
+ */
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dropbox.core.v2.users.FullAccount;
 import com.squareup.picasso.Picasso;
@@ -22,12 +21,15 @@ import java.io.File;
 
 import it.unibs.cloudondemand.LoginActivity;
 import it.unibs.cloudondemand.R;
-import it.unibs.cloudondemand.utils.URI_to_Path;
 
 public class DropboxMainActivity extends AppCompatActivity {
     private static final int IMAGE_REQUEST_CODE = 101;
     private String accessToken;
 
+    /**
+     * Verifica che l'utente sia loggato, in caso contrario ritorna alla login activity
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -40,8 +42,6 @@ public class DropboxMainActivity extends AppCompatActivity {
         String pathFileToUpload = intent.getStringExtra(LoginActivity.CONTENT_EXTRA);
 
         if (!tokenExists()) {
-            //No token
-            //Back to LoginActivity to request
             Intent loginIntent = new Intent(this, DropboxLoginActivity.class);
             loginIntent.putExtra(LoginActivity.CONTENT_EXTRA, pathFileToUpload);
             startActivity(loginIntent);
@@ -50,18 +50,21 @@ public class DropboxMainActivity extends AppCompatActivity {
             return;
         }
 
-        // Retrieve access token from shared pref
+        // Recupera access token da shared pref
         accessToken = retrieveAccessToken();
-        // Retrieve user account info and print on screen
+        // Recupera le credenziali utente e le mostra
         getUserAccount();
 
-        // Start uploading
+        // Inizio upload
         if(pathFileToUpload != null)
             new DropboxUploadFile(DropboxClient.getClient(accessToken), new File(pathFileToUpload), this).execute();
         else
             Log.i("DropboxMain", "No file passed to activity");
     }
 
+    /**
+     * Recupero delle credenziali dell'utente già loggato
+     */
     private void getUserAccount() {
         new UserAccountTask(DropboxClient.getClient(accessToken), new UserAccountTask.TaskDelegate() {
             @Override
@@ -80,12 +83,19 @@ public class DropboxMainActivity extends AppCompatActivity {
         }).execute();
     }
 
+    /**
+     * Verifica della presenza del token
+     * @return boolean che attesta o meno la presenza del token
+     */
     private boolean tokenExists() {
         return retrieveAccessToken() != null;
     }
 
+    /**
+     * Controlla se l'access token è già stato salvato in esecuzioni precedenti dell'applicazione
+     * @return
+     */
     private String retrieveAccessToken() {
-        //check if accessToken is stored on previous app launches
         SharedPreferences prefs = getSharedPreferences(getString(R.string.shared_pref_dropbox_account), Context.MODE_PRIVATE);
         String accessToken = prefs.getString(getString(R.string.dropbox_access_token), null);
         if (accessToken == null) {
@@ -98,6 +108,10 @@ public class DropboxMainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Impostazione della UI con le informazioni dell'utente
+     * @param account informazioni account
+     */
     private void updateUI(FullAccount account) {
         ImageView profile = (ImageView) findViewById(R.id.imageView);
         TextView name = (TextView) findViewById(R.id.name_textView);
@@ -111,6 +125,12 @@ public class DropboxMainActivity extends AppCompatActivity {
                 .into(profile);
     }
 
+    /**
+     * Intent per avviare questa activity
+     * @param context contesto richiamante
+     * @param path content dell'intent
+     * @return intent del chiamante
+     */
     public static Intent getIntent(Context context, String path) {
         Intent intent = new Intent(context, DropboxMainActivity.class);
         intent.putExtra(LoginActivity.CONTENT_EXTRA, path);
