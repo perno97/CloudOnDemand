@@ -140,6 +140,9 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                 }
             }
 
+            /*
+                Creating file in specified folder on Google Drive
+             */
             MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                     .setTitle(fileToUpload.getName())
                     .setStarred(true)
@@ -150,6 +153,9 @@ public abstract class GoogleDriveUploadFile extends GoogleDriveConnection {
                     .await();
         }
 
+        /*
+            Used to show progress
+         */
         private int lastValue = 0;
         @Override
         protected void onProgressUpdate(Integer... values) {

@@ -41,7 +41,7 @@ public abstract class GoogleDriveConnection extends Service implements GoogleApi
     static boolean isRunning;
 
     /**
-     * Extra for calling intent (want to sign out by current account?)
+     * Extra for calling intent (want to sign out from current account?)
      */
     public static final String SIGN_OUT_EXTRA = "signOut";
     // Used to check if user want to sign out

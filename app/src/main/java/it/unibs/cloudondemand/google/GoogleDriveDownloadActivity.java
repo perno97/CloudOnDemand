@@ -27,13 +27,16 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_drive_download);
 
+        /**
+         * Retreive files and folders saved into the database
+         */
         listFiles = GoogleDriveUtil.getFiles(getApplicationContext());
         listFolders = GoogleDriveUtil.getFolders(getApplicationContext());
 
         if(listFiles == null && listFolders == null)
             Toast.makeText(this, "Nessun file caricato", Toast.LENGTH_SHORT).show();
         else
-            showList();
+            showList(); //Show files and folders retreived
     }
 
     private void showList(){
@@ -109,6 +112,9 @@ public class GoogleDriveDownloadActivity extends AppCompatActivity {
         }
     }
 
+    /*
+        Start downloading the single file selected
+     */
     private void downloadFile(String destinationPath, String driveId){
         startService(GoogleDriveDownloadFile.getIntentFile(getApplicationContext(),  destinationPath, driveId));
     }

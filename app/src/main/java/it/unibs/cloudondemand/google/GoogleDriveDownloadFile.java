@@ -39,6 +39,8 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
     private DriveFile driveFile;
 
     private static final String TAG = "GoogleDriveDownFile";
+
+    //Type of content
     public static final int CONTENT_FOLDER = 1;
     public static final int CONTENT_FILE = 0;
 
@@ -179,6 +181,13 @@ public abstract class GoogleDriveDownloadFile extends GoogleDriveConnection {
 
     public abstract void startDownloading();
 
+    /**
+     * Returns the intent to start this activity
+     * @param context Context of the calling instruction
+     * @param destinationPath Where the file must be downloaded
+     * @param driveId File's id
+     * @return Intent to this activity
+     */
     public static Intent getIntentFile(Context context, String destinationPath, String driveId){
         Intent intent = new Intent(context, GoogleDriveDownloadFileSingle.class);
         intent.putExtra(DRIVEID_EXTRA, driveId);
