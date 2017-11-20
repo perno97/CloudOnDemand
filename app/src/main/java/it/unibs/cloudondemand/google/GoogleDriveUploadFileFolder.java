@@ -53,7 +53,7 @@ public class GoogleDriveUploadFileFolder extends GoogleDriveUploadFile {
 
 
     /** TODO Edit comments
-     * Send input to create a folder on drive. Created when is called the callback.
+     * Send message to create a folder on drive. Created when is called the callback.
      * @param parentFolder Drive parent folder, if null parent is root drive folder.
      * @param folder Folder to create.
      */
