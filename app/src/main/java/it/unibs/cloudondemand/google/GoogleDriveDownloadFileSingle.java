@@ -42,7 +42,7 @@ public class GoogleDriveDownloadFileSingle extends GoogleDriveDownloadFile {
     public void onFileDownloaded(File file) {
         if (file == null) {
             Log.e(TAG, "File from Drive not downloaded.");
-            Toast.makeText(this, "Unable download file", Toast.LENGTH_SHORT).show();    //TODO res/strings
+            Toast.makeText(this, "Unable download file", Toast.LENGTH_SHORT).show();    //TODO mettere in res/string
         }
         disconnect();
     }
